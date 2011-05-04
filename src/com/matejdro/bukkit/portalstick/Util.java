@@ -1,5 +1,5 @@
 package com.matejdro.bukkit.portalstick;
-
+//HELLO DER
 import java.util.logging.Logger;
 
 import org.bukkit.Location;
