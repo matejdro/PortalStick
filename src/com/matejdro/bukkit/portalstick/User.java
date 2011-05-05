@@ -10,6 +10,7 @@ public class User {
 	private PlayerInventory inventory;
 	private Location pointOne;
 	private Location pointTwo;
+	private Boolean usingTool;
 	
 	public Portal getBluePortal() {
 		return blueportal;
@@ -49,5 +50,13 @@ public class User {
 
 	public Location getPointOne() {
 		return pointOne;
+	}
+
+	public void setUsingTool(Boolean usingTool) {
+		this.usingTool = usingTool;
+	}
+
+	public Boolean getUsingTool() {
+		return usingTool;
 	}
 }

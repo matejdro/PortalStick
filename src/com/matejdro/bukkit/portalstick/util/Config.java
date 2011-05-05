@@ -22,6 +22,7 @@ public class Config {
 	public static boolean CompactPortal;
 	public static Region GlobalRegion;
 	public static int RegionTool;
+	
 	public static String MessageCannotPlacePortal;
 	public static String MessagePortalStickEnabled;
 	public static String MessagePortalStickDisabled;
@@ -88,13 +89,6 @@ public class Config {
 			if (region.contains(location.toVector()) && location.getWorld().getName().equalsIgnoreCase(region.World))
 				return region;
 		return GlobalRegion;
-	}
-	
-	public static void createRegion(Location one, Location two, String name) {
-		Region region = loadRegion(name);
-		region.settings.remove(Setting.LOCATION);
-		region.settings.put(Setting.LOCATION, one.getWorld().getName() + ":" + one.toVector().toString() + ":" + two.toVector().toString());
-		region.updateLocation();
 	}
 	
 	private static Region loadRegion(String regionName) {

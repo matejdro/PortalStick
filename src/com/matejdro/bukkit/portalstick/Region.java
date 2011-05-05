@@ -3,6 +3,7 @@ package com.matejdro.bukkit.portalstick;
 import java.util.HashMap;
 import java.util.List;
 
+import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.Setting;
@@ -20,6 +21,11 @@ public class Region {
 		Name = name;
 	}
 	
+	public Region(String name, Location one, Location two) {
+		Name = name;
+		setLocation(one, two);
+	}
+	
 	public void updateLocation() {
 		String[] loc = ((String)settings.get(Setting.LOCATION)).split(":");
 		String[] loc1 = loc[1].split(",");
@@ -27,6 +33,12 @@ public class Region {
 		String[] loc2 = loc[2].split(",");
 		PointOne = new Vector(Integer.parseInt(loc2[0]), Integer.parseInt(loc2[1]), Integer.parseInt(loc2[2]));
 		World = loc[0];
+	}
+	
+	public void setLocation(Location one, Location two) {
+		settings.remove(Setting.LOCATION);
+		settings.put(Setting.LOCATION, one.getWorld().getName() + ":" + one.toVector().toString() + ":" + two.toVector().toString());
+		updateLocation();
 	}
 	
 	public boolean contains(Vector vector) {

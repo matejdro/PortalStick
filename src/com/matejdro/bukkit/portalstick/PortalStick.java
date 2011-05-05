@@ -2,19 +2,23 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
-
+import com.matejdro.bukkit.portalstick.commands.BaseCommand;
+import com.matejdro.bukkit.portalstick.commands.RegionTool;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickBlockListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickPlayerListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickVehicleListener;
@@ -36,13 +40,12 @@ public class PortalStick extends JavaPlugin {
 	public static HashSet<Grill> grills = new HashSet<Grill>();
 	
 	public static PortalStick instance;
-	
+	public static List<BaseCommand> commands;
 	public static Config config;
 	public static Permission permissions;
 
 	public static WorldGuardPlugin worldGuard = null;
 
-	@Override
 	public void onDisable() {
 		for (Object o: portals.toArray())
 		{
@@ -64,7 +67,6 @@ public class PortalStick extends JavaPlugin {
 		}
 	}
 
-	@Override
 	public void onEnable() {
 		instance = this;
 		
@@ -74,6 +76,7 @@ public class PortalStick extends JavaPlugin {
 		config = new Config(this);
 		permissions = new Permission(this);
 		
+		//Register events
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BREAK, BlockListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BURN, BlockListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PLACE, BlockListener, Event.Priority.Low, this);
@@ -88,7 +91,20 @@ public class PortalStick extends JavaPlugin {
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_IGNITE, BlockListener, Event.Priority.Low, this);
 
 		worldGuard = (WorldGuardPlugin) this.getServer().getPluginManager().getPlugin("WorldGuard");
+		
+		//Register commands
+		commands.add(new RegionTool());
 
+	}
+	
+	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[]) {
+		if (cmd.getName().equalsIgnoreCase("portal") && args.length > 0) {
+			for (BaseCommand command : commands.toArray(new BaseCommand[0])) {
+				if (command.name.equalsIgnoreCase(args[0]))
+					return command.run(sender, args);
+			}
+		}
+		return false;
 	}
     
     public void placePortal(Block block, Player player, Boolean orange)
@@ -143,12 +159,6 @@ public class PortalStick extends JavaPlugin {
 
     	Boolean vertical = false;
     	
-    	if (!players.containsKey(player.getName())) 
-    	{
-    		User user = new User();
-			players.put(player.getName(), user);
-    	}
-    	
     	PortalCoord portalc = new PortalCoord();
     	
     	User owner = players.get(player.getName());
@@ -156,8 +166,6 @@ public class PortalStick extends JavaPlugin {
     	Portal oldportal = orange ? owner.getOrangePortal() : owner.getBluePortal();
     	if (oldportal == null) oldportal = new Portal();
     	    	
-
-    	    
     	if (face == BlockFace.DOWN || face == BlockFace.UP)
     	{
     		vertical = true;
@@ -353,7 +361,8 @@ public class PortalStick extends JavaPlugin {
 		}
     }
     
-    public void deletePortals(User user) {
+    public void deletePortals(User user)
+    {
     	if (user.getBluePortal() != null) user.getBluePortal().delete();
 		if (user.getOrangePortal() != null) user.getOrangePortal().delete();
     }
