@@ -17,46 +17,44 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 
-public class PortalStickPlayer extends PlayerListener {
+public class PortalStickPlayerListener extends PlayerListener {
 	private PortalStick plugin;
 
-	public PortalStickPlayer(PortalStick instance)
+	public PortalStickPlayerListener(PortalStick instance)
 	{
 		plugin = instance;
 	}		
 	
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
-
+		Region region = Config.getRegion(player.getLocation());
 		HashSet<Byte> tb = new HashSet<Byte>();
-		for (int i : Settings.TransparentBlocks)
+		for (int i : region.getList(Setting.TRANSPARENT_BLOCKS).toArray(new Integer[0]))
 			tb.add((byte) i);
 		
-		if (player.getItemInHand().getTypeId() == Settings.PortalTool && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
+		if (player.getItemInHand().getTypeId() == Config.PortalTool && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
 		{		
-			if (!Settings.EnabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))
+			if (!Config.EnabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))
 			{
-				player.sendMessage(Settings.MessageRestrictedWorld);
+				player.sendMessage(Config.MessageRestrictedWorld);
 				return;
 			}
 			
-				Boolean orange = false;
-				if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)
-					orange = true;
-				if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR ||  tb.contains((byte) event.getClickedBlock().getTypeId()))
-				{
-					List<Block> targetBlocks = event.getPlayer().getLastTwoTargetBlocks(tb, 120);
-					if (targetBlocks.size() != 2) return;
-					Block b = targetBlocks.get(1);
-					plugin.PlacePortal(b, event.getPlayer(), orange);
+			Boolean orange = false;
+			if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)
+				orange = true;
+			if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR ||  tb.contains((byte) event.getClickedBlock().getTypeId()))
+			{
+				List<Block> targetBlocks = event.getPlayer().getLastTwoTargetBlocks(tb, 120);
+				if (targetBlocks.size() != 2) return;
+				Block b = targetBlocks.get(1);
+				plugin.PlacePortal(b, event.getPlayer(), orange);
 
-				}
-				else
-				{
-					plugin.PlacePortal(event.getClickedBlock(), event.getBlockFace(), event.getPlayer(), orange, true);
-				}
-
-			
+			}
+			else
+			{
+				plugin.PlacePortal(event.getClickedBlock(), event.getBlockFace(), event.getPlayer(), orange, true);
+			}
 			//float dir = (float)Math.toDegrees(Math.atan2(player.getLocation().getBlockX() - b.getX(), b.getZ() - player.getLocation().getBlockZ()));
 		}
 
@@ -67,16 +65,16 @@ public class PortalStickPlayer extends PlayerListener {
 			 
 			 Player player = event.getPlayer();
 			 Vector vector = player.getVelocity();
-			 
 			 Block loc = event.getTo().getBlock();
+			 Region region = Config.getRegion(loc.getLocation());
 			 
 			 if (loc.getType() == Material.SUGAR_CANE_BLOCK)
 			 {
-				 for (PortalStickGrill grill: plugin.grills)
+				 for (Grill grill: PortalStick.grills)
 				 {
 					 if (grill.getInside().contains(loc))
 					 {
-						 PortalStickUser user = plugin.players.get(player.getName());
+						 User user = PortalStick.players.get(player.getName());
 						 if (user != null)
 						 {
 								if (user.getBluePortal() != null) user.getBluePortal().delete();
@@ -86,7 +84,7 @@ public class PortalStickPlayer extends PlayerListener {
 						 PlayerInventory inv = player.getInventory();
 						 for (ItemStack i : inv.getContents().clone())
 						 {
-							 if (i != null && i.getTypeId() != Settings.PortalTool)
+							 if (i != null && i.getTypeId() != Config.PortalTool)
 							 {
 								 inv.remove(i);
 							 }
@@ -97,7 +95,7 @@ public class PortalStickPlayer extends PlayerListener {
 			 }
 			
 			 if (player.isInsideVehicle()) return;
-			 if (!plugin.permission(event.getPlayer(), "portalstick.teleport", true)) return;
+			 if (!PortalStick.permission(event.getPlayer(), "portalstick.teleport", true)) return;
 			 
 			 //Aiming assistant: 
 			 double addX = 0.0;
@@ -122,8 +120,8 @@ public class PortalStickPlayer extends PlayerListener {
 				 addZ += 2.0;
 			 }
 				 
-			 PortalStickPortal portal = null;
-			 for (PortalStickPortal p : plugin.portals)
+			 Portal portal = null;
+			 for (Portal p : PortalStick.portals)
 			 {
 				 for (Block b : p.getInside())
 				 {
@@ -139,10 +137,10 @@ public class PortalStickPlayer extends PlayerListener {
 			 if (portal != null)
 			 {
 				 if (!portal.isOpen() || portal.isDisabled()) return;
-				 PortalStickUser owner = portal.getOwner();
+				 User owner = portal.getOwner();
 				 
 				 Location teleport;
-				 PortalStickPortal destination;
+				 Portal destination;
 				 if (portal.isOrange())
 					 destination = owner.getBluePortal();
 				 else
@@ -174,7 +172,7 @@ public class PortalStickPlayer extends PlayerListener {
 	        	}
 				
 				momentum = Math.abs(momentum);
-				momentum = momentum * Settings.VelocityMultiplier;
+				momentum = momentum * region.getInt(Setting.VELOCITY_MULTIPLIER);
 
 				//reposition velocity to match output portal's orientation
 				Vector outvector = player.getVelocity().zero();
@@ -225,7 +223,7 @@ public class PortalStickPlayer extends PlayerListener {
 		 
 		 public void onPlayerDropItem(PlayerDropItemEvent event) {
 			 Block b = event.getPlayer().getLocation().getBlock();
-			 for (PortalStickGrill grill: plugin.grills)
+			 for (Grill grill: PortalStick.grills)
 			 {
 				 for (Block i: grill.getInside())
 				 {
@@ -244,27 +242,27 @@ public class PortalStickPlayer extends PlayerListener {
 		 public void onPlayerQuit(PlayerQuitEvent event) {
 			 Player player = event.getPlayer();
 			 if (PortalStick.players.containsKey(player.getName())) {
-				 PortalStickUser user = plugin.players.get(player.getName());
+				 User user = PortalStick.players.get(player.getName());
 					if (user.getBluePortal() != null) user.getBluePortal().delete();
 					if (user.getOrangePortal() != null) user.getOrangePortal().delete();
-					plugin.players.remove(player.getName());
+					PortalStick.players.remove(player.getName());
 			 }
 		 }
 		 
-		 private Boolean offsetequals(double x, double y, double difference)
-		 {
+	private Boolean offsetequals(double x, double y, double difference)
+	{
 			 return (x + difference >= y && y + difference >= x );
-		 }		
+	}		
 		 
-		 public class EnablePortal implements Runnable {
-			    PortalStickPortal portal = null;
-			    public EnablePortal(PortalStickPortal p){
-			        portal = p;
-			    }
-			    @Override
-			    public void run() {
-			        // this part knows plugin
-			        if (portal != null) portal.setDisabled(false);
-			    }
-			}
+	public class EnablePortal implements Runnable {
+		Portal portal = null;
+		public EnablePortal(Portal p){
+			portal = p;
+		}
+		@Override
+		public void run() {
+			// this part knows plugin
+			if (portal != null) portal.setDisabled(false);
+		}
+	}
 }

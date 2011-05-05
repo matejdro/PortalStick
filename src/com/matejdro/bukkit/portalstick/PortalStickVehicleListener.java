@@ -7,21 +7,15 @@ import org.bukkit.event.vehicle.VehicleListener;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.util.Vector;
 
-public class PortalStickVehicle extends VehicleListener {
-	private PortalStick plugin;
-	
-	public PortalStickVehicle(PortalStick instance)
-	{
-		plugin = instance;
-	}
+public class PortalStickVehicleListener extends VehicleListener {
 	
 	public void onVehicleMove(VehicleMoveEvent event) {
 		Vehicle vehicle = event.getVehicle();
 		 Vector vector = vehicle.getVelocity();
 		 Block loc = event.getTo().getBlock();
 			
-		 PortalStickPortal portal = null;
-		 for (PortalStickPortal p : plugin.portals)
+		 Portal portal = null;
+		 for (Portal p : PortalStick.portals)
 		 {
 			 for (Block b : p.getInside())
 			 {
@@ -37,10 +31,10 @@ public class PortalStickVehicle extends VehicleListener {
 		 if (portal != null)
 		 {
 			 if (!portal.isOpen()) return;
-			 PortalStickUser owner = portal.getOwner();
+			 User owner = portal.getOwner();
 			 
 			 Location teleport;
-			 PortalStickPortal destination;
+			 Portal destination;
 			 if (portal.isOrange())
 				 destination = owner.getBluePortal();
 			 else
@@ -104,7 +98,6 @@ public class PortalStickVehicle extends VehicleListener {
        		break;
        	}		        	
 			 
-			
 			 vehicle.setFallDistance(0);
 			 			 
 			 vehicle.teleport(teleport);
@@ -112,7 +105,6 @@ public class PortalStickVehicle extends VehicleListener {
 			 teleport.setYaw(yaw);
 			 teleport.setPitch(pitch);
 			 vehicle.setVelocity(outvector);
-			 
 			 
 		 }
 	}

@@ -5,17 +5,17 @@ import java.util.HashSet;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
-public class PortalStickGrill {
+public class Grill {
 	private HashSet<Block> border;
 	private HashSet<Block> inside;
 	
-	public PortalStickGrill()
+	public Grill()
 	{
 		border = new HashSet<Block>();
 		inside = new HashSet<Block>();
 	}
 	
-	public PortalStickGrill(HashSet<Block> Border, HashSet<Block> Inside)
+	public Grill(HashSet<Block> Border, HashSet<Block> Inside)
 	{
 		border = Border;
 		inside = Inside;

@@ -8,25 +8,25 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
-public class PortalStickPortal {
+public class Portal {
 	private Location teleport;
 	private HashSet<Block> border;
 	private HashSet<Block> inside;
 	private boolean vertical;
-	private PortalStickUser owner;
+	private User owner;
 	private Boolean orange;
 	private Boolean open = false;
 	private boolean disabled = false;
 	BlockFace teleportface;
 	private HashMap<Location, Integer> oldblocks = new HashMap<Location, Integer>();
 	
-	public PortalStickPortal()
+	public Portal()
 	{
 		border = new HashSet<Block>();
 		inside = new HashSet<Block>();
 	}
 	
-	public PortalStickPortal(Location Teleport, HashSet<Block> Border, HashSet<Block> Inside, PortalStickUser Owner, Boolean Orange, Boolean Vertical, BlockFace Teleportface)
+	public Portal(Location Teleport, HashSet<Block> Border, HashSet<Block> Inside, User Owner, Boolean Orange, Boolean Vertical, BlockFace Teleportface)
 	{
 		teleport = Teleport;
 		border = Border;
@@ -146,7 +146,7 @@ public class PortalStickPortal {
 		return teleport;
 	}
 	
-	public PortalStickUser getOwner()
+	public User getOwner()
 	{
 		return owner;
 	}
