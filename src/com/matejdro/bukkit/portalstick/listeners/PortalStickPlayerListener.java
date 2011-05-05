@@ -17,14 +17,15 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
-import com.matejdro.bukkit.portalstick.Config;
+
 import com.matejdro.bukkit.portalstick.Grill;
-import com.matejdro.bukkit.portalstick.Permission;
 import com.matejdro.bukkit.portalstick.Portal;
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
-import com.matejdro.bukkit.portalstick.Setting;
 import com.matejdro.bukkit.portalstick.User;
+import com.matejdro.bukkit.portalstick.util.Config;
+import com.matejdro.bukkit.portalstick.util.Permission;
+import com.matejdro.bukkit.portalstick.util.Setting;
 
 public class PortalStickPlayerListener extends PlayerListener {
 	

@@ -1,8 +1,9 @@
-package com.matejdro.bukkit.portalstick;
+package com.matejdro.bukkit.portalstick.util;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import com.matejdro.bukkit.portalstick.PortalStick;
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 

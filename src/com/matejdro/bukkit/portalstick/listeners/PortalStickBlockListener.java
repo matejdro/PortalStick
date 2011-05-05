@@ -10,13 +10,14 @@ import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-import com.matejdro.bukkit.portalstick.Config;
+
 import com.matejdro.bukkit.portalstick.Grill;
-import com.matejdro.bukkit.portalstick.Permission;
 import com.matejdro.bukkit.portalstick.Portal;
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
-import com.matejdro.bukkit.portalstick.Setting;
+import com.matejdro.bukkit.portalstick.util.Config;
+import com.matejdro.bukkit.portalstick.util.Permission;
+import com.matejdro.bukkit.portalstick.util.Setting;
 
 public class PortalStickBlockListener extends BlockListener {
 	private PortalStick plugin;

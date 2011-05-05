@@ -1,4 +1,4 @@
-package com.matejdro.bukkit.portalstick;
+package com.matejdro.bukkit.portalstick.util;
 //hello matej is this working?
 import java.util.logging.Logger;
 

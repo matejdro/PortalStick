@@ -1,4 +1,4 @@
-package com.matejdro.bukkit.portalstick;
+package com.matejdro.bukkit.portalstick.util;
 
 import java.util.Arrays;
 

@@ -1,4 +1,4 @@
-package com.matejdro.bukkit.portalstick;
+package com.matejdro.bukkit.portalstick.util;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -6,6 +6,9 @@ import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.util.config.Configuration;
+
+import com.matejdro.bukkit.portalstick.PortalStick;
+import com.matejdro.bukkit.portalstick.Region;
 
 public class Config {
 	

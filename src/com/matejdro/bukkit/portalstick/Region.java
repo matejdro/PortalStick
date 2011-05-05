@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.bukkit.util.Vector;
 
+import com.matejdro.bukkit.portalstick.util.Setting;
+
 public class Region {
 	
 	public HashMap<Setting, Object> settings = new HashMap<Setting, Object>();
