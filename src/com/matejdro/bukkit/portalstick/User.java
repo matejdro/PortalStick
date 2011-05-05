@@ -10,7 +10,7 @@ public class User {
 	private PlayerInventory inventory;
 	private Location pointOne;
 	private Location pointTwo;
-	private Boolean usingTool;
+	private Boolean usingTool = false;
 	
 	public Portal getBluePortal() {
 		return blueportal;

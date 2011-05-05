@@ -21,11 +21,6 @@ public class Region {
 		Name = name;
 	}
 	
-	public Region(String name, Location one, Location two) {
-		Name = name;
-		setLocation(one, two);
-	}
-	
 	public void updateLocation() {
 		String[] loc = ((String)settings.get(Setting.LOCATION)).split(":");
 		String[] loc1 = loc[1].split(",");

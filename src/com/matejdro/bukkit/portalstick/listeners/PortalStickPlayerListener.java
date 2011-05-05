@@ -26,6 +26,7 @@ import com.matejdro.bukkit.portalstick.User;
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.Setting;
+import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalStickPlayerListener extends PlayerListener {
 	
@@ -41,6 +42,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		if (event.isCancelled()) return;
 		
 		Player player = event.getPlayer();
+		User user = PortalStick.players.get(player.getName());
 		Region region = Config.getRegion(player.getLocation());
 		HashSet<Byte> tb = new HashSet<Byte>();
 		for (int i : region.getList(Setting.TRANSPARENT_BLOCKS).toArray(new Integer[0]))
@@ -70,6 +72,19 @@ public class PortalStickPlayerListener extends PlayerListener {
 				plugin.placePortal(event.getClickedBlock(), event.getBlockFace(), event.getPlayer(), orange, true);
 			}
 			//float dir = (float)Math.toDegrees(Math.atan2(player.getLocation().getBlockX() - b.getX(), b.getZ() - player.getLocation().getBlockZ()));
+		}
+		else if (user.getUsingTool() && player.getItemInHand().getTypeId() == Config.RegionTool)
+		{
+			switch (event.getAction()) {
+				case RIGHT_CLICK_BLOCK:
+					user.setPointTwo(event.getClickedBlock().getLocation());
+					Util.sendMessage(player, "&aRegion point two set`nType /portal setregion to save the region");
+					break;
+				case LEFT_CLICK_BLOCK:
+					user.setPointOne(event.getClickedBlock().getLocation());
+					Util.sendMessage(player, "&aRegion point one set`nType /portal setregion to save the region");
+					break;
+			}
 		}
 
 	}

@@ -19,6 +19,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.matejdro.bukkit.portalstick.commands.BaseCommand;
 import com.matejdro.bukkit.portalstick.commands.RegionTool;
+import com.matejdro.bukkit.portalstick.commands.SetRegion;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickBlockListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickPlayerListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickVehicleListener;
@@ -94,6 +95,7 @@ public class PortalStick extends JavaPlugin {
 		
 		//Register commands
 		commands.add(new RegionTool());
+		commands.add(new SetRegion());
 
 	}
 	

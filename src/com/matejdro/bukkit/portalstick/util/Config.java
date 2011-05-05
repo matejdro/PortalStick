@@ -1,6 +1,6 @@
 package com.matejdro.bukkit.portalstick.util;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -14,7 +14,7 @@ public class Config {
 	
 	public static PortalStick plugin;
 	private static Configuration config;
-	private static List<Region> regions = new ArrayList<Region>();
+	private static HashMap<String, Region> regions = new HashMap<String, Region>();
 	
 	public static HashSet<String> EnabledWorlds;
 	public static boolean DeleteOnQuit;
@@ -76,22 +76,33 @@ public class Config {
         
         //Load all regions
         for (String regionName : config.getKeys("regions"))
-        	regions.add(loadRegion(regionName));
+        	regions.put(regionName, loadRegion(regionName));
 		
-		//Attempt save
-		if (!config.save())
-			Util.severe("Error while writing to config.yml");
+		save();
 
 	}
 
 	public static Region getRegion(Location location) {
-		for (Region region : regions.toArray(new Region[0]))
+		for (Region region : regions.values())
 			if (region.contains(location.toVector()) && location.getWorld().getName().equalsIgnoreCase(region.World))
 				return region;
 		return GlobalRegion;
 	}
 	
+	public static Region getRegion(String name) {
+		return regions.get(name.toLowerCase());
+	}
+	
+	public static void createRegion(String name, Location one, Location two) {
+		name = name.toLowerCase();
+		Region region = loadRegion(name);
+		regions.put(name, region);
+		region.setLocation(one, two);
+		save();
+	}
+	
 	private static Region loadRegion(String regionName) {
+		regionName = regionName.toLowerCase();
 		Region region = new Region(regionName);
 		for (Setting setting : Setting.values()) {
 			Object prop = config.getProperty(mkNode(region.Name, setting.getYaml()));
@@ -101,6 +112,7 @@ public class Config {
     			region.settings.put(setting, prop);
     		config.setProperty(mkNode(region.Name, setting.getYaml()), region.settings.get(setting));
     	}
+		save();
 		region.updateLocation();
 		return region;
 	}
@@ -109,6 +121,11 @@ public class Config {
 		if (region.equalsIgnoreCase("global"))
 			return "global." + node;
 		return "regions." + region + "." + node;
+	}
+	
+	private static void save() {
+		if (!config.save())
+			Util.severe("Error while writing to config.yml");
 	}
 	
 }
