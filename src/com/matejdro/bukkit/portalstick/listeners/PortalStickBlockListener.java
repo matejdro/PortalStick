@@ -12,28 +12,22 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 
 import com.matejdro.bukkit.portalstick.Grill;
+import com.matejdro.bukkit.portalstick.GrillManager;
 import com.matejdro.bukkit.portalstick.Portal;
-import com.matejdro.bukkit.portalstick.PortalStick;
+import com.matejdro.bukkit.portalstick.PortalManager;
 import com.matejdro.bukkit.portalstick.Region;
-import com.matejdro.bukkit.portalstick.util.Config;
+import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.Setting;
 
 public class PortalStickBlockListener extends BlockListener {
-	private PortalStick plugin;
-
-	public PortalStickBlockListener(PortalStick instance)
-	{
-		plugin = instance;
-	}
-	
 	
 	public void onBlockBreak(BlockBreakEvent event) {
-		Region region = Config.getRegion(event.getBlock().getLocation());
+		Region region = RegionManager.getRegion(event.getBlock().getLocation());
 		Material type = event.getBlock().getType();
 		if (type == Material.WOOL)
 		{
-			for (Portal p : PortalStick.portals)
+			for (Portal p : PortalManager.portals)
 			 {
 				 for (Block b : p.getBorder())
 				 {
@@ -65,7 +59,7 @@ public class PortalStickBlockListener extends BlockListener {
 		
 		if (type == Material.SUGAR_CANE_BLOCK)
 		{
-			for (Grill grill: PortalStick.grills)
+			for (Grill grill: GrillManager.grills)
 			 {
 				 if (grill.getInside().contains(event.getBlock()))
 				 {
@@ -77,7 +71,7 @@ public class PortalStickBlockListener extends BlockListener {
 		}
 		
 		if (event.getBlock().getTypeId() == region.getInt(Setting.GRILL_MATERIAL))
-			for (Grill grill: PortalStick.grills)
+			for (Grill grill: GrillManager.grills)
 			 {
 				 if (grill.getBorder().contains(event.getBlock()))
 				 {
@@ -93,7 +87,7 @@ public class PortalStickBlockListener extends BlockListener {
 	public void onBlockBurn(BlockBurnEvent event) {
 		if (event.getBlock().getType() != Material.WOOL) return;
 		
-		for (Portal p : PortalStick.portals)
+		for (Portal p : PortalManager.portals)
 		 {
 			 for (Block b : p.getBorder())
 			 {
@@ -124,7 +118,7 @@ public class PortalStickBlockListener extends BlockListener {
 		 
 		 if (block == Material.RAILS || block == Material.POWERED_RAIL || block == Material.DETECTOR_RAIL) return;
 		 
-		 for (Portal p : PortalStick.portals)
+		 for (Portal p : PortalManager.portals)
 		 {
 			 for (Block b : p.getInside())
 			 {
@@ -142,7 +136,7 @@ public class PortalStickBlockListener extends BlockListener {
 	 public void onBlockPhysics(BlockPhysicsEvent event) {
 		 if (event.getBlock().getType() != Material.SUGAR_CANE_BLOCK) return;
 		 
-		 for (Grill grill: PortalStick.grills)
+		 for (Grill grill: GrillManager.grills)
 		 {
 			 if (grill.getInside().contains(event.getBlock()))
 			 {
@@ -159,7 +153,7 @@ public class PortalStickBlockListener extends BlockListener {
 		 if (event.getCause() == IgniteCause.FLINT_AND_STEEL)
 		 {
 			 if (!Permission.createGrill(event.getPlayer())) return;
-			 if (plugin.placeEmancipationGrill(event.getBlock().getRelative(0, -1, 0), event.getPlayer())) event.setCancelled(true);
+			 if (GrillManager.placeEmancipationGrill(event.getBlock().getRelative(0, -1, 0), event.getPlayer())) event.setCancelled(true);
 		 }
 			 
 	 }

@@ -28,7 +28,7 @@ public class Grill {
 			b.setType(Material.AIR);
 		}
 		
-		PortalStick.grills.remove(this);
+		GrillManager.grills.remove(this);
 	}
 		
 	public void create()

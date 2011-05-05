@@ -8,10 +8,10 @@ import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.Portal;
-import com.matejdro.bukkit.portalstick.PortalStick;
+import com.matejdro.bukkit.portalstick.PortalManager;
 import com.matejdro.bukkit.portalstick.Region;
+import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.User;
-import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Setting;
 
 public class PortalStickVehicleListener extends VehicleListener {
@@ -20,13 +20,13 @@ public class PortalStickVehicleListener extends VehicleListener {
 		Vehicle vehicle = event.getVehicle();
 		Vector vector = vehicle.getVelocity();
 		Block loc = event.getTo().getBlock();
-		Region region = Config.getRegion(loc.getLocation());
+		Region region = RegionManager.getRegion(loc.getLocation());
 		
 		if (!region.getBoolean(Setting.TELEPORT_VEHICLES))
 			return;
 			
 		Portal portal = null;
-		for (Portal p : PortalStick.portals)
+		for (Portal p : PortalManager.portals)
 		{
 			for (Block b : p.getInside())
 			{
@@ -118,9 +118,9 @@ public class PortalStickVehicleListener extends VehicleListener {
 		 }
 	}
 	
-	 private Boolean offsetequals(double x, double y, double difference)
-	 {
-		 return (x + difference >= y && y + difference >= x );
-	 }
+	private Boolean offsetequals(double x, double y, double difference)
+	{
+		return (x + difference >= y && y + difference >= x );
+	}
 
 }

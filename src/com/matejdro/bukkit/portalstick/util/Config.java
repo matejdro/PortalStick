@@ -1,20 +1,18 @@
 package com.matejdro.bukkit.portalstick.util;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import org.bukkit.Location;
 import org.bukkit.util.config.Configuration;
 
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
+import com.matejdro.bukkit.portalstick.RegionManager;
 
 public class Config {
 	
 	public static PortalStick plugin;
 	private static Configuration config;
-	private static HashMap<String, Region> regions = new HashMap<String, Region>();
 	
 	public static HashSet<String> EnabledWorlds;
 	public static boolean DeleteOnQuit;
@@ -63,9 +61,6 @@ public class Config {
 		MessagePortalStickEnabled = config.getString("messages.portal-stick-enabled");
 		MessagePortalStickDisabled = config.getString("messages.portal-stick-disabled");
 		MessageRestrictedWorld = config.getString("messages.restricted-world");
-		
-		//Load global region
-		GlobalRegion = loadRegion("global");
         
         //Load main settings
         EnabledWorlds = new HashSet<String>(config.getStringList("main.enabled-worlds", null));
@@ -76,34 +71,13 @@ public class Config {
         
         //Load all regions
         for (String regionName : config.getKeys("regions"))
-        	regions.put(regionName, loadRegion(regionName));
-		
-		save();
+        	RegionManager.loadRegion(regionName);
+        
+        save();
 
 	}
-
-	public static Region getRegion(Location location) {
-		for (Region region : regions.values())
-			if (region.contains(location.toVector()) && location.getWorld().getName().equalsIgnoreCase(region.World))
-				return region;
-		return GlobalRegion;
-	}
 	
-	public static Region getRegion(String name) {
-		return regions.get(name.toLowerCase());
-	}
-	
-	public static void createRegion(String name, Location one, Location two) {
-		name = name.toLowerCase();
-		Region region = loadRegion(name);
-		regions.put(name, region);
-		region.setLocation(one, two);
-		save();
-	}
-	
-	private static Region loadRegion(String regionName) {
-		regionName = regionName.toLowerCase();
-		Region region = new Region(regionName);
+	public static void loadRegionSettings(Region region) {
 		for (Setting setting : Setting.values()) {
 			Object prop = config.getProperty(mkNode(region.Name, setting.getYaml()));
     		if (prop == null)
@@ -112,9 +86,7 @@ public class Config {
     			region.settings.put(setting, prop);
     		config.setProperty(mkNode(region.Name, setting.getYaml()), region.settings.get(setting));
     	}
-		save();
 		region.updateLocation();
-		return region;
 	}
 	
 	private static String mkNode(String node, String region) {

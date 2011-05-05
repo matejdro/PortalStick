@@ -19,9 +19,12 @@ import org.bukkit.util.Vector;
 
 
 import com.matejdro.bukkit.portalstick.Grill;
+import com.matejdro.bukkit.portalstick.GrillManager;
 import com.matejdro.bukkit.portalstick.Portal;
+import com.matejdro.bukkit.portalstick.PortalManager;
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
+import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.User;
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Permission;
@@ -43,7 +46,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		
 		Player player = event.getPlayer();
 		User user = PortalStick.players.get(player.getName());
-		Region region = Config.getRegion(player.getLocation());
+		Region region = RegionManager.getRegion(player.getLocation());
 		HashSet<Byte> tb = new HashSet<Byte>();
 		for (int i : region.getList(Setting.TRANSPARENT_BLOCKS).toArray(new Integer[0]))
 			tb.add((byte) i);
@@ -64,12 +67,11 @@ public class PortalStickPlayerListener extends PlayerListener {
 				List<Block> targetBlocks = event.getPlayer().getLastTwoTargetBlocks(tb, 120);
 				if (targetBlocks.size() != 2) return;
 				Block b = targetBlocks.get(1);
-				plugin.placePortal(b, event.getPlayer(), orange);
-
+				PortalManager.placePortal(b, event.getPlayer(), orange);
 			}
 			else
 			{
-				plugin.placePortal(event.getClickedBlock(), event.getBlockFace(), event.getPlayer(), orange, true);
+				PortalManager.placePortal(event.getClickedBlock(), event.getBlockFace(), event.getPlayer(), orange, true);
 			}
 			//float dir = (float)Math.toDegrees(Math.atan2(player.getLocation().getBlockX() - b.getX(), b.getZ() - player.getLocation().getBlockZ()));
 		}
@@ -96,17 +98,17 @@ public class PortalStickPlayerListener extends PlayerListener {
 		Player player = event.getPlayer();
 		Vector vector = player.getVelocity();
 		Block loc = event.getTo().getBlock();
-		Region regionTo = Config.getRegion(event.getTo());
-		Region regionFrom = Config.getRegion(event.getFrom());
+		Region regionTo = RegionManager.getRegion(event.getTo());
+		Region regionFrom = RegionManager.getRegion(event.getFrom());
 		User user = PortalStick.players.get(player.getName());
 		
 		//check for changing regions
-		plugin.checkPlayerMove(player, regionFrom, regionTo);
+		PortalManager.checkPlayerMove(player, regionFrom, regionTo);
 		
 		//emancipation grill
 		if (loc.getType() == Material.SUGAR_CANE_BLOCK && regionTo.getBoolean(Setting.ENABLE_GRILL))
 		{
-			for (Grill grill: PortalStick.grills)
+			for (Grill grill: GrillManager.grills)
 			{
 				if (grill.getInside().contains(loc))
 				{
@@ -117,7 +119,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 					}
 					if (regionTo.getBoolean(Setting.GRILLS_CLEAR_INVENTORY))
 					{
-						plugin.setPortalInventory(player);
+						PortalManager.setPortalInventory(player);
 					}
 				}
 			}
@@ -150,7 +152,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		}
 				 
 		Portal portal = null;
-		for (Portal p : PortalStick.portals)
+		for (Portal p : PortalManager.portals)
 		{
 			for (Block b : p.getInside())
 			{
@@ -250,7 +252,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		if (event.isCancelled()) return;
 		
 		Block b = event.getPlayer().getLocation().getBlock();
-		for (Grill grill: PortalStick.grills)
+		for (Grill grill: GrillManager.grills)
 		{
 			for (Block i: grill.getInside())
 			{
@@ -267,7 +269,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 	
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
 		if (event.isCancelled())
-			plugin.checkPlayerMove(event.getPlayer(), Config.getRegion(event.getFrom()), Config.getRegion(event.getTo()));
+			PortalManager.checkPlayerMove(event.getPlayer(), RegionManager.getRegion(event.getFrom()), RegionManager.getRegion(event.getTo()));
 	}
 		 
 	public void onPlayerQuit(PlayerQuitEvent event)
@@ -275,8 +277,8 @@ public class PortalStickPlayerListener extends PlayerListener {
 		Player player = event.getPlayer();
 		User user = PortalStick.players.get(player.getName());
 		if (Config.DeleteOnQuit)
-			plugin.deletePortals(user);			
-		Region region = Config.getRegion(player.getLocation());
+			PortalManager.deletePortals(user);			
+		Region region = RegionManager.getRegion(player.getLocation());
 		if (region.Name != "global" && region.getBoolean(Setting.UNIQUE_INVENTORY))
 			player.getInventory().setContents(user.getInventory().getContents());
 		PortalStick.players.remove(player.getName());
@@ -287,7 +289,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		Player player = event.getPlayer();
 		User user = new User();
 		PortalStick.players.put(player.getName(), user);
-		Region region = Config.getRegion(player.getLocation());
+		Region region = RegionManager.getRegion(player.getLocation());
 		if (!region.Name.equals("global") && region.getBoolean(Setting.UNIQUE_INVENTORY))
 			user.setInventory(player.getInventory());
 	}

@@ -72,7 +72,7 @@ public class Portal {
     	}
 
 		
-		PortalStick.portals.remove(this);
+		PortalManager.portals.remove(this);
 	}
 	
 	public void open()
