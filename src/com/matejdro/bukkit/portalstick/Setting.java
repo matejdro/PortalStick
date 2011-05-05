@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public enum Setting {
 	
-	ENABLE_PORTALSTICK("enable-portalstick", true),
+	ENABLE_PORTALS("enable-portalstick", true),
 	TELEPORT_VEHICLES("teleport-vehicles", true),
 	CHECK_WORLDGUARD("obey-worldguard-permissions", false),
 	ENABLE_GRILL("enable-emancipation-grill", true),

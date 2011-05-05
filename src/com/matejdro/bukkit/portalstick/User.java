@@ -1,44 +1,53 @@
 package com.matejdro.bukkit.portalstick;
 
-import org.bukkit.inventory.Inventory;
+import org.bukkit.Location;
+import org.bukkit.inventory.PlayerInventory;
 
 
 public class User {
 	private Portal blueportal;
 	private Portal orangeportal;
-	private Inventory inventory;
+	private PlayerInventory inventory;
+	private Location pointOne;
+	private Location pointTwo;
 	
-	public User()
-	{
-		
-	}
-	
-	public Portal getBluePortal()
-	{
+	public Portal getBluePortal() {
 		return blueportal;
 	}
 	
-	public void setBluePortal(Portal portal)
-	{
+	public void setBluePortal(Portal portal) {
 		blueportal = portal;
 	}
 	
-	public Portal getOrangePortal()
-	{
+	public Portal getOrangePortal() {
 		return orangeportal;
 	}
 	
-	public void setOrangePortal(Portal portal)
-	{
+	public void setOrangePortal(Portal portal) {
 		orangeportal = portal;
 	}
 	
-	public Inventory getInventory()
-	{
+	public PlayerInventory getInventory() {
 		return inventory;
 	}
 	
-	public void setInventory(Inventory inv) {
+	public void setInventory(PlayerInventory inv) {
 		inventory = inv;
+	}
+
+	public void setPointTwo(Location positiontwo) {
+		this.pointTwo = positiontwo;
+	}
+
+	public Location getPointTwo() {
+		return pointTwo;
+	}
+
+	public void setPointOne(Location positionone) {
+		this.pointOne = positionone;
+	}
+
+	public Location getPointOne() {
+		return pointOne;
 	}
 }

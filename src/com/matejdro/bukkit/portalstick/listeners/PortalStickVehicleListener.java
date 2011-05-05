@@ -1,4 +1,4 @@
-package com.matejdro.bukkit.portalstick;
+package com.matejdro.bukkit.portalstick.listeners;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -6,6 +6,10 @@ import org.bukkit.entity.Vehicle;
 import org.bukkit.event.vehicle.VehicleListener;
 import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.util.Vector;
+
+import com.matejdro.bukkit.portalstick.Portal;
+import com.matejdro.bukkit.portalstick.PortalStick;
+import com.matejdro.bukkit.portalstick.User;
 
 public class PortalStickVehicleListener extends VehicleListener {
 	

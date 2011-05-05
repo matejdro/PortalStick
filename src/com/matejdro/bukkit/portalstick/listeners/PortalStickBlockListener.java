@@ -1,4 +1,4 @@
-package com.matejdro.bukkit.portalstick;
+package com.matejdro.bukkit.portalstick.listeners;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -9,6 +9,14 @@ import org.bukkit.event.block.BlockIgniteEvent.IgniteCause;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+
+import com.matejdro.bukkit.portalstick.Config;
+import com.matejdro.bukkit.portalstick.Grill;
+import com.matejdro.bukkit.portalstick.Permission;
+import com.matejdro.bukkit.portalstick.Portal;
+import com.matejdro.bukkit.portalstick.PortalStick;
+import com.matejdro.bukkit.portalstick.Region;
+import com.matejdro.bukkit.portalstick.Setting;
 
 public class PortalStickBlockListener extends BlockListener {
 	private PortalStick plugin;
@@ -72,7 +80,7 @@ public class PortalStickBlockListener extends BlockListener {
 			 {
 				 if (grill.getBorder().contains(event.getBlock()))
 				 {
-					 if (!PortalStick.permission(event.getPlayer(), "portalstick.deletegrill", true)) return;
+					 if (!Permission.deleteGrill(event.getPlayer())) return;
 					 grill.delete();
 					 return;
 				 }
@@ -149,9 +157,8 @@ public class PortalStickBlockListener extends BlockListener {
 		 
 		 if (event.getCause() == IgniteCause.FLINT_AND_STEEL)
 		 {
-			 if (!PortalStick.permission(event.getPlayer(), "portalstick.creategrill", true)) return;
-			 if (plugin.PlaceEmancipationGrill(event.getBlock().getRelative(0, -1, 0), event.getPlayer())) event.setCancelled(true);
-			 
+			 if (!Permission.createGrill(event.getPlayer())) return;
+			 if (plugin.placeEmancipationGrill(event.getBlock().getRelative(0, -1, 0), event.getPlayer())) event.setCancelled(true);
 		 }
 			 
 	 }

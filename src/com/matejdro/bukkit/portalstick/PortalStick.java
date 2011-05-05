@@ -2,6 +2,7 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.Material;
@@ -9,10 +10,13 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.nijikokun.bukkit.Permissions.Permissions;
+import com.matejdro.bukkit.portalstick.listeners.PortalStickBlockListener;
+import com.matejdro.bukkit.portalstick.listeners.PortalStickPlayerListener;
+import com.matejdro.bukkit.portalstick.listeners.PortalStickVehicleListener;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 public class PortalStick extends JavaPlugin {
@@ -29,8 +33,7 @@ public class PortalStick extends JavaPlugin {
 	public static PortalStick instance;
 	
 	public static Config config;
-		
-	public static Plugin permissions = null;
+	public static Permission permissions;
 
 	public static WorldGuardPlugin worldGuard = null;
 
@@ -47,7 +50,13 @@ public class PortalStick extends JavaPlugin {
 			Grill g = (Grill) o;
 			g.delete();
 		}
-
+		
+		for (Map.Entry<String, User> entry : players.entrySet()) {
+			Player player = getServer().getPlayer(entry.getKey());
+			User user = entry.getValue();
+			if (player != null)
+				player.getInventory().setContents(user.getInventory().getContents());
+		}
 	}
 
 	@Override
@@ -58,33 +67,26 @@ public class PortalStick extends JavaPlugin {
 		BlockListener = new PortalStickBlockListener(this);
 		VehicleListener = new PortalStickVehicleListener();
 		config = new Config(this);
-				
+		permissions = new Permission(this);
+		
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BREAK, BlockListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BURN, BlockListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PLACE, BlockListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_INTERACT, PlayerListener, Event.Priority.Monitor, this);
 		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_MOVE, PlayerListener, Event.Priority.Low, this);	
-		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, PlayerListener, Event.Priority.Low, this);		
+		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, PlayerListener, Event.Priority.Monitor, this);
+		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, PlayerListener, Event.Priority.Monitor, this);
+		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_TELEPORT, PlayerListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.VEHICLE_MOVE, VehicleListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_DROP_ITEM, PlayerListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PHYSICS, BlockListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_IGNITE, BlockListener, Event.Priority.Low, this);
 
-		permissions = this.getServer().getPluginManager().getPlugin("Permissions");
 		worldGuard = (WorldGuardPlugin) this.getServer().getPluginManager().getPlugin("WorldGuard");
 
 	}
-			
-    public static Boolean permission(Player player, String line, Boolean def)
-    {
-    	if (permissions != null && player != null) {
-    		return (((Permissions) permissions).getHandler()).has(player, line);
-    	} else {
-    		return def;
-    	}
-    }
     
-    public void PlacePortal(Block block, Player player, Boolean orange)
+    public void placePortal(Block block, Player player, Boolean orange)
     {
     	
     	float dir = (float)Math.toDegrees(Math.atan2(player.getLocation().getBlockX() - block.getX(), block.getZ() - player.getLocation().getBlockZ()));
@@ -95,52 +97,52 @@ public class PortalStick extends JavaPlugin {
     	//Try WEST/EAST
     	if (dir < 90 || dir > 270)
     	{
-    		if (PlacePortal(block, BlockFace.EAST, player, orange, false)) return;
+    		if (placePortal(block, BlockFace.EAST, player, orange, false)) return;
     	}
     	else
     	{
-    		if (PlacePortal(block, BlockFace.WEST, player, orange, false)) return;
+    		if (placePortal(block, BlockFace.WEST, player, orange, false)) return;
     	}
     	
     	//Try NORTH/SOUTH
     	if (dir < 180) 
     	{
-    		if (PlacePortal(block, BlockFace.SOUTH, player, orange, false)) return;
+    		if (placePortal(block, BlockFace.SOUTH, player, orange, false)) return;
     	}
     	else
     	{
-    		if (PlacePortal(block, BlockFace.NORTH, player, orange, false)) return;
+    		if (placePortal(block, BlockFace.NORTH, player, orange, false)) return;
     	}
     	
     	//Try UP/DOWN
     	if (player.getEyeLocation().getY() >= block.getLocation().getY() )
     	{
-    		if (PlacePortal(block, BlockFace.UP, player, orange, false)) return;
+    		if (placePortal(block, BlockFace.UP, player, orange, false)) return;
     	}
     	else
     	{
-    		if (PlacePortal(block, BlockFace.DOWN, player, orange, true)) return;
+    		if (placePortal(block, BlockFace.DOWN, player, orange, true)) return;
     	}
     
      }
     
-    public Boolean PlacePortal(Block block,BlockFace face, Player player, Boolean orange, Boolean end)
+    public Boolean placePortal(Block block,BlockFace face, Player player, Boolean orange, Boolean end)
     {   
     	//Check if player can place here
     	Region region = Config.getRegion(player.getLocation());
     	if (region.getBoolean(Setting.CHECK_WORLDGUARD) && worldGuard != null && !worldGuard.canBuild(player, block))
     		return false;
-    	if (!region.getBoolean(Setting.ENABLE_PORTALSTICK))
-    	if (!permission(player, "portalstick.placeportal", true))
+    	if (!region.getBoolean(Setting.ENABLE_PORTALS))
+    	if (!Permission.placePortal(player))
     		return false;
 
     	Boolean vertical = false;
     	
     	if (!players.containsKey(player.getName())) 
-    		{
+    	{
     		User user = new User();
 			players.put(player.getName(), user);
-    		}
+    	}
     	
     	PortalCoord portalc = new PortalCoord();
     	
@@ -155,7 +157,7 @@ public class PortalStick extends JavaPlugin {
     	{
     		vertical = true;
     		portalc = generatePortal(block, face);
-    		if (!checkportal(portalc, oldportal))
+    		if (!checkPortal(portalc, oldportal))
     		{
     			if (end) Util.sendMessage(player, Config.MessageCannotPlacePortal);
     			return false;
@@ -200,21 +202,21 @@ public class PortalStick extends JavaPlugin {
     private PortalCoord generateHorizontalPortal(Block block, BlockFace face, Portal oldportal)
     {
     	PortalCoord portal = generatePortal(block, face);
-    	if (checkportal(portal, oldportal)) return portal;
+    	if (checkPortal(portal, oldportal)) return portal;
     	
     	block = block.getRelative(0,0,0);
     	portal = generatePortal(block, face);
-    	if (checkportal(portal, oldportal)) return portal;
+    	if (checkPortal(portal, oldportal)) return portal;
     	
     	block = block.getRelative(0,1,0);
     	portal = generatePortal(block, face);
-    	if (checkportal(portal, oldportal)) return portal;
+    	if (checkPortal(portal, oldportal)) return portal;
     	
     	block = block.getRelative(0,-1,0);
     	portal = generatePortal(block, face);
-    	if (checkportal(portal, oldportal)) return portal;
+    	if (checkPortal(portal, oldportal)) return portal;
     	
-    	if (!checkportal(portal, oldportal)) portal.finished = true;
+    	if (!checkPortal(portal, oldportal)) portal.finished = true;
 			return portal;
     	
     }
@@ -299,7 +301,7 @@ public class PortalStick extends JavaPlugin {
     	return portal;
     }
     
-    private Boolean checkportal(PortalCoord portal, Portal oldportal)
+    private Boolean checkPortal(PortalCoord portal, Portal oldportal)
     {
     	for (Block b: portal.border)
     	{
@@ -318,8 +320,40 @@ public class PortalStick extends JavaPlugin {
     	}
     	return true;
     }
+    
+    public void setPortalInventory(Player player)
+    {
+    	PlayerInventory inv = player.getInventory();
+		for (ItemStack i : inv.getContents().clone())
+		{
+			if (i != null)
+				inv.remove(i);
+		}
+		inv.setItemInHand(new ItemStack(Material.STICK, 1));
+    }
+    
+    public void checkPlayerMove(Player player, Region regionFrom, Region regionTo)
+    {
+    	User user = PortalStick.players.get(player.getName());
+    	if (!regionTo.Name.equals(regionFrom.Name)) {
+			if (regionTo.Name == "global") {
+				player.getInventory().setContents(user.getInventory().getContents());
+			}
+			else {
+				user.setInventory(player.getInventory());
+				setPortalInventory(player);
+			}
+			if (regionFrom.getBoolean(Setting.DELETE_ON_EXITENTRANCE) || regionTo.getBoolean(Setting.DELETE_ON_EXITENTRANCE))
+				deletePortals(user);
+		}
+    }
+    
+    public void deletePortals(User user) {
+    	if (user.getBluePortal() != null) user.getBluePortal().delete();
+		if (user.getOrangePortal() != null) user.getOrangePortal().delete();
+    }
         
-    public Boolean PlaceEmancipationGrill(Block b, Player player)
+    public Boolean placeEmancipationGrill(Block b, Player player)
     {
     	
     	Region region = Config.getRegion(b.getLocation());

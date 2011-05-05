@@ -18,6 +18,7 @@ public class Config {
 	public static int PortalTool;
 	public static boolean CompactPortal;
 	public static Region GlobalRegion;
+	public static int RegionTool;
 	public static String MessageCannotPlacePortal;
 	public static String MessagePortalStickEnabled;
 	public static String MessagePortalStickDisabled;
@@ -39,6 +40,8 @@ public class Config {
 			config.setProperty("main.delete-on-quit", false);
 		if (!keys.contains("portal-tool"))
 			config.setProperty("main.portal-tool", 280);
+		if (!keys.contains("region-tool"))
+			config.setProperty("main.region-tool", 268);
 		
 		//Check messages
 		keys = config.getKeys("messages");
@@ -52,7 +55,10 @@ public class Config {
 			config.setProperty("messages.restricted-world", "You cannot do that in this world!");
 
 		//Load messages
-		
+		MessageCannotPlacePortal = config.getString("messages.cannot-place-portal");
+		MessagePortalStickEnabled = config.getString("messages.portal-stick-enabled");
+		MessagePortalStickDisabled = config.getString("messages.portal-stick-disabled");
+		MessageRestrictedWorld = config.getString("messages.restricted-world");
 		
 		//Load global region
 		GlobalRegion = loadRegion("global");
@@ -62,6 +68,7 @@ public class Config {
         DeleteOnQuit = config.getBoolean("main.delete-on-quit", false);
         PortalTool = config.getInt("main.portal-tool", 280);
         CompactPortal = config.getBoolean("main.compact-portal", false);
+        RegionTool = config.getInt("main.region-tool", 268);
         
         //Load all regions
         for (String regionName : config.getKeys("regions"))
@@ -75,7 +82,7 @@ public class Config {
 
 	public static Region getRegion(Location location) {
 		for (Region region : regions.toArray(new Region[0]))
-			if (region.contains(location.toVector()))
+			if (region.contains(location.toVector()) && location.getWorld().getName().equalsIgnoreCase(region.World))
 				return region;
 		return GlobalRegion;
 	}
