@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
@@ -14,6 +15,8 @@ public class GrillManager {
 	
 	public static List<Grill> grills = new ArrayList<Grill>();
 	public static PortalStick plugin;
+	
+	private static HashSet<Block> blocks = new HashSet<Block>();
 	
 	public GrillManager(PortalStick instance) {
 		plugin = instance;
@@ -96,5 +99,32 @@ public class GrillManager {
     public static List<Grill> getGrillList() {
     	return grills;
     }
-
+    
+    public static boolean placeRecursiveGrill(Block initial) {
+    	Region region = RegionManager.getRegion(initial.getLocation());
+    	int borderID = region.getInt(RegionSetting.GRILL_MATERIAL);
+    	if (initial.getTypeId() != borderID) return false;
+    	recurse(initial, borderID, 0, initial, BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.DOWN);
+    	if (blocks == null)
+    		recurse(initial, borderID, 0, initial, BlockFace.UP, BlockFace.WEST, BlockFace.EAST, BlockFace.DOWN);
+    	if (blocks == null)
+    		recurse(initial, borderID, 0, initial, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST);
+    	if (blocks == null)
+    		return false;
+    	
+    	return false;
+    }
+    
+    private static void recurse(Block initial, int id, int max, Block block, BlockFace one, BlockFace two, BlockFace three, BlockFace four) {
+    	if (max >= 100) return;
+    	if (block == initial && blocks.size() > 2) return;
+    	if (block.getTypeId() == id) {
+    		blocks.add(block);
+    		max++;
+    		recurse(initial, id, max, block.getFace(one), one, two, three, four);
+    		recurse(initial, id, max, block.getFace(two), one, two, three, four);
+    		recurse(initial, id, max, block.getFace(three), one, two, three, four);
+    		recurse(initial, id, max, block.getFace(four), one, two, three, four);
+    	}
+    }
 }
