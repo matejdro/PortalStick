@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 public class Grill {
+	
 	private HashSet<Block> border;
 	private HashSet<Block> inside;
 	

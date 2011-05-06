@@ -11,7 +11,7 @@ import org.bukkit.inventory.PlayerInventory;
 
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Permission;
-import com.matejdro.bukkit.portalstick.util.Setting;
+import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalManager {
@@ -29,7 +29,7 @@ public class PortalManager {
 				user.setInventory(player.getInventory());
 				setPortalInventory(player);
 			}
-			if (regionFrom.getBoolean(Setting.DELETE_ON_EXITENTRANCE) || regionTo.getBoolean(Setting.DELETE_ON_EXITENTRANCE))
+			if (regionFrom.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE) || regionTo.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE))
 				deletePortals(user);
 		}
 	}
@@ -39,7 +39,7 @@ public class PortalManager {
 		for (Block b: portal.border)
 		{
 			Region region = RegionManager.getRegion(b.getLocation());
-			if (region.getList(Setting.TRANSPARENT_BLOCKS).contains(b.getTypeId()) || (region.getBoolean(Setting.ALL_BLOCKS_PORTAL) && !region.getList(Setting.PORTAL_BLOCKS).contains(b.getTypeId() ) && !oldportal.getInside().contains(b) && !oldportal.getBorder().contains(b)))
+			if (region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(b.getTypeId()) || (region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(b.getTypeId() ) && !oldportal.getInside().contains(b) && !oldportal.getBorder().contains(b)))
 			{
 				return false;
 			}
@@ -166,9 +166,9 @@ public class PortalManager {
 	{   
 		//Check if player can place here
 		Region region = RegionManager.getRegion(player.getLocation());
-		if (region.getBoolean(Setting.CHECK_WORLDGUARD) && PortalStick.worldGuard != null && !PortalStick.worldGuard.canBuild(player, block))
+		if (region.getBoolean(RegionSetting.CHECK_WORLDGUARD) && PortalStick.worldGuard != null && !PortalStick.worldGuard.canBuild(player, block))
 			return false;
-		if (!region.getBoolean(Setting.ENABLE_PORTALS))
+		if (!region.getBoolean(RegionSetting.ENABLE_PORTALS))
 		if (!Permission.placePortal(player))
 			return false;
 	

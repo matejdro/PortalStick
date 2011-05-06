@@ -2,7 +2,7 @@ package com.matejdro.bukkit.portalstick.util;
 
 import java.util.Arrays;
 
-public enum Setting {
+public enum RegionSetting {
 	
 	ENABLE_PORTALS("enable-portalstick", true),
 	TELEPORT_VEHICLES("teleport-vehicles", true),
@@ -21,7 +21,7 @@ public enum Setting {
 	private String yaml;
 	private Object def;
 	
-	private Setting(String yaml, Object def) {
+	private RegionSetting(String yaml, Object def) {
 		this.yaml = yaml;
 		this.def = def;
 	}

@@ -7,7 +7,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import com.matejdro.bukkit.portalstick.util.Config;
-import com.matejdro.bukkit.portalstick.util.Setting;
+import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
 public class GrillManager {
@@ -20,15 +20,15 @@ public class GrillManager {
     	Region region = RegionManager.getRegion(b.getLocation());
     	int x = 0;
     	int z = 0;
-    	if (b.getTypeId() == region.getInt(Setting.GRILL_MATERIAL))
+    	if (b.getTypeId() == region.getInt(RegionSetting.GRILL_MATERIAL))
     	{
-    		if (b.getRelative(1,1,0).getTypeId() == region.getInt(Setting.GRILL_MATERIAL))
+    		if (b.getRelative(1,1,0).getTypeId() == region.getInt(RegionSetting.GRILL_MATERIAL))
     			x = 1;
-    		else if (b.getRelative(-1,1,0).getTypeId() == region.getInt(Setting.GRILL_MATERIAL))
+    		else if (b.getRelative(-1,1,0).getTypeId() == region.getInt(RegionSetting.GRILL_MATERIAL))
     			x = -1;
-    		else if (b.getRelative(0,1,1).getTypeId() == region.getInt(Setting.GRILL_MATERIAL))
+    		else if (b.getRelative(0,1,1).getTypeId() == region.getInt(RegionSetting.GRILL_MATERIAL))
     			z = 1;
-    		else if (b.getRelative(0,1,-1).getTypeId() == region.getInt(Setting.GRILL_MATERIAL))
+    		else if (b.getRelative(0,1,-1).getTypeId() == region.getInt(RegionSetting.GRILL_MATERIAL))
     			z = -1;
     		else
     			return false;
@@ -55,7 +55,7 @@ public class GrillManager {
     	
     	for (Block block: border)
     	{
-    		if (block.getTypeId() != region.getInt(Setting.GRILL_MATERIAL))
+    		if (block.getTypeId() != region.getInt(RegionSetting.GRILL_MATERIAL))
     		{
     			return false;
     		}

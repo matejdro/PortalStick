@@ -28,7 +28,7 @@ import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.User;
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Permission;
-import com.matejdro.bukkit.portalstick.util.Setting;
+import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalStickPlayerListener extends PlayerListener {
@@ -48,7 +48,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		User user = PortalStick.players.get(player.getName());
 		Region region = RegionManager.getRegion(player.getLocation());
 		HashSet<Byte> tb = new HashSet<Byte>();
-		for (int i : region.getList(Setting.TRANSPARENT_BLOCKS).toArray(new Integer[0]))
+		for (int i : region.getList(RegionSetting.TRANSPARENT_BLOCKS).toArray(new Integer[0]))
 			tb.add((byte) i);
 		
 		if (player.getItemInHand().getTypeId() == Config.PortalTool && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
@@ -106,7 +106,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		PortalManager.checkPlayerMove(player, regionFrom, regionTo);
 		
 		//emancipation grill
-		if (loc.getType() == Material.SUGAR_CANE_BLOCK && regionTo.getBoolean(Setting.ENABLE_GRILL))
+		if (loc.getType() == Material.SUGAR_CANE_BLOCK && regionTo.getBoolean(RegionSetting.ENABLE_GRILL))
 		{
 			for (Grill grill: GrillManager.grills)
 			{
@@ -117,7 +117,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 						if (user.getBluePortal() != null) user.getBluePortal().delete();
 						if (user.getOrangePortal() != null) user.getOrangePortal().delete();
 					}
-					if (regionTo.getBoolean(Setting.GRILLS_CLEAR_INVENTORY))
+					if (regionTo.getBoolean(RegionSetting.GRILLS_CLEAR_INVENTORY))
 					{
 						PortalManager.setPortalInventory(player);
 					}
@@ -200,7 +200,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 	        }
 				
 			momentum = Math.abs(momentum);
-			momentum = momentum * regionTo.getInt(Setting.VELOCITY_MULTIPLIER);
+			momentum = momentum * regionTo.getInt(RegionSetting.VELOCITY_MULTIPLIER);
 
 			//reposition velocity to match output portal's orientation
 			Vector outvector = player.getVelocity().zero();
@@ -279,7 +279,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		if (Config.DeleteOnQuit)
 			PortalManager.deletePortals(user);			
 		Region region = RegionManager.getRegion(player.getLocation());
-		if (region.Name != "global" && region.getBoolean(Setting.UNIQUE_INVENTORY))
+		if (region.Name != "global" && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
 			player.getInventory().setContents(user.getInventory().getContents());
 		PortalStick.players.remove(player.getName());
 	}
@@ -290,7 +290,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		User user = new User();
 		PortalStick.players.put(player.getName(), user);
 		Region region = RegionManager.getRegion(player.getLocation());
-		if (!region.Name.equals("global") && region.getBoolean(Setting.UNIQUE_INVENTORY))
+		if (!region.Name.equals("global") && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
 			user.setInventory(player.getInventory());
 	}
 		 

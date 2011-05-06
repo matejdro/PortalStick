@@ -1,5 +1,5 @@
 package com.matejdro.bukkit.portalstick.util;
-//hello matej is this working?
+
 import java.util.logging.Logger;
 
 import org.bukkit.Location;

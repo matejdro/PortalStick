@@ -12,7 +12,7 @@ import com.matejdro.bukkit.portalstick.PortalManager;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.User;
-import com.matejdro.bukkit.portalstick.util.Setting;
+import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 public class PortalStickVehicleListener extends VehicleListener {
 	
@@ -22,7 +22,7 @@ public class PortalStickVehicleListener extends VehicleListener {
 		Block loc = event.getTo().getBlock();
 		Region region = RegionManager.getRegion(loc.getLocation());
 		
-		if (!region.getBoolean(Setting.TELEPORT_VEHICLES))
+		if (!region.getBoolean(RegionSetting.TELEPORT_VEHICLES))
 			return;
 			
 		Portal portal = null;
