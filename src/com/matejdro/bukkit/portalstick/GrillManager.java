@@ -7,6 +7,7 @@ import java.util.List;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
@@ -16,7 +17,8 @@ public class GrillManager {
 	public static List<Grill> grills = new ArrayList<Grill>();
 	public static PortalStick plugin;
 	
-	private static HashSet<Block> blocks = new HashSet<Block>();
+	private static HashSet<Block> border = new HashSet<Block>();
+	private static boolean complete = false;
 	
 	public GrillManager(PortalStick instance) {
 		plugin = instance;
@@ -100,31 +102,108 @@ public class GrillManager {
     	return grills;
     }
     
-    public static boolean placeRecursiveGrill(Block initial) {
+    public static boolean placeRecursiveEmancipationGrill(Block initial) {
+    	
     	Region region = RegionManager.getRegion(initial.getLocation());
     	int borderID = region.getInt(RegionSetting.GRILL_MATERIAL);
     	if (initial.getTypeId() != borderID) return false;
-    	recurse(initial, borderID, 0, initial, BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.DOWN);
-    	if (blocks == null)
-    		recurse(initial, borderID, 0, initial, BlockFace.UP, BlockFace.WEST, BlockFace.EAST, BlockFace.DOWN);
-    	if (blocks == null)
-    		recurse(initial, borderID, 0, initial, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST);
-    	if (blocks == null)
-    		return false;
     	
-    	return false;
+    	//Attempt to get complete border
+    	Plane plane = Plane.XY;
+    	recurse(initial, borderID, 0, initial, BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.DOWN);
+    	if (!complete) {
+    		recurse(initial, borderID, 0, initial, BlockFace.UP, BlockFace.WEST, BlockFace.EAST, BlockFace.DOWN);
+    		plane = Plane.YZ;
+    	}
+    	if (!complete) {
+    		recurse(initial, borderID, 0, initial, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST);
+    		plane = Plane.ZX;
+    	}
+    	if (!complete)
+    		return false;
+
+    	//Work out maximums and minimums
+    	Vector max = new Vector();
+    	Vector min = new Vector();
+    	for (Block block : border.toArray(new Block[0])) {
+    		if (block.getX() > max.getX()) max.setX(block.getX());
+    		if (block.getY() > max.getY()) max.setY(block.getY());
+    		if (block.getZ() > max.getZ()) max.setX(block.getZ());
+    		if (block.getX() > min.getX()) min.setX(block.getX());
+    		if (block.getY() > min.getY()) min.setY(block.getY());
+    		if (block.getZ() > min.getZ()) min.setX(block.getZ());
+    	}
+    	
+    	//Sort into lines
+    	Vector range = new Vector(max.getX() - min.getX(), max.getY() - min.getY(), max.getZ() - min.getZ());
+    	double num1 = 0;
+    	double num2 = 0;
+    	switch (plane) {
+	    	case XY:
+	    		num1 = range.getX();
+	    		num2 = range.getY();
+	    		break;
+	    	case YZ:
+	    		num1 = range.getY();
+	    		num2 = range.getZ();
+	    		break;
+	    	case ZX:
+	    		num1 = range.getZ();
+	    		num2 = range.getX();
+	    		break;
+    	}
+
+    	Block[][] lines = new Block[(int) num1][(int) num2];
+    	for (Block block : border.toArray(new Block[0])) {
+    		switch (plane) {
+	    		case XY:
+	    			lines[(int) (block.getX() - min.getX())][(int) (block.getY() - min.getY())] = block;
+	    			break;
+	    		case YZ:
+	    			lines[(int) (block.getY() - min.getY())][(int) (block.getZ() - min.getZ())] = block;
+	    			break;
+	    		case ZX:
+	    			lines[(int) (block.getZ() - min.getZ())][(int) (block.getX() - min.getX())] = block;
+	    			break;
+    		}
+    	}
+    	
+    	//Loop through lines detecting internal grill blocks
+    	HashSet<Block> inside = new HashSet<Block>();
+    	for (Block[] line : lines) {
+    		boolean rep = false;
+    		for (Block block : line) {
+    			if (block.getTypeId() == borderID) {
+    				if (rep == false) rep = true;
+    				if (rep == true) rep = false;
+    			}
+    			if (block.getType() == Material.AIR && rep == true)
+    				inside.add(block);
+    		}
+    	}
+    	grills.add(new Grill(border, inside, initial));
+    	return true;
     }
     
     private static void recurse(Block initial, int id, int max, Block block, BlockFace one, BlockFace two, BlockFace three, BlockFace four) {
     	if (max >= 100) return;
-    	if (block == initial && blocks.size() > 2) return;
+    	if (block == initial && border.size() > 2) {
+    		complete = true;
+    		return;
+    	}
     	if (block.getTypeId() == id) {
-    		blocks.add(block);
+    		border.add(block);
     		max++;
     		recurse(initial, id, max, block.getFace(one), one, two, three, four);
     		recurse(initial, id, max, block.getFace(two), one, two, three, four);
     		recurse(initial, id, max, block.getFace(three), one, two, three, four);
     		recurse(initial, id, max, block.getFace(four), one, two, three, four);
     	}
+    }
+    
+    private enum Plane {
+    	XY,
+    	YZ,
+    	ZX;
     }
 }

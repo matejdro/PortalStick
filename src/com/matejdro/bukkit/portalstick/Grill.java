@@ -11,12 +11,6 @@ public class Grill {
 	private HashSet<Block> inside;
 	private Block firstBlock;
 	
-	public Grill()
-	{
-		border = new HashSet<Block>();
-		inside = new HashSet<Block>();
-	}
-	
 	public Grill(HashSet<Block> Border, HashSet<Block> Inside, Block FirstBlock)
 	{
 		border = Border;
