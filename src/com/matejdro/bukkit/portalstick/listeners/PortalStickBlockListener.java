@@ -2,6 +2,7 @@ package com.matejdro.bukkit.portalstick.listeners;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
@@ -17,8 +18,10 @@ import com.matejdro.bukkit.portalstick.Portal;
 import com.matejdro.bukkit.portalstick.PortalManager;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.RegionManager;
+import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
+import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalStickBlockListener extends BlockListener {
 	
@@ -148,15 +151,19 @@ public class PortalStickBlockListener extends BlockListener {
 	 }
 	 
 	 public void onBlockIgnite(BlockIgniteEvent event) {
-		 if (event.getPlayer() == null) return;
-		 
-		 if (event.getCause() == IgniteCause.FLINT_AND_STEEL)
-		 {
-			 if (!Permission.createGrill(event.getPlayer())) return;
-			 if (GrillManager.placeEmancipationGrill(event.getBlock().getRelative(0, -1, 0), event.getPlayer())) event.setCancelled(true);
-		 }
-			 
-	 }
+		if (event.getPlayer() == null) return;
+		Player player = event.getPlayer();
+		if (event.getCause() == IgniteCause.FLINT_AND_STEEL)
+		{
+		if (!Permission.createGrill(event.getPlayer())) return;
+			if (!Config.EnabledWorlds.contains(player.getLocation().getWorld().getName()))
+			{
+				Util.sendMessage(player, Config.MessageRestrictedWorld);
+				return;
+			}
+			if (GrillManager.placeEmancipationGrill(event.getBlock().getRelative(0, -1, 0))) event.setCancelled(true);
+		} 
+	}
 
 
 	 

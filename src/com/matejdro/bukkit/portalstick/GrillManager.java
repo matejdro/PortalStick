@@ -1,20 +1,34 @@
 package com.matejdro.bukkit.portalstick;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class GrillManager {
 	
-	public static HashSet<Grill> grills = new HashSet<Grill>();
+	public static List<Grill> grills = new ArrayList<Grill>();
+	public static PortalStick plugin;
 	
-    public static Boolean placeEmancipationGrill(Block b, Player player)
+	public GrillManager(PortalStick instance) {
+		plugin = instance;
+	}
+
+	public static void loadGrill(String blockloc) {
+		String[] locarr = blockloc.split(",");
+		String world = locarr[0];
+		Block b = plugin.getServer().getWorld(world).getBlockAt(Integer.parseInt(locarr[1]), Integer.parseInt(locarr[2]), Integer.parseInt(locarr[3]));
+		if (!placeEmancipationGrill(b))
+			Config.deleteGrill(blockloc);
+		Config.saveAll();
+	}
+	
+    public static Boolean placeEmancipationGrill(Block b)
     {
     	
     	Region region = RegionManager.getRegion(b.getLocation());
@@ -68,19 +82,19 @@ public class GrillManager {
     			return false;
     		}
     	}
-    	
-    	if (!Config.EnabledWorlds.contains(player.getLocation().getWorld().getName()))
-		{
-			Util.sendMessage(player, Config.MessageRestrictedWorld);
-			return false;
-		}
     	    	
-    	Grill grill = new Grill(border, inside);
+    	Grill grill = new Grill(border, inside, b);
     	grills.add(grill);
     	grill.create();
     	
+    	Config.saveAll();
+    	
     	return true;
     	
+    }
+    
+    public static List<Grill> getGrillList() {
+    	return grills;
     }
 
 }

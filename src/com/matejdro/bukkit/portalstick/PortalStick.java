@@ -64,6 +64,7 @@ public class PortalStick extends JavaPlugin {
 		VehicleListener = new PortalStickVehicleListener();
 		config = new Config(this);
 		permissions = new Permission(this);
+		new GrillManager(this);
 		
 		//Register events
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BREAK, BlockListener, Event.Priority.Low, this);

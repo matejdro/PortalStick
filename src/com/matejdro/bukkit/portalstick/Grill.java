@@ -9,6 +9,7 @@ public class Grill {
 	
 	private HashSet<Block> border;
 	private HashSet<Block> inside;
+	private Block firstBlock;
 	
 	public Grill()
 	{
@@ -16,10 +17,11 @@ public class Grill {
 		inside = new HashSet<Block>();
 	}
 	
-	public Grill(HashSet<Block> Border, HashSet<Block> Inside)
+	public Grill(HashSet<Block> Border, HashSet<Block> Inside, Block FirstBlock)
 	{
 		border = Border;
 		inside = Inside;
+		firstBlock = FirstBlock;
 	}
 	
 	public void delete()
@@ -49,5 +51,8 @@ public class Grill {
 	public HashSet<Block> getInside()
 	{
 		return inside;
+	}
+	public Block getFirstBlock() {
+		return firstBlock;
 	}
 }

@@ -2,11 +2,18 @@ package com.matejdro.bukkit.portalstick.util;
 
 import java.io.File;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.util.config.Configuration;
 
+import com.matejdro.bukkit.portalstick.Grill;
+import com.matejdro.bukkit.portalstick.GrillManager;
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.RegionManager;
@@ -79,18 +86,32 @@ public class Config {
         for (String regionName : regionConfig.getKeys("regions"))
         	RegionManager.loadRegion(regionName);
         
-        save();
+        //Load grills
+        for (String grill : grillConfig.getStringList("grills", null))
+        	GrillManager.loadGrill(grill);
+        
+        saveAll();
 
+	}
+	
+	public static void deleteGrill(String grill) {
+		List<String> list = grillConfig.getStringList("grills", null);
+		list.remove(grill);
+		grillConfig.setProperty("grills", list);
+	}
+	
+	public static void deleteRegion(String name) {
+		regionConfig.removeProperty("regions." + name);
 	}
 	
 	public static void loadRegionSettings(Region region) {
 		for (RegionSetting setting : RegionSetting.values()) {
-			Object prop = regionConfig.getProperty(mkNode(region.Name, setting.getYaml()));
+			Object prop = regionConfig.getProperty(mkRegionNode(region.Name, setting.getYaml()));
     		if (prop == null)
     			region.settings.put(setting, setting.getDefault());
     		else
     			region.settings.put(setting, prop);
-    		regionConfig.setProperty(mkNode(region.Name, setting.getYaml()), region.settings.get(setting));
+    		regionConfig.setProperty(mkRegionNode(region.Name, setting.getYaml()), region.settings.get(setting));
     	}
 		region.updateLocation();
 	}
@@ -119,15 +140,39 @@ public class Config {
 		return configfile;
 	}
 	
-	private static String mkNode(String node, String region) {
+	private static String mkRegionNode(String node, String region) {
 		if (region.equalsIgnoreCase("global"))
 			return "global." + node;
 		return "regions." + region + "." + node;
 	}
 	
-	private static void save() {
+	public static void saveAll() {
+		
+		//Save regions
+		for (Map.Entry<String, Region> entry : RegionManager.getRegionMap().entrySet()) {
+			Region region = entry.getValue();
+			for (Entry<RegionSetting, Object> setting : region.settings.entrySet())
+				regionConfig.setProperty(mkRegionNode(setting.getKey().getYaml(), region.Name), setting.getValue());
+		}
+		if (!regionConfig.save())
+			Util.severe("Error while writing to regions.yml");
+		
+		//Save grills
+		grillConfig.removeProperty("grills");
+		List<String> list = new ArrayList<String>();
+		for (Grill grill : GrillManager.getGrillList()) {
+			Block b = grill.getFirstBlock();
+			Location loc = b.getLocation();
+			list.add(b.getWorld().getName() + "," + loc.getX() + "," + loc.getY() + "," + loc.getZ());
+		}
+		grillConfig.setProperty("grills", list);
+		if (!grillConfig.save())
+			Util.severe("Error while writing to grills.yml");
+		
+		//Save main
 		if (!mainConfig.save())
 			Util.severe("Error while writing to config.yml");
+			
 	}
 	
 }
