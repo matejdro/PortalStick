@@ -5,20 +5,23 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
+import com.matejdro.bukkit.portalstick.util.Util;
 
 public class GrillManager {
 	
 	public static List<Grill> grills = new ArrayList<Grill>();
 	public static PortalStick plugin;
 	
-	private static HashSet<Block> border = new HashSet<Block>();
-	private static boolean complete = false;
+	private static HashSet<Block> border;
+	private static boolean complete;
+	private static int max = 0;
 	
 	public GrillManager(PortalStick instance) {
 		plugin = instance;
@@ -107,35 +110,40 @@ public class GrillManager {
     	Region region = RegionManager.getRegion(initial.getLocation());
     	int borderID = region.getInt(RegionSetting.GRILL_MATERIAL);
     	if (initial.getTypeId() != borderID) return false;
-    	
+
     	//Attempt to get complete border
     	Plane plane = Plane.XY;
-    	recurse(initial, borderID, 0, initial, BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.DOWN);
+    	startRecurse(initial, borderID, BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.DOWN);
     	if (!complete) {
-    		recurse(initial, borderID, 0, initial, BlockFace.UP, BlockFace.WEST, BlockFace.EAST, BlockFace.DOWN);
+    		startRecurse(initial, borderID, BlockFace.UP, BlockFace.WEST, BlockFace.EAST, BlockFace.DOWN);
     		plane = Plane.YZ;
     	}
     	if (!complete) {
-    		recurse(initial, borderID, 0, initial, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST);
+    		startRecurse(initial, borderID, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST);
     		plane = Plane.ZX;
     	}
-    	if (!complete)
+    	if (!complete) {
     		return false;
+    	}
+    	Util.info(border.size() + " border " + plane.toString());
 
     	//Work out maximums and minimums
-    	Vector max = new Vector();
-    	Vector min = new Vector();
+    	Vector max = initial.getLocation().toVector();
+    	Vector min = initial.getLocation().toVector();
+    	
     	for (Block block : border.toArray(new Block[0])) {
     		if (block.getX() > max.getX()) max.setX(block.getX());
     		if (block.getY() > max.getY()) max.setY(block.getY());
     		if (block.getZ() > max.getZ()) max.setX(block.getZ());
-    		if (block.getX() > min.getX()) min.setX(block.getX());
-    		if (block.getY() > min.getY()) min.setY(block.getY());
-    		if (block.getZ() > min.getZ()) min.setX(block.getZ());
+    		if (block.getX() < min.getX()) min.setX(block.getX());
+    		if (block.getY() < min.getY()) min.setY(block.getY());
+    		if (block.getZ() < min.getZ()) min.setX(block.getZ());
     	}
     	
+    	Util.info(max.toString() + " maxmin " + min.toString());
+    	
     	//Sort into lines
-    	Vector range = new Vector(max.getX() - min.getX(), max.getY() - min.getY(), max.getZ() - min.getZ());
+    	Vector range = new Vector(max.getX() - min.getX() + 1, max.getY() - min.getY() + 1, max.getZ() - min.getZ() + 1);
     	double num1 = 0;
     	double num2 = 0;
     	switch (plane) {
@@ -152,6 +160,8 @@ public class GrillManager {
 	    		num2 = range.getX();
 	    		break;
     	}
+    	
+    	Util.info(num1 + " grid " + num2);
 
     	Block[][] lines = new Block[(int) num1][(int) num2];
     	for (Block block : border.toArray(new Block[0])) {
@@ -170,34 +180,61 @@ public class GrillManager {
     	
     	//Loop through lines detecting internal grill blocks
     	HashSet<Block> inside = new HashSet<Block>();
+    	int i = 0;
+    	World world = initial.getWorld();
     	for (Block[] line : lines) {
     		boolean rep = false;
+    		int j = 0;
     		for (Block block : line) {
-    			if (block.getTypeId() == borderID) {
-    				if (rep == false) rep = true;
-    				if (rep == true) rep = false;
+    			if (block == null) {
+	    			switch (plane) {
+		    			case XY:
+		    				block = world.getBlockAt((int)min.getX() + i, (int)min.getY() + j, (int)min.getZ());
+		    				break;
+		    			case YZ:
+		    				block = world.getBlockAt((int)min.getX(), (int)min.getY() + i, (int)min.getZ() + j);
+		    				break;
+		    			case ZX:
+		    				block = world.getBlockAt((int)min.getX() + j, (int)min.getY(), (int)min.getZ() + i);
+		    				break;
+	    			}
     			}
-    			if (block.getType() == Material.AIR && rep == true)
+    			
+    			if (block.getTypeId() == borderID)
+    				rep = !rep;
+    			else if (rep)
     				inside.add(block);
+    			j++;
     		}
+    		i++;
     	}
-    	grills.add(new Grill(border, inside, initial));
+    	Util.info(inside.size() + " inside ");
+    	Grill grill = new Grill(border, inside, initial);
+    	grills.add(grill);
+    	grill.create();
     	return true;
     }
     
-    private static void recurse(Block initial, int id, int max, Block block, BlockFace one, BlockFace two, BlockFace three, BlockFace four) {
+    private static void startRecurse(Block initial, int id, BlockFace one, BlockFace two, BlockFace three, BlockFace four) {
+    	border = new HashSet<Block>();
+    	max = 0;
+    	complete = false;
+    	recurse(initial, id, initial, BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.DOWN);
+    }
+    
+    private static void recurse(Block initial, int id, Block block, BlockFace one, BlockFace two, BlockFace three, BlockFace four) {
     	if (max >= 100) return;
     	if (block == initial && border.size() > 2) {
     		complete = true;
     		return;
     	}
-    	if (block.getTypeId() == id) {
+    	if (block.getTypeId() == id && !border.contains(block)) {
     		border.add(block);
     		max++;
-    		recurse(initial, id, max, block.getFace(one), one, two, three, four);
-    		recurse(initial, id, max, block.getFace(two), one, two, three, four);
-    		recurse(initial, id, max, block.getFace(three), one, two, three, four);
-    		recurse(initial, id, max, block.getFace(four), one, two, three, four);
+    		recurse(initial, id, block.getFace(one), one, two, three, four);
+    		recurse(initial, id, block.getFace(two), one, two, three, four);
+    		recurse(initial, id, block.getFace(three), one, two, three, four);
+    		recurse(initial, id, block.getFace(four), one, two, three, four);
     	}
     }
     
