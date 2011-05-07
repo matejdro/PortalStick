@@ -98,10 +98,12 @@ public class Config {
 		List<String> list = grillConfig.getStringList("grills", null);
 		list.remove(grill);
 		grillConfig.setProperty("grills", list);
+		saveAll();
 	}
 	
 	public static void deleteRegion(String name) {
 		regionConfig.removeProperty(name);
+		saveAll();
 	}
 	
 	public static void loadRegionSettings(Region region) {

@@ -28,10 +28,9 @@ public class GrillManager {
 	public static void loadGrill(String blockloc) {
 		String[] locarr = blockloc.split(",");
 		String world = locarr[0];
-		Block b = plugin.getServer().getWorld(world).getBlockAt(Integer.parseInt(locarr[1]), Integer.parseInt(locarr[2]), Integer.parseInt(locarr[3]));
-		if (!placeEmancipationGrill(b))
+		Block b = plugin.getServer().getWorld(world).getBlockAt((int)Double.parseDouble(locarr[1]), (int)Double.parseDouble(locarr[2]), (int)Double.parseDouble(locarr[3]));
+		if (!placeRecursiveEmancipationGrill(b))
 			Config.deleteGrill(blockloc);
-		Config.saveAll();
 	}
 	
     public static Boolean placeEmancipationGrill(Block b)
@@ -174,6 +173,7 @@ public class GrillManager {
     	Grill grill = new Grill(border, inside, initial);
     	grills.add(grill);
     	grill.create();
+    	Config.saveAll();
     	return true;
     }
     

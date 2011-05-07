@@ -21,7 +21,6 @@ public class RegionManager {
 		Region region = getRegion(name);
 		Config.deleteRegion(name);
 		regions.remove(region);
-		Config.saveAll();
 	}
 	
 	public static void createRegion(String name, Location one, Location two) {

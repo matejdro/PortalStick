@@ -44,12 +44,6 @@ public class PortalStick extends JavaPlugin {
 			p.delete();
 		}
 		
-		for (Object o: GrillManager.grills.toArray())
-		{
-			Grill g = (Grill) o;
-			g.delete();
-		}
-		
 		for (Map.Entry<String, User> entry : players.entrySet()) {
 			Player player = getServer().getPlayer(entry.getKey());
 			User user = entry.getValue();
@@ -63,9 +57,9 @@ public class PortalStick extends JavaPlugin {
 		PlayerListener = new PortalStickPlayerListener(this);
 		BlockListener = new PortalStickBlockListener();
 		VehicleListener = new PortalStickVehicleListener();
+		new GrillManager(this);
 		config = new Config(this);
 		permissions = new Permission(this);
-		new GrillManager(this);
 		
 		//Register events
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BREAK, BlockListener, Event.Priority.Low, this);

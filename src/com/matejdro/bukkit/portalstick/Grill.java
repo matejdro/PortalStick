@@ -2,8 +2,11 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.HashSet;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+
+import com.matejdro.bukkit.portalstick.util.Config;
 
 public class Grill {
 	
@@ -24,8 +27,8 @@ public class Grill {
 		{
 			b.setType(Material.AIR);
 		}
-		
 		GrillManager.grills.remove(this);
+		Config.deleteGrill(getStringLocation());
 	}
 		
 	public void create()
@@ -33,9 +36,15 @@ public class Grill {
 		for (Block b: inside)
     	{
     		b.setType(Material.SUGAR_CANE_BLOCK);
-    	}    	
+    	}
+		Config.saveAll();
 	}
 	
+	public String getStringLocation()
+	{
+		Location loc = firstBlock.getLocation();
+		return loc.getWorld().getName() + "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
+	}
 	
 	public HashSet<Block> getBorder()
 	{
