@@ -5,14 +5,12 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class GrillManager {
 	
@@ -112,20 +110,19 @@ public class GrillManager {
     	if (initial.getTypeId() != borderID) return false;
 
     	//Attempt to get complete border
-    	Plane plane = Plane.XY;
     	startRecurse(initial, borderID, BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.DOWN);
+    	BlockFace iOne = BlockFace.EAST; BlockFace iTwo = BlockFace.WEST;
     	if (!complete) {
     		startRecurse(initial, borderID, BlockFace.UP, BlockFace.WEST, BlockFace.EAST, BlockFace.DOWN);
-    		plane = Plane.YZ;
+    		iOne = BlockFace.NORTH; iTwo = BlockFace.SOUTH;
     	}
     	if (!complete) {
     		startRecurse(initial, borderID, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST);
-    		plane = Plane.ZX;
+    		iOne = BlockFace.UP; iTwo = BlockFace.DOWN;
     	}
     	if (!complete) {
     		return false;
     	}
-    	Util.info(border.size() + " border " + plane.toString());
 
     	//Work out maximums and minimums
     	Vector max = initial.getLocation().toVector();
@@ -140,75 +137,40 @@ public class GrillManager {
     		if (block.getZ() < min.getZ()) min.setX(block.getZ());
     	}
     	
-    	Util.info(max.toString() + " maxmin " + min.toString());
-    	
-    	//Sort into lines
-    	Vector range = new Vector(max.getX() - min.getX() + 1, max.getY() - min.getY() + 1, max.getZ() - min.getZ() + 1);
-    	double num1 = 0;
-    	double num2 = 0;
-    	switch (plane) {
-	    	case XY:
-	    		num1 = range.getX();
-	    		num2 = range.getY();
-	    		break;
-	    	case YZ:
-	    		num1 = range.getY();
-	    		num2 = range.getZ();
-	    		break;
-	    	case ZX:
-	    		num1 = range.getZ();
-	    		num2 = range.getX();
-	    		break;
-    	}
-    	
-    	Util.info(num1 + " grid " + num2);
-
-    	Block[][] lines = new Block[(int) num1][(int) num2];
-    	for (Block block : border.toArray(new Block[0])) {
-    		switch (plane) {
-	    		case XY:
-	    			lines[(int) (block.getX() - min.getX())][(int) (block.getY() - min.getY())] = block;
-	    			break;
-	    		case YZ:
-	    			lines[(int) (block.getY() - min.getY())][(int) (block.getZ() - min.getZ())] = block;
-	    			break;
-	    		case ZX:
-	    			lines[(int) (block.getZ() - min.getZ())][(int) (block.getX() - min.getX())] = block;
-	    			break;
-    		}
-    	}
-    	
-    	//Loop through lines detecting internal grill blocks
+    	//Work out inside blocks
     	HashSet<Block> inside = new HashSet<Block>();
-    	int i = 0;
-    	World world = initial.getWorld();
-    	for (Block[] line : lines) {
-    		boolean rep = false;
-    		int j = 0;
-    		for (Block block : line) {
-    			if (block == null) {
-	    			switch (plane) {
-		    			case XY:
-		    				block = world.getBlockAt((int)min.getX() + i, (int)min.getY() + j, (int)min.getZ());
-		    				break;
-		    			case YZ:
-		    				block = world.getBlockAt((int)min.getX(), (int)min.getY() + i, (int)min.getZ() + j);
-		    				break;
-		    			case ZX:
-		    				block = world.getBlockAt((int)min.getX() + j, (int)min.getY(), (int)min.getZ() + i);
-		    				break;
-	    			}
-    			}
+    	for (int y = (int)min.getY(); y <= (int)max.getY(); y++) {
+    		for (int x = (int)min.getX(); x <= (int)max.getX(); x++) {
+    			for (int z = (int)min.getZ(); z <= (int)max.getZ(); z++) {
     			
-    			if (block.getTypeId() == borderID)
-    				rep = !rep;
-    			else if (rep)
-    				inside.add(block);
-    			j++;
+    				Block block = initial.getWorld().getBlockAt(x, y, z);
+    				if (border.contains(block) || inside.contains(block))
+    	    			continue;
+    	    		boolean add = true;
+    	    	
+    	    		for (BlockFace face : BlockFace.values()) {
+    	    			if (face == BlockFace.SELF || face == iOne || face == iTwo || face == BlockFace.NORTH_EAST || face == BlockFace.NORTH_WEST || face == BlockFace.SOUTH_EAST || face == BlockFace.SOUTH_WEST)
+    	    				continue;
+    	    			Block temp = block.getFace(face);
+    	    			while (temp.getLocation().toVector().isInAABB(min, max)) {
+    	    				if (temp.getTypeId() == borderID)
+    	    					break;
+    	    				temp = temp.getFace(face);
+    	    			}
+    	    			if (temp.getTypeId() != borderID) {
+    	    				add = false;
+    	    				break;
+    	    			}
+    	    		}
+    	    		
+    	    		if (add)
+    	    			inside.add(block);
+    	    		
+    			}
     		}
-    		i++;
     	}
-    	Util.info(inside.size() + " inside ");
+    	
+    	//Create grill
     	Grill grill = new Grill(border, inside, initial);
     	grills.add(grill);
     	grill.create();
@@ -236,11 +198,5 @@ public class GrillManager {
     		recurse(initial, id, block.getFace(three), one, two, three, four);
     		recurse(initial, id, block.getFace(four), one, two, three, four);
     	}
-    }
-    
-    private enum Plane {
-    	XY,
-    	YZ,
-    	ZX;
     }
 }
