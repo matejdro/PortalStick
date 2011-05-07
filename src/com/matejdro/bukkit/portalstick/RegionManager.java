@@ -9,12 +9,6 @@ import com.matejdro.bukkit.portalstick.util.Config;
 public class RegionManager {
 	
 	private static HashMap<String, Region> regions = new HashMap<String, Region>();
-	public static Region GlobalRegion;
-	
-	public RegionManager() {
-		GlobalRegion = new Region("global");
-		Config.loadRegionSettings(GlobalRegion);
-	}
 	
 	public static Region loadRegion(String name) {
 		Region region = new Region(name);
@@ -38,9 +32,9 @@ public class RegionManager {
 	
 	public static Region getRegion(Location location) {
 		for (Region region : regions.values())
-			if (region.contains(location.toVector()) && location.getWorld().getName().equalsIgnoreCase(region.World))
+			if (region.contains(location.toVector()) && location.getWorld().getName().equalsIgnoreCase(region.World) && !region.Name.equalsIgnoreCase("global"))
 				return region;
-		return GlobalRegion;
+		return getRegion("global");
 	}
 	
 	public static Region getRegion(String name) {

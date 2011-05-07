@@ -1,7 +1,6 @@
 package com.matejdro.bukkit.portalstick.util;
 
 import java.io.File;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +24,7 @@ public class Config {
 	private static Configuration regionConfig;
 	private static Configuration grillConfig;
 	
-	public static HashSet<String> EnabledWorlds;
+	public static HashSet<String> DisabledWorlds;
 	public static boolean DeleteOnQuit;
 	public static int PortalTool;
 	public static boolean CompactPortal;
@@ -46,28 +45,26 @@ public class Config {
 		grillConfig = getConfigFile("grills.yml");
 		
 		//Check main settings
-		List<String> keys = mainConfig.getKeys("main");
-		if (!keys.contains("enabled-worlds"))
-			mainConfig.setProperty("main.enabled-worlds", plugin.getServer().getWorlds().get(0));
-		if (!keys.contains("compact-portal"))
+		if (mainConfig.getProperty("main.disabled-worlds") == null)
+			mainConfig.setProperty("main.disabled-worlds", "");
+		if (mainConfig.getProperty("main.compact-portal") == null)
 			mainConfig.setProperty("main.compact-portal", false);
-		if (!keys.contains("delete-on-quit"))
+		if (mainConfig.getProperty("main.delete-on-quit") == null)
 			mainConfig.setProperty("main.delete-on-quit", false);
-		if (!keys.contains("portal-tool"))
+		if (mainConfig.getProperty("main.portal-tool") == null)
 			mainConfig.setProperty("main.portal-tool", 280);
-		if (!keys.contains("region-tool"))
+		if (mainConfig.getProperty("main.region-tool") == null)
 			mainConfig.setProperty("main.region-tool", 268);
 		
 		//Check messages
-		keys = mainConfig.getKeys("messages");
-		if (!keys.contains("cannot-place-portal"))
-			mainConfig.setProperty("messages.cannot-place-portal", "Cannot place a portal there!");
-		if (!keys.contains("portal-stick-enabled"));
-			mainConfig.setProperty("messages.portal-stick-enabled", "You have just turned your crappy piece of wood into Aperture Science Handheld Portal Stick!");
-		if (!keys.contains("portal-stick-disabled"));
-			mainConfig.setProperty("messages.portal-stick-enabled", "You have just reverted your Aperture Science Handheld Portal Stick back into crappy piece of wood!");
-		if (!keys.contains("restricted-world"))
-			mainConfig.setProperty("messages.restricted-world", "You cannot do that in this world!");
+		if (mainConfig.getProperty("messages.cannot-place-portal") == null)
+			mainConfig.setProperty("messages.cannot-place-portal", "&cCannot place a portal there!");
+		if (mainConfig.getProperty("messages.portal-stick-enabled") == null);
+			mainConfig.setProperty("messages.portal-stick-enabled", "&7Aperture Science Handheld Portal Stick Enabled");
+		if (mainConfig.getProperty("messages.portal-stick-disabled") == null);
+			mainConfig.setProperty("messages.portal-stick-disabled", "&7Aperture Science Handheld Portal Stick Disabled");
+		if (mainConfig.getProperty("messages.restricted-world") == null)
+			mainConfig.setProperty("messages.restricted-world", "&cYou cannot do that in this world!");
 
 		//Load messages
 		MessageCannotPlacePortal = mainConfig.getString("messages.cannot-place-portal");
@@ -76,15 +73,18 @@ public class Config {
 		MessageRestrictedWorld = mainConfig.getString("messages.restricted-world");
         
         //Load main settings
-        EnabledWorlds = new HashSet<String>(mainConfig.getStringList("main.enabled-worlds", null));
+        DisabledWorlds = new HashSet<String>(mainConfig.getStringList("main.disabled-worlds", null));
         DeleteOnQuit = mainConfig.getBoolean("main.delete-on-quit", false);
         PortalTool = mainConfig.getInt("main.portal-tool", 280);
         CompactPortal = mainConfig.getBoolean("main.compact-portal", false);
         RegionTool = mainConfig.getInt("main.region-tool", 268);
         
         //Load all regions
-        for (String regionName : regionConfig.getKeys("regions"))
-        	RegionManager.loadRegion(regionName);
+        if (regionConfig.getKeys("") != null)
+        	for (String regionName : regionConfig.getKeys(""))
+        		RegionManager.loadRegion(regionName);
+        if (RegionManager.getRegion("global") == null)
+        	RegionManager.loadRegion("global");
         
         //Load grills
         for (String grill : grillConfig.getStringList("grills", null))
@@ -101,17 +101,17 @@ public class Config {
 	}
 	
 	public static void deleteRegion(String name) {
-		regionConfig.removeProperty("regions." + name);
+		regionConfig.removeProperty(name);
 	}
 	
 	public static void loadRegionSettings(Region region) {
 		for (RegionSetting setting : RegionSetting.values()) {
-			Object prop = regionConfig.getProperty(mkRegionNode(region.Name, setting.getYaml()));
+			Object prop = regionConfig.getProperty(region.Name + "." + setting.getYaml());
     		if (prop == null)
     			region.settings.put(setting, setting.getDefault());
     		else
     			region.settings.put(setting, prop);
-    		regionConfig.setProperty(mkRegionNode(region.Name, setting.getYaml()), region.settings.get(setting));
+    		regionConfig.setProperty(region.Name + "." + setting.getYaml(), region.settings.get(setting));
     	}
 		region.updateLocation();
 	}
@@ -119,16 +119,6 @@ public class Config {
 	private static Configuration getConfigFile(String filename) {
 		Configuration configfile = null;
 		File file = new File(plugin.getDataFolder(), filename);
-		if (!file.exists()) {
-			try {
-				file.createNewFile();
-				PrintWriter output = new PrintWriter(file);
-				output.println("setup: false");
-				output.close();
-			} catch (Exception e) {
-				Util.severe("Unable to create file " + filename);
-			}
-		}
 		try {
 			configfile = new Configuration(file);
 			configfile.load();
@@ -140,19 +130,13 @@ public class Config {
 		return configfile;
 	}
 	
-	private static String mkRegionNode(String node, String region) {
-		if (region.equalsIgnoreCase("global"))
-			return "global." + node;
-		return "regions." + region + "." + node;
-	}
-	
 	public static void saveAll() {
 		
 		//Save regions
 		for (Map.Entry<String, Region> entry : RegionManager.getRegionMap().entrySet()) {
 			Region region = entry.getValue();
 			for (Entry<RegionSetting, Object> setting : region.settings.entrySet())
-				regionConfig.setProperty(mkRegionNode(setting.getKey().getYaml(), region.Name), setting.getValue());
+				regionConfig.setProperty(region.Name + "." + setting.getKey().getYaml(), setting.getValue());
 		}
 		if (!regionConfig.save())
 			Util.severe("Error while writing to regions.yml");

@@ -156,12 +156,12 @@ public class PortalStickBlockListener extends BlockListener {
 		if (event.getCause() == IgniteCause.FLINT_AND_STEEL)
 		{
 		if (!Permission.createGrill(event.getPlayer())) return;
-			if (!Config.EnabledWorlds.contains(player.getLocation().getWorld().getName()))
+			if (Config.DisabledWorlds.contains(player.getLocation().getWorld().getName()))
 			{
 				Util.sendMessage(player, Config.MessageRestrictedWorld);
 				return;
 			}
-			if (GrillManager.placeEmancipationGrill(event.getBlock().getRelative(0, -1, 0))) event.setCancelled(true);
+			if (GrillManager.placeRecursiveEmancipationGrill(event.getBlock().getRelative(0, -1, 0))) event.setCancelled(true);
 		} 
 	}
 

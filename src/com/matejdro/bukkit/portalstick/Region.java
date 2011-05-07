@@ -26,7 +26,7 @@ public class Region {
 		String[] loc1 = loc[1].split(",");
 		PointOne = new Vector(Integer.parseInt(loc1[0]), Integer.parseInt(loc1[1]), Integer.parseInt(loc1[2]));
 		String[] loc2 = loc[2].split(",");
-		PointOne = new Vector(Integer.parseInt(loc2[0]), Integer.parseInt(loc2[1]), Integer.parseInt(loc2[2]));
+		PointTwo = new Vector(Integer.parseInt(loc2[0]), Integer.parseInt(loc2[1]), Integer.parseInt(loc2[2]));
 		World = loc[0];
 	}
 	
@@ -51,6 +51,9 @@ public class Region {
 	}
 	public String getString(RegionSetting setting) {
 		return (String)settings.get(setting);
+	}
+	public double getDouble(RegionSetting setting) {
+		return (Double)settings.get(setting);
 	}
 	
 }

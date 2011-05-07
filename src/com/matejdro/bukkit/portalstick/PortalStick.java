@@ -1,5 +1,6 @@
 package com.matejdro.bukkit.portalstick;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class PortalStick extends JavaPlugin {
 	
 	public static HashMap<String, User> players = new HashMap<String, User>();
 	
-	public static List<BaseCommand> commands;
+	public static List<BaseCommand> commands = new ArrayList<BaseCommand>();
 	public static Config config;
 	public static Permission permissions;
 

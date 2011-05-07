@@ -53,7 +53,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		
 		if (player.getItemInHand().getTypeId() == Config.PortalTool && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
 		{		
-			if (!Config.EnabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))
+			if (Config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))
 			{
 				player.sendMessage(Config.MessageRestrictedWorld);
 				return;
@@ -200,7 +200,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 	        }
 				
 			momentum = Math.abs(momentum);
-			momentum = momentum * regionTo.getInt(RegionSetting.VELOCITY_MULTIPLIER);
+			momentum = momentum * regionTo.getDouble(RegionSetting.VELOCITY_MULTIPLIER);
 
 			//reposition velocity to match output portal's orientation
 			Vector outvector = player.getVelocity().zero();
@@ -276,12 +276,14 @@ public class PortalStickPlayerListener extends PlayerListener {
 	{
 		Player player = event.getPlayer();
 		User user = PortalStick.players.get(player.getName());
-		if (Config.DeleteOnQuit)
-			PortalManager.deletePortals(user);			
+		
 		Region region = RegionManager.getRegion(player.getLocation());
 		if (region.Name != "global" && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
 			player.getInventory().setContents(user.getInventory().getContents());
-		PortalStick.players.remove(player.getName());
+		if (Config.DeleteOnQuit) {
+			PortalManager.deletePortals(user);
+			PortalStick.players.remove(player.getName());
+		}
 	}
 		
 	public void onPlayerJoin(PlayerJoinEvent event)
