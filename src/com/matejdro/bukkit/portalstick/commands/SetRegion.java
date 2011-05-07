@@ -23,8 +23,9 @@ public class SetRegion extends BaseCommand {
 		else if (RegionManager.getRegion(args.get(0)) != null)
 			Util.sendMessage(sender, "&cRegion already exists with that name!");
 		else {
+			Util.sendMessage(sender, "&aRegion &7" + args.get(0) + " created!");
 			RegionManager.createRegion(args.get(0), user.getPointOne(), user.getPointTwo());
 		}
-		return false;
+		return true;
 	}
 }

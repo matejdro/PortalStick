@@ -42,7 +42,6 @@ public class PortalStickPlayerListener extends PlayerListener {
 	
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{
-		if (event.isCancelled()) return;
 		
 		Player player = event.getPlayer();
 		User user = PortalStick.players.get(player.getName());
@@ -50,7 +49,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		HashSet<Byte> tb = new HashSet<Byte>();
 		for (int i : region.getList(RegionSetting.TRANSPARENT_BLOCKS).toArray(new Integer[0]))
 			tb.add((byte) i);
-		
+		Util.info(event.getAction().name());
 		if (player.getItemInHand().getTypeId() == Config.PortalTool && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
 		{		
 			if (Config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))

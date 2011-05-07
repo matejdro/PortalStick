@@ -24,9 +24,9 @@ public class Region {
 	public void updateLocation() {
 		String[] loc = ((String)settings.get(RegionSetting.LOCATION)).split(":");
 		String[] loc1 = loc[1].split(",");
-		PointOne = new Vector(Integer.parseInt(loc1[0]), Integer.parseInt(loc1[1]), Integer.parseInt(loc1[2]));
+		PointOne = new Vector(Double.parseDouble(loc1[0]), Double.parseDouble(loc1[1]), Double.parseDouble(loc1[2]));
 		String[] loc2 = loc[2].split(",");
-		PointTwo = new Vector(Integer.parseInt(loc2[0]), Integer.parseInt(loc2[1]), Integer.parseInt(loc2[2]));
+		PointTwo = new Vector(Double.parseDouble(loc2[0]), Double.parseDouble(loc2[1]), Double.parseDouble(loc2[2]));
 		World = loc[0];
 	}
 	

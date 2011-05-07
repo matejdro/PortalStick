@@ -18,15 +18,13 @@ public abstract class BaseCommand {
 	public boolean bePlayer = true;
 	public Player player;
 	
-	public boolean run(CommandSender sender, String[] args) {
+	public boolean run(CommandSender sender, String[] preArgs) {
 		this.sender = sender;
-		if (args.length > 1) {
-			int i = 1;
-			while (i < args.length) {
-				this.args.add(args[i]);
-			}
-		}
-		if (argLength != (args.length -1)) {
+		for (String arg : preArgs)
+			args.add(arg);
+		args.remove(0);
+		
+		if (argLength != args.size()) {
 			sendUsage();
 			return true;
 		}
