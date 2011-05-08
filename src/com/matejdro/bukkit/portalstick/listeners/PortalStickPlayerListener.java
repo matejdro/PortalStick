@@ -100,7 +100,6 @@ public class PortalStickPlayerListener extends PlayerListener {
 		Block loc = event.getTo().getBlock();
 		Region regionTo = RegionManager.getRegion(event.getTo());
 		Region regionFrom = RegionManager.getRegion(event.getFrom());
-		User user = UserManager.getUser(player);
 		
 		//check for changing regions
 		PortalManager.checkPlayerMove(player, regionFrom, regionTo);
@@ -112,15 +111,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 			{
 				if (grill.getInside().contains(loc))
 				{
-					if (user != null)
-					{
-						if (user.getBluePortal() != null) user.getBluePortal().delete();
-						if (user.getOrangePortal() != null) user.getOrangePortal().delete();
-					}
-					if (regionTo.getBoolean(RegionSetting.GRILLS_CLEAR_INVENTORY))
-					{
-						PortalManager.setPortalInventory(player);
-					}
+					UserManager.emancipate(player);
 				}
 			}
 		}
@@ -251,9 +242,13 @@ public class PortalStickPlayerListener extends PlayerListener {
 	public void onPlayerDropItem(PlayerDropItemEvent event) {
 		if (event.isCancelled()) return;
 		
+		Player player = event.getPlayer();
+		User user = UserManager.getUser(player);
+		Region region = RegionManager.getRegion(player.getLocation());
+		if (region.Name != "global")
+			user.addDroppedItem(event.getItemDrop());
 		
-		
-		Block b = event.getPlayer().getLocation().getBlock();
+		/*Block b = player.getLocation().getBlock();
 		for (Grill grill: GrillManager.grills)
 		{
 			for (Block i: grill.getInside())
@@ -261,12 +256,12 @@ public class PortalStickPlayerListener extends PlayerListener {
 				double distance = Math.sqrt(Math.pow(i.getLocation().getX() - b.getLocation().getX(),2) + Math.pow(i.getLocation().getY() - b.getLocation().getY(),2) + Math.pow(i.getLocation().getZ() - b.getLocation().getZ(),2));
 				if (distance < 3)
 				{
-					event.getPlayer().sendMessage("Don't drop items so close to Material Emancipation Grill!");
+					Util.sendMessage(player, "Don't drop items so close to Material Emancipation Grill!");
 					event.setCancelled(true);
 					return;
 				}
 			}	 
-		}
+		}*/
 	}
 	
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
@@ -286,6 +281,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 			PortalManager.deletePortals(user);
 			UserManager.deleteUser(player);
 		}
+		UserManager.deleteDroppedItems(player);
 	}
 		
 	public void onPlayerJoin(PlayerJoinEvent event)

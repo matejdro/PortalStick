@@ -2,7 +2,10 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.HashMap;
 
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+
+import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 public class UserManager {
 	
@@ -25,7 +28,31 @@ public class UserManager {
 	}
 
 	public static void deleteUser(Player player) {
+		PortalManager.deletePortals(getUser(player));
+		deleteDroppedItems(player);
 		users.remove(player.getName());
+	}
+
+	public static void emancipate(Player player) {
+		
+		User user = getUser(player);
+		Region region = RegionManager.getRegion(player.getLocation());
+		PortalManager.deletePortals(user);
+		
+		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_INVENTORY))
+			PortalManager.setPortalInventory(player);
+		
+		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS)) {
+			deleteDroppedItems(player);
+		}
+		
+	}
+	
+	public static void deleteDroppedItems(Player player) {
+		User user = getUser(player);
+		for (Item item : user.getDroppedItems())
+			item.remove();
+		user.resetItems();
 	}
 
 }

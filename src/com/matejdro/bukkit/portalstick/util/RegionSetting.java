@@ -10,6 +10,7 @@ public enum RegionSetting {
 	ENABLE_GRILL("enable-emancipation-grill", true),
 	DELETE_ON_EXITENTRANCE("delete-portals-on-exitentrance", true),
 	GRILLS_CLEAR_INVENTORY("grills-clear-inventory", true),
+	GRILLS_CLEAR_ITEM_DROPS("grills-clear-item-drops", true),
 	GRILL_MATERIAL("emancipation-grill-material", "48"),
 	TRANSPARENT_BLOCKS("transparent-blocks", Arrays.asList(new Integer[]{0,8,9,10,11,20})),
 	PORTAL_BLOCKS("portallable-blocks", Arrays.asList(new Integer[]{1})),

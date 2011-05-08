@@ -31,6 +31,7 @@ public class PortalManager {
 			}
 			if (regionFrom.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE) || regionTo.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE))
 				deletePortals(user);
+			UserManager.deleteDroppedItems(player);
 		}
 	}
 
