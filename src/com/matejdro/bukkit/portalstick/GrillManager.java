@@ -10,6 +10,7 @@ import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
+import com.matejdro.bukkit.portalstick.util.Util;
 
 public class GrillManager {
 	
@@ -39,8 +40,8 @@ public class GrillManager {
     public static boolean placeRecursiveEmancipationGrill(Block initial) {
     	
     	Region region = RegionManager.getRegion(initial.getLocation());
-    	int borderID = region.getInt(RegionSetting.GRILL_MATERIAL);
-    	if (initial.getTypeId() != borderID) return false;
+    	String borderID = region.getString(RegionSetting.GRILL_MATERIAL);
+    	if (Util.compareBlockToString(initial, borderID)) return false;
 
     	//Attempt to get complete border
     	startRecurse(initial, borderID, BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.DOWN);
@@ -85,11 +86,11 @@ public class GrillManager {
     	    				continue;
     	    			Block temp = block.getFace(face);
     	    			while (temp.getLocation().toVector().isInAABB(min, max)) {
-    	    				if (temp.getTypeId() == borderID)
+    	    				if (Util.compareBlockToString(temp, borderID))
     	    					break;
     	    				temp = temp.getFace(face);
     	    			}
-    	    			if (temp.getTypeId() != borderID) {
+    	    			if (Util.compareBlockToString(temp, borderID)) {
     	    				add = false;
     	    				break;
     	    			}
@@ -110,20 +111,20 @@ public class GrillManager {
     	return true;
     }
     
-    private static void startRecurse(Block initial, int id, BlockFace one, BlockFace two, BlockFace three, BlockFace four) {
+    private static void startRecurse(Block initial, String id, BlockFace one, BlockFace two, BlockFace three, BlockFace four) {
     	border = new HashSet<Block>();
     	max = 0;
     	complete = false;
     	recurse(initial, id, initial, BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.DOWN);
     }
     
-    private static void recurse(Block initial, int id, Block block, BlockFace one, BlockFace two, BlockFace three, BlockFace four) {
+    private static void recurse(Block initial, String id, Block block, BlockFace one, BlockFace two, BlockFace three, BlockFace four) {
     	if (max >= 100) return;
     	if (block == initial && border.size() > 2) {
     		complete = true;
     		return;
     	}
-    	if (block.getTypeId() == id && !border.contains(block)) {
+    	if (Util.compareBlockToString(block, id) && !border.contains(block)) {
     		border.add(block);
     		max++;
     		recurse(initial, id, block.getFace(one), one, two, three, four);

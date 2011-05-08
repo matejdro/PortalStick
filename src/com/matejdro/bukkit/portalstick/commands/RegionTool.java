@@ -1,7 +1,7 @@
 package com.matejdro.bukkit.portalstick.commands;
 
-import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.User;
+import com.matejdro.bukkit.portalstick.UserManager;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.Util;
 
@@ -16,7 +16,7 @@ public class RegionTool extends BaseCommand {
 	public boolean execute() {
 		if (!Permission.adminRegions(player))
 			return false;
-		User user = PortalStick.players.get(player.getName());
+		User user = UserManager.getUser(player);
 		if (user.getUsingTool()) {
 			user.setUsingTool(false);
 			Util.sendMessage(sender, "&aPortal region tool disabled");

@@ -1,7 +1,6 @@
 package com.matejdro.bukkit.portalstick;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -29,8 +28,6 @@ public class PortalStick extends JavaPlugin {
 	private PortalStickBlockListener BlockListener;
 	private PortalStickVehicleListener VehicleListener;
 	
-	public static HashMap<String, User> players = new HashMap<String, User>();
-	
 	public static List<BaseCommand> commands = new ArrayList<BaseCommand>();
 	public static Config config;
 	public static Permission permissions;
@@ -44,7 +41,7 @@ public class PortalStick extends JavaPlugin {
 			p.delete();
 		}
 		
-		for (Map.Entry<String, User> entry : players.entrySet()) {
+		for (Map.Entry<String, User> entry : UserManager.getUserList().entrySet()) {
 			Player player = getServer().getPlayer(entry.getKey());
 			User user = entry.getValue();
 			if (player != null)

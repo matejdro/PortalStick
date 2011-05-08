@@ -1,6 +1,9 @@
 package com.matejdro.bukkit.portalstick;
 
+import java.util.HashSet;
+
 import org.bukkit.Location;
+import org.bukkit.entity.Item;
 import org.bukkit.inventory.PlayerInventory;
 
 
@@ -11,6 +14,7 @@ public class User {
 	private Location pointOne;
 	private Location pointTwo;
 	private Boolean usingTool = false;
+	private HashSet<Item> droppedItems = new HashSet<Item>();
 	
 	public Portal getBluePortal() {
 		return blueportal;
@@ -58,5 +62,17 @@ public class User {
 
 	public Boolean getUsingTool() {
 		return usingTool;
+	}
+	
+	public void addDroppedItem(Item item) {
+		droppedItems.add(item);
+	}
+	
+	public HashSet<Item> getDroppedItems() {
+		return droppedItems;
+	}
+	
+	public void resetItems() {
+		droppedItems = new HashSet<Item>();
 	}
 }

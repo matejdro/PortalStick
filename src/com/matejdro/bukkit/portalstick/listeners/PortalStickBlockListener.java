@@ -31,32 +31,30 @@ public class PortalStickBlockListener extends BlockListener {
 		if (type == Material.WOOL)
 		{
 			for (Portal p : PortalManager.portals)
-			 {
-				 for (Block b : p.getBorder())
-				 {
-					 if (event.getBlock() == b)
-					 {
-						 event.setCancelled(true);
-						 p.delete();
-						 return;
-					 }
-				 }
+			{
+				for (Block b : p.getBorder())
+				{
+					if (event.getBlock() == b)
+					{
+						event.setCancelled(true);
+						p.delete();
+						return;
+					}
+				}
 				 
-				 if (!p.isOpen())
-				 {
-					 for (Block b : p.getInside())
-					 {
-						 if (event.getBlock() == b)
-						 {
-							 event.setCancelled(true);
-							 p.delete();
-							 return;
-						 }
-					 }
-				 }
-
-				 
-			 }
+				if (!p.isOpen())
+				{
+					for (Block b : p.getInside())
+					{
+						if (event.getBlock() == b)
+						{
+							event.setCancelled(true);
+							p.delete();
+							return;
+						}
+					}
+				}
+			}
 		}
 		
 		
@@ -73,7 +71,7 @@ public class PortalStickBlockListener extends BlockListener {
 
 		}
 		
-		if (event.getBlock().getTypeId() == region.getInt(RegionSetting.GRILL_MATERIAL))
+		if (Util.compareBlockToString(event.getBlock(), region.getString(RegionSetting.GRILL_MATERIAL)))
 		{
 			for (Grill grill: GrillManager.grills)
 			{

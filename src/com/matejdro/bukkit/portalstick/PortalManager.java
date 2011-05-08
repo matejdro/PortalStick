@@ -20,7 +20,7 @@ public class PortalManager {
 
 	public static void checkPlayerMove(Player player, Region regionFrom, Region regionTo)
 	{
-		User user = PortalStick.players.get(player.getName());
+		User user = UserManager.getUser(player);
 		if (!regionTo.Name.equals(regionFrom.Name)) {
 			if (regionTo.Name == "global") {
 				player.getInventory().setContents(user.getInventory().getContents());
@@ -176,7 +176,7 @@ public class PortalManager {
 		
 		PortalCoord portalc = new PortalCoord();
 		
-		User owner = PortalStick.players.get(player.getName());
+		User owner = UserManager.getUser(player);
 		
 		Portal oldportal = orange ? owner.getOrangePortal() : owner.getBluePortal();
 		if (oldportal == null) oldportal = new Portal();
