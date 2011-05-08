@@ -2,12 +2,16 @@ package com.matejdro.bukkit.portalstick.listeners;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Dispenser;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockRedstoneEvent;
+import org.bukkit.inventory.ItemStack;
 
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
@@ -194,6 +198,33 @@ public PortalStickBlockListener(PortalStick instance)
 			}
 	 }
 	 
+	 public void onBlockRedstoneChange(BlockRedstoneEvent event) {
+		 if (event.getNewCurrent() == 0) return;
+		 Block block = event.getBlock();
+		 Block dispenserb = null;
+		 
+		 Region region = RegionManager.getRegion(block.getLocation());
+		if (!region.getBoolean(RegionSetting.INFINITE_DISPENSERS))
+				return;
+
+		 
+		 if (block.getFace(BlockFace.NORTH).getType() == Material.DISPENSER) dispenserb = block.getFace(BlockFace.NORTH);
+		 else if (block.getFace(BlockFace.SOUTH).getType() == Material.DISPENSER) dispenserb = block.getFace(BlockFace.SOUTH);
+		 else if (block.getFace(BlockFace.WEST).getType() == Material.DISPENSER) dispenserb = block.getFace(BlockFace.WEST);
+		 else if (block.getFace(BlockFace.EAST).getType() == Material.DISPENSER) dispenserb = block.getFace(BlockFace.EAST);
+		 
+		 if (dispenserb != null)
+		 {
+			 Dispenser dispenser = (Dispenser) dispenserb.getState();
+			 ItemStack item = dispenser.getInventory().getItem(4);
+			 if (item != null && item.getType() != Material.AIR)
+			 {
+				 item.setAmount(item.getAmount() + 1);
+				 dispenser.getInventory().setItem(4, item);
+			 }
+		 }
+	 }
+	 
 	 public class RemoveLiquid implements Runnable
 		{
 			PortalStick plugin = null;
@@ -216,5 +247,7 @@ public PortalStickBlockListener(PortalStick instance)
 			    		
 			}
 		}
+	 
+	 
 
 }
