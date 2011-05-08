@@ -6,6 +6,8 @@ import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.matejdro.bukkit.portalstick.Region;
+import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.util.Util;
 
 public abstract class BaseCommand {
@@ -17,6 +19,7 @@ public abstract class BaseCommand {
 	public String usage;
 	public boolean bePlayer = true;
 	public Player player;
+	public Region region;
 	
 	public boolean run(CommandSender sender, String[] preArgs) {
 		this.sender = sender;
@@ -31,6 +34,7 @@ public abstract class BaseCommand {
 		if (bePlayer && !(sender instanceof Player))
 			return false;
 		player = (Player)sender;
+		region = RegionManager.getRegion(player.getLocation());
 		return execute();
 	}
 	

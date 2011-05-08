@@ -12,10 +12,10 @@ public enum RegionSetting {
 	GRILLS_CLEAR_INVENTORY("grills-clear-inventory", true),
 	GRILLS_CLEAR_ITEM_DROPS("grills-clear-item-drops", true),
 	GRILL_MATERIAL("emancipation-grill-material", "48"),
-	TRANSPARENT_BLOCKS("transparent-blocks", Arrays.asList(new Integer[]{0,8,9,10,11,20})),
+	TRANSPARENT_BLOCKS("transsparent-blocks", Arrays.asList(new Integer[]{0,8,9,10,11,20})),
 	PORTAL_BLOCKS("portallable-blocks", Arrays.asList(new Integer[]{1})),
 	ALL_BLOCKS_PORTAL("all-blocks-allow-portals", false),
-	UNIQUE_INVENTORY("unique-inventory", true),
+	UNIQUE_INVENTORY("unique-inventory", false),
 	VELOCITY_MULTIPLIER("velocity-multiplier", 1.0),
 	LOCATION("location", "world:0,0,0:0,0,0");
 	

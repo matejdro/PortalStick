@@ -254,20 +254,6 @@ public class PortalStickPlayerListener extends PlayerListener {
 		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS))
 			user.addDroppedItem(event.getItemDrop());
 		
-		/*Block b = player.getLocation().getBlock();
-		for (Grill grill: GrillManager.grills)
-		{
-			for (Block i: grill.getInside())
-			{
-				double distance = Math.sqrt(Math.pow(i.getLocation().getX() - b.getLocation().getX(),2) + Math.pow(i.getLocation().getY() - b.getLocation().getY(),2) + Math.pow(i.getLocation().getZ() - b.getLocation().getZ(),2));
-				if (distance < 3)
-				{
-					Util.sendMessage(player, "Don't drop items so close to Material Emancipation Grill!");
-					event.setCancelled(true);
-					return;
-				}
-			}	 
-		}*/
 	}
 	
 	public void onPlayerTeleport(PlayerTeleportEvent event) {

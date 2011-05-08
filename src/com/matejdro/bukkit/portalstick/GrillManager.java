@@ -107,6 +107,7 @@ public class GrillManager {
     		if (block.getZ() <= min.getZ()) min.setZ(block.getZ());
     	}
     	
+    	//Loop through all blocks in the min-max range checking for 'inside' blocks
     	for (int y = (int)min.getY(); y <= (int)max.getY(); y++) {
     		for (int x = (int)min.getX(); x <= (int)max.getX(); x++) {
     			for (int z = (int)min.getZ(); z <= (int)max.getZ(); z++) {

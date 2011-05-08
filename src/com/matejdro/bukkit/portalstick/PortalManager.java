@@ -21,6 +21,7 @@ public class PortalManager {
 	public static void checkPlayerMove(Player player, Region regionFrom, Region regionTo)
 	{
 		User user = UserManager.getUser(player);
+		if (user.getUsingTool()) return;
 		if (!regionTo.Name.equals(regionFrom.Name)) {
 			if (regionTo.Name == "global") {
 				player.getInventory().setContents(user.getInventory().getContents());
