@@ -74,8 +74,9 @@ public class PortalStickBlockListener extends BlockListener {
 		}
 		
 		if (event.getBlock().getTypeId() == region.getInt(RegionSetting.GRILL_MATERIAL))
+		{
 			for (Grill grill: GrillManager.grills)
-			 {
+			{
 				 if (grill.getBorder().contains(event.getBlock()))
 				 {
 					 if (!Permission.deleteGrill(event.getPlayer())) return;
@@ -83,7 +84,7 @@ public class PortalStickBlockListener extends BlockListener {
 					 return;
 				 }
 			 }
-
+		}
 
 	}
 	
@@ -164,9 +165,4 @@ public class PortalStickBlockListener extends BlockListener {
 			if (GrillManager.placeRecursiveEmancipationGrill(event.getBlock().getRelative(0, -1, 0))) event.setCancelled(true);
 		} 
 	}
-
-
-	 
-
-	
 }

@@ -3,6 +3,7 @@ package com.matejdro.bukkit.portalstick.util;
 import java.util.logging.Logger;
 
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 
 public class Util {
@@ -40,6 +41,27 @@ public class Util {
 		location.setY((double)Math.round(location.getY() * 10) / 10);
 		location.setZ((double)Math.round(location.getZ() * 10) / 10);
 		return location;
+	}
+	
+	public static boolean compareBlockToString(Block block, String blockData) {
+		String[] blockArr = blockData.split(":");
+		if (blockArr.length > 1)
+			return (block.getTypeId() == Integer.parseInt(blockArr[0]) && block.getData() == Integer.parseInt(blockArr[1]));
+		else
+			return block.getTypeId() == Integer.parseInt(blockArr[0]);
+	}
+	
+	public static void setBlockData(Block block, String blockData) {
+		String[] blockArr = blockData.split(":");
+		block.setTypeId(Integer.parseInt(blockArr[0]));
+		if (blockArr.length > 1)
+			block.setData((byte) Integer.parseInt(blockArr[1]));
+	}
+	
+	public static String getBlockData(Block block) {
+		if (block.getData() != 0)
+			return block.getTypeId() + ":" + block.getData();
+		return Integer.toString(block.getTypeId());
 	}
 	
 	public static String stripColors(String str) {
