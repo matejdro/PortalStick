@@ -4,15 +4,16 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-
 
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
 import com.matejdro.bukkit.portalstick.Portal;
 import com.matejdro.bukkit.portalstick.PortalManager;
+import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.util.Permission;
@@ -20,7 +21,13 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalStickBlockListener extends BlockListener {
-	
+private PortalStick plugin;
+
+public PortalStickBlockListener(PortalStick instance)
+{
+	plugin = instance;
+}
+
 	public void onBlockBreak(BlockBreakEvent event) {
 		Region region = RegionManager.getRegion(event.getBlock().getLocation());
 		Material type = event.getBlock().getType();
@@ -140,5 +147,74 @@ public class PortalStickBlockListener extends BlockListener {
 			}
 		}
 	}
+	
+	 public void onBlockFromTo(BlockFromToEvent event) {
+		 Region region = RegionManager.getRegion(event.getBlock().getLocation());
+			if (!region.getBoolean(RegionSetting.TELEPORT_LIQUIDS))
+				return;
+
+			for (Portal portal : PortalManager.portals)
+			{
+				if (portal.isOpen() && portal.getOwner() != null && portal.getInside().contains(event.getBlock()))
+				{
+					Portal destination;
+					if (portal.isOrange())
+						destination = portal.getOwner().getBluePortal();
+					else
+						destination = portal.getOwner().getOrangePortal();
+					
+					Material blockt = Material.AIR;
+					switch (event.getBlock().getType())
+					{
+						case WATER:
+						case STATIONARY_WATER:
+							blockt = Material.WATER;
+							break;
+						case LAVA:
+						case STATIONARY_LAVA:
+							blockt = Material.LAVA;
+							break;
+					}
+					
+					if (destination != null)
+					{
+						final Block destb = destination.getTeleportLocation().getBlock();
+						final Block source = event.getBlock();
+						if (destb.getType() == Material.AIR)
+						{
+							destb.setType(blockt);
+							plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemoveLiquid(plugin, source, destb, destination), 10L);
+
+						}
+						
+
+						event.setCancelled(true);
+					}
+				}
+			}
+	 }
+	 
+	 public class RemoveLiquid implements Runnable
+		{
+			PortalStick plugin = null;
+			Block source = null;
+			Block destination = null;
+			Portal exit = null;
+			public RemoveLiquid(PortalStick Plugin, Block Source, Block Destination, Portal Exit){
+				plugin = Plugin;
+				source = Source;
+				destination = Destination;
+				exit = Exit;
+			}
+			@Override
+			public void run() {
+				if (!(source.getTypeId() <12 && source.getTypeId() > 6) || !exit.isOpen())
+					destination.setType(Material.AIR);
+				else
+					plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemoveLiquid(plugin, source, destination, exit), 10L);
+
+			    		
+			}
+		}
 
 }

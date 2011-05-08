@@ -44,7 +44,7 @@ public class PortalStick extends JavaPlugin {
 		for (Map.Entry<String, User> entry : UserManager.getUserList().entrySet()) {
 			Player player = getServer().getPlayer(entry.getKey());
 			User user = entry.getValue();
-			if (player != null)
+			if (player != null && user.getInventory() != null)
 				player.getInventory().setContents(user.getInventory().getContents());
 		}
 		Config.saveAll();
@@ -53,7 +53,7 @@ public class PortalStick extends JavaPlugin {
 	public void onEnable() {
 		
 		PlayerListener = new PortalStickPlayerListener(this);
-		BlockListener = new PortalStickBlockListener();
+		BlockListener = new PortalStickBlockListener(this);
 		VehicleListener = new PortalStickVehicleListener();
 		new GrillManager(this);
 		config = new Config(this);
@@ -72,6 +72,7 @@ public class PortalStick extends JavaPlugin {
 		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_DROP_ITEM, PlayerListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PHYSICS, BlockListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_IGNITE, BlockListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_FROMTO, BlockListener, Event.Priority.Low, this);
 
 		worldGuard = (WorldGuardPlugin) this.getServer().getPluginManager().getPlugin("WorldGuard");
 		
