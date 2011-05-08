@@ -6,9 +6,11 @@ import java.util.List;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.Config;
+import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
@@ -18,6 +20,7 @@ public class GrillManager {
 	public static PortalStick plugin;
 	
 	private static HashSet<Block> border;
+	private static HashSet<Block> inside;
 	private static boolean complete;
 	private static int max = 0;
 	
@@ -37,41 +40,73 @@ public class GrillManager {
     	return grills;
     }
     
+    public static boolean createGrill(Player player, Block block) {
+    	if (!Permission.createGrill(player)) return false;
+		if (Config.DisabledWorlds.contains(player.getLocation().getWorld().getName()))
+		{
+			Util.sendMessage(player, Config.MessageRestrictedWorld);
+			return false;
+		}
+		if (GrillManager.placeRecursiveEmancipationGrill(block)) return true;
+		return false;
+    }
+    
     public static boolean placeRecursiveEmancipationGrill(Block initial) {
     	
     	Region region = RegionManager.getRegion(initial.getLocation());
     	String borderID = region.getString(RegionSetting.GRILL_MATERIAL);
-    	if (Util.compareBlockToString(initial, borderID)) return false;
-
+    	if (!Util.compareBlockToString(initial, borderID)) return false;
+    	if (!region.getBoolean(RegionSetting.ENABLE_GRILLS)) return false;
+    	
+    	//Check if initial is already in a grill
+    	for (Grill grill : grills)
+    		if (grill.getBorder().contains(initial))
+    			return false;
+    	
     	//Attempt to get complete border
-    	startRecurse(initial, borderID, BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.DOWN);
-    	BlockFace iOne = BlockFace.EAST; BlockFace iTwo = BlockFace.WEST;
-    	if (!complete) {
-    		startRecurse(initial, borderID, BlockFace.UP, BlockFace.WEST, BlockFace.EAST, BlockFace.DOWN);
-    		iOne = BlockFace.NORTH; iTwo = BlockFace.SOUTH;
-    	}
-    	if (!complete) {
-    		startRecurse(initial, borderID, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST);
-    		iOne = BlockFace.UP; iTwo = BlockFace.DOWN;
-    	}
+    	startRecurse(initial, borderID, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.DOWN, BlockFace.UP);
+    	if (!complete)
+    		startRecurse(initial, borderID, BlockFace.UP, BlockFace.WEST, BlockFace.EAST, BlockFace.DOWN, BlockFace.SOUTH, BlockFace.NORTH);
+    	if (!complete)
+    		startRecurse(initial, borderID, BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.DOWN, BlockFace.EAST, BlockFace.WEST);
     	if (!complete)
     		return false;
-
+    	
+    	//Create grill
+    	Grill grill = new Grill(border, inside, initial);
+    	grills.add(grill);
+    	grill.create();
+    	Config.saveAll();
+    	return true;
+    }
+    
+    
+    private static void startRecurse(Block initial, String id, BlockFace one, BlockFace two, BlockFace three, BlockFace four, BlockFace iOne, BlockFace iTwo) {
+    	border = new HashSet<Block>();
+    	inside = new HashSet<Block>();
+    	max = 0;
+    	complete = false;
+    	recurse(initial, id, initial, one, two, three, four);
+    	generateInsideBlocks(id, initial, iOne, iTwo);
+    	if (inside.size() == 0)
+    		complete = false;
+    }
+    
+    private static void generateInsideBlocks(String borderID, Block initial, BlockFace iOne, BlockFace iTwo) {
+    	
     	//Work out maximums and minimums
-    	Vector max = initial.getLocation().toVector();
-    	Vector min = initial.getLocation().toVector();
+    	Vector max = border.toArray(new Block[0])[0].getLocation().toVector();
+    	Vector min = border.toArray(new Block[0])[0].getLocation().toVector();
     	
     	for (Block block : border.toArray(new Block[0])) {
-    		if (block.getX() > max.getX()) max.setX(block.getX());
-    		if (block.getY() > max.getY()) max.setY(block.getY());
-    		if (block.getZ() > max.getZ()) max.setX(block.getZ());
-    		if (block.getX() < min.getX()) min.setX(block.getX());
-    		if (block.getY() < min.getY()) min.setY(block.getY());
-    		if (block.getZ() < min.getZ()) min.setX(block.getZ());
+    		if (block.getX() >= max.getX()) max.setX(block.getX());
+    		if (block.getY() >= max.getY()) max.setY(block.getY());
+    		if (block.getZ() >= max.getZ()) max.setZ(block.getZ());
+    		if (block.getX() <= min.getX()) min.setX(block.getX());
+    		if (block.getY() <= min.getY()) min.setY(block.getY());
+    		if (block.getZ() <= min.getZ()) min.setZ(block.getZ());
     	}
     	
-    	//Work out inside blocks
-    	HashSet<Block> inside = new HashSet<Block>();
     	for (int y = (int)min.getY(); y <= (int)max.getY(); y++) {
     		for (int x = (int)min.getX(); x <= (int)max.getX(); x++) {
     			for (int z = (int)min.getZ(); z <= (int)max.getZ(); z++) {
@@ -82,7 +117,7 @@ public class GrillManager {
     	    		boolean add = true;
     	    	
     	    		for (BlockFace face : BlockFace.values()) {
-    	    			if (face == iOne || face == iTwo || face == BlockFace.NORTH_EAST || face == BlockFace.NORTH_WEST || face == BlockFace.SOUTH_EAST || face == BlockFace.SOUTH_WEST)
+    	    			if (face == iOne || face == iTwo || face == BlockFace.SELF || face == BlockFace.NORTH_EAST || face == BlockFace.NORTH_WEST || face == BlockFace.SOUTH_EAST || face == BlockFace.SOUTH_WEST)
     	    				continue;
     	    			Block temp = block.getFace(face);
     	    			while (temp.getLocation().toVector().isInAABB(min, max)) {
@@ -90,7 +125,7 @@ public class GrillManager {
     	    					break;
     	    				temp = temp.getFace(face);
     	    			}
-    	    			if (Util.compareBlockToString(temp, borderID)) {
+    	    			if (!Util.compareBlockToString(temp, borderID)) {
     	    				add = false;
     	    				break;
     	    			}
@@ -102,20 +137,6 @@ public class GrillManager {
     			}
     		}
     	}
-    	
-    	//Create grill
-    	Grill grill = new Grill(border, inside, initial);
-    	grills.add(grill);
-    	grill.create();
-    	Config.saveAll();
-    	return true;
-    }
-    
-    private static void startRecurse(Block initial, String id, BlockFace one, BlockFace two, BlockFace three, BlockFace four) {
-    	border = new HashSet<Block>();
-    	max = 0;
-    	complete = false;
-    	recurse(initial, id, initial, BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.DOWN);
     }
     
     private static void recurse(Block initial, String id, Block block, BlockFace one, BlockFace two, BlockFace three, BlockFace four) {

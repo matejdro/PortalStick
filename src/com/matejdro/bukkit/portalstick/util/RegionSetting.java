@@ -7,7 +7,7 @@ public enum RegionSetting {
 	ENABLE_PORTALS("enable-portalstick", true),
 	TELEPORT_VEHICLES("teleport-vehicles", true),
 	CHECK_WORLDGUARD("obey-worldguard-permissions", false),
-	ENABLE_GRILL("enable-emancipation-grill", true),
+	ENABLE_GRILLS("enable-emancipation-grill", true),
 	DELETE_ON_EXITENTRANCE("delete-portals-on-exitentrance", true),
 	GRILLS_CLEAR_INVENTORY("grills-clear-inventory", true),
 	GRILLS_CLEAR_ITEM_DROPS("grills-clear-item-drops", true),

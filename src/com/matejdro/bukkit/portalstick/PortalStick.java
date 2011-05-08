@@ -47,6 +47,7 @@ public class PortalStick extends JavaPlugin {
 			if (player != null)
 				player.getInventory().setContents(user.getInventory().getContents());
 		}
+		Config.saveAll();
 	}
 
 	public void onEnable() {

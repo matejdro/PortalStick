@@ -51,6 +51,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		for (int i : region.getList(RegionSetting.TRANSPARENT_BLOCKS).toArray(new Integer[0]))
 			tb.add((byte) i);
 		
+		//Portal tool
 		if (player.getItemInHand().getTypeId() == Config.PortalTool && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
 		{		
 			if (Config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))
@@ -75,6 +76,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 			}
 			//float dir = (float)Math.toDegrees(Math.atan2(player.getLocation().getBlockX() - b.getX(), b.getZ() - player.getLocation().getBlockZ()));
 		}
+		//Region tool
 		else if (user.getUsingTool() && player.getItemInHand().getTypeId() == Config.RegionTool)
 		{
 			switch (event.getAction()) {
@@ -87,6 +89,10 @@ public class PortalStickPlayerListener extends PlayerListener {
 					Util.sendMessage(player, "&aRegion point one set`nType /portal setregion to save the region");
 					break;
 			}
+		}
+		//Flint and steel
+		else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && player.getItemInHand().getType() == Material.FLINT_AND_STEEL) {
+			GrillManager.createGrill(player, event.getClickedBlock());
 		}
 
 	}
@@ -105,7 +111,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		PortalManager.checkPlayerMove(player, regionFrom, regionTo);
 		
 		//emancipation grill
-		if (loc.getType() == Material.SUGAR_CANE_BLOCK && regionTo.getBoolean(RegionSetting.ENABLE_GRILL))
+		if (loc.getType() == Material.SUGAR_CANE_BLOCK && regionTo.getBoolean(RegionSetting.ENABLE_GRILLS))
 		{
 			for (Grill grill: GrillManager.grills)
 			{
@@ -245,7 +251,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		Player player = event.getPlayer();
 		User user = UserManager.getUser(player);
 		Region region = RegionManager.getRegion(player.getLocation());
-		if (region.Name != "global")
+		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS))
 			user.addDroppedItem(event.getItemDrop());
 		
 		/*Block b = player.getLocation().getBlock();
