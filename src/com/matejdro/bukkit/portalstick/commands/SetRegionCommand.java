@@ -13,7 +13,7 @@ public class SetRegionCommand extends BaseCommand {
 	public SetRegionCommand() {
 		name = "setregion";
 		argLength = 1;
-		usage = "<name> <- saves your selected area as a region";
+		usage = "<name> <- saves selected region";
 	}
 	
 	public boolean execute() {

@@ -10,6 +10,10 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.matejdro.bukkit.portalstick.commands.BaseCommand;
+import com.matejdro.bukkit.portalstick.commands.DeleteAllCommand;
+import com.matejdro.bukkit.portalstick.commands.DeleteCommand;
+import com.matejdro.bukkit.portalstick.commands.HelpCommand;
+import com.matejdro.bukkit.portalstick.commands.RegionListCommand;
 import com.matejdro.bukkit.portalstick.commands.RegionToolCommand;
 import com.matejdro.bukkit.portalstick.commands.ReloadCommand;
 import com.matejdro.bukkit.portalstick.commands.SetRegionCommand;
@@ -69,6 +73,10 @@ public class PortalStick extends JavaPlugin {
 		commands.add(new RegionToolCommand());
 		commands.add(new SetRegionCommand());
 		commands.add(new ReloadCommand());
+		commands.add(new DeleteAllCommand());
+		commands.add(new DeleteCommand());
+		commands.add(new HelpCommand());
+		commands.add(new RegionListCommand());
 
 	}
 	

@@ -16,9 +16,9 @@ public class RegionListCommand extends BaseCommand {
 	}
 	
 	public boolean execute() {
-		Util.sendMessage(player, "&a---------- &7Portal Regions &a----------");
+		Util.sendMessage(player, "&c---------- &7Portal Regions &c----------");
 		for (Region region : RegionManager.getRegionMap().values())
-			Util.sendMessage(player, "&7- &c" + region.Name + " &7- &c" + region.PointOne.toString() + " - " + region.PointOne.toString());
+			Util.sendMessage(player, "&7- &c" + region.Name + " &7- &c" + region.PointOne.toString() + " &7-&c " + region.PointOne.toString());
 		return true;
 	}
 	

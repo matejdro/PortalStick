@@ -14,7 +14,7 @@ public class RegionToolCommand extends BaseCommand {
 	public RegionToolCommand() {
 		name = "regiontool";
 		argLength = 0;
-		usage = "<- enables or disables region selection mode";
+		usage = "<- enable/disable region selection mode";
 	}
 	
 	public boolean execute() {
@@ -25,7 +25,7 @@ public class RegionToolCommand extends BaseCommand {
 		}
 		else {
 			user.setUsingTool(true);
-			Util.sendMessage(sender, "&aPortal region tool enabled.`nLeft click to set position one`nRight click to set position two");
+			Util.sendMessage(sender, "&aPortal region tool enabled.`n- Left click to set position one`n- Right click to set position two");
 			if (!player.getInventory().contains(Config.RegionTool)) {
 				int slot = player.getInventory().firstEmpty();
 				if (slot == -1)
