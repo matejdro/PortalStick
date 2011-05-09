@@ -26,6 +26,7 @@ public abstract class BaseCommand {
 	
 	public boolean run(CommandSender sender, String[] preArgs) {
 		this.sender = sender;
+		args.clear();
 		for (String arg : preArgs)
 			args.add(arg);
 		args.remove(0);
@@ -45,7 +46,6 @@ public abstract class BaseCommand {
 	}
 	
 	public abstract boolean execute();
-	
 	public abstract boolean permission(Player player);
 	
 	public void sendUsage() {
