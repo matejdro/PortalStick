@@ -121,10 +121,11 @@ public class Config {
 		GrillManager.deleteAll();
 		
 		for (Map.Entry<String, User> entry : UserManager.getUserList().entrySet()) {
-			Player player = plugin.getServer().getPlayer(entry.getKey());
 			User user = entry.getValue();
+			Player player = plugin.getServer().getPlayer(entry.getKey());
 			if (player != null && user.getInventory() != null)
 				player.getInventory().setContents(user.getInventory().getContents());
+			UserManager.deleteUser(user);
 		}
 		
 	}

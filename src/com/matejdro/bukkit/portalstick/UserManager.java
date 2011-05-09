@@ -1,6 +1,7 @@
 package com.matejdro.bukkit.portalstick;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -28,9 +29,15 @@ public class UserManager {
 	}
 
 	public static void deleteUser(Player player) {
-		PortalManager.deletePortals(getUser(player));
-		deleteDroppedItems(player);
-		users.remove(player.getName());
+		deleteUser(getUser(player));
+	}
+	
+	public static void deleteUser(User user) {
+		PortalManager.deletePortals(user);
+		deleteDroppedItems(user);
+		for (Map.Entry<String, User> entry : UserManager.getUserList().entrySet())
+			if (entry.getValue() == user)
+				users.remove(entry.getKey());
 	}
 
 	public static void emancipate(Player player) {
@@ -49,7 +56,10 @@ public class UserManager {
 	}
 	
 	public static void deleteDroppedItems(Player player) {
-		User user = getUser(player);
+		deleteDroppedItems(getUser(player));
+	}
+	
+	public static void deleteDroppedItems(User user) {
 		for (Item item : user.getDroppedItems())
 			item.remove();
 		user.resetItems();
