@@ -48,10 +48,6 @@ public abstract class BaseCommand {
 	
 	public abstract boolean permission(Player player);
 	
-	public List<String> getArgs() {
-		return args;
-	}
-	
 	public void sendUsage() {
 		Util.sendMessage(sender, "&c/portal " + name + " " + usage);
 	}
