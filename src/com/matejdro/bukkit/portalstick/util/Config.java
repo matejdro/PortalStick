@@ -132,8 +132,8 @@ public class Config {
 		for (Map.Entry<String, User> entry : UserManager.getUserList().entrySet()) {
 			User user = entry.getValue();
 			Player player = plugin.getServer().getPlayer(entry.getKey());
-			if (player != null && user.getInventory() != null)
-				player.getInventory().setContents(user.getInventory().getContents());
+			if (player != null)
+				user.revertInventory(player);
 			UserManager.deleteUser(user);
 		}
 		

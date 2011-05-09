@@ -99,7 +99,6 @@ public class PortalStickPlayerListener extends PlayerListener {
  	    
 	public void onPlayerMove(PlayerMoveEvent event)
 	{
-		if (event.isCancelled()) return;
 		
 		Player player = event.getPlayer();
 		Vector vector = player.getVelocity();
@@ -269,7 +268,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		
 		Region region = RegionManager.getRegion(player.getLocation());
 		if (region.Name != "global" && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
-			player.getInventory().setContents(user.getInventory().getContents());
+			user.revertInventory(player);
 		if (Config.DeleteOnQuit) {
 			PortalManager.deletePortals(user);
 			UserManager.deleteUser(player);
@@ -284,7 +283,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		UserManager.createUser(player);
 		Region region = RegionManager.getRegion(player.getLocation());
 		if (!region.Name.equals("global") && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
-			user.setInventory(player.getInventory());
+			user.saveInventory(player);
 	}
 		 
 	private Boolean offsetequals(double x, double y, double difference)

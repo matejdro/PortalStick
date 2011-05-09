@@ -2,10 +2,12 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -42,7 +44,17 @@ public class PortalStick extends JavaPlugin {
 
 	public void onDisable() {
 		Config.saveAll();
-		Config.unLoad();
+		
+		PortalManager.deleteAll();
+		GrillManager.deleteAll();
+		
+		for (Map.Entry<String, User> entry : UserManager.getUserList().entrySet()) {
+			User user = entry.getValue();
+			Player player = getServer().getPlayer(entry.getKey());
+			if (player != null)
+				user.revertInventory(player);
+			UserManager.deleteUser(user);
+		}
 	}
 
 	public void onEnable() {

@@ -22,14 +22,11 @@ public class PortalManager {
 	{
 		User user = UserManager.getUser(player);
 		if (user.getUsingTool()) return;
-
 		if (!regionTo.Name.equals(regionFrom.Name)) {
-
-			if (regionTo.Name == "global") {
-				player.getInventory().setContents(user.getInventory().getContents());
-			}
+			if (regionTo.Name.equalsIgnoreCase("global"))
+				user.revertInventory(player);
 			else {
-				user.setInventory(player.getInventory());
+				user.saveInventory(player);
 				setPortalInventory(player);
 			}
 			if (regionFrom.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE) || regionTo.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE))
@@ -280,11 +277,11 @@ public class PortalManager {
 	public static void setPortalInventory(Player player)
 	{
 		PlayerInventory inv = player.getInventory();
-		for (ItemStack i : inv.getContents().clone())
-		{
-			if (i != null)
-				inv.remove(i);
-		}
+		inv.clear();
+		inv.clear(inv.getSize() + 0);
+		inv.clear(inv.getSize() + 1);
+		inv.clear(inv.getSize() + 2);
+		inv.clear(inv.getSize() + 3);
 		inv.setItemInHand(new ItemStack(Material.STICK, 1));
 	}
 
