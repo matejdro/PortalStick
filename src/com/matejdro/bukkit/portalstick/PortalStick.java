@@ -49,7 +49,7 @@ public class PortalStick extends JavaPlugin {
 		
 		PlayerListener = new PortalStickPlayerListener(this);
 		BlockListener = new PortalStickBlockListener(this);
-		VehicleListener = new PortalStickVehicleListener();
+		VehicleListener = new PortalStickVehicleListener(this);
 		EntityListener = new PortalStickEntityListener();
 		new GrillManager(this);
 		config = new Config(this);
