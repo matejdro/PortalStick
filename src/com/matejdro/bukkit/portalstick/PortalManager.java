@@ -22,7 +22,10 @@ public class PortalManager {
 	{
 		User user = UserManager.getUser(player);
 		if (user.getUsingTool()) return;
+
+		Util.info(regionTo.Name + " " + regionFrom.Name);
 		if (!regionTo.Name.equals(regionFrom.Name)) {
+
 			if (regionTo.Name == "global") {
 				player.getInventory().setContents(user.getInventory().getContents());
 			}
@@ -34,6 +37,12 @@ public class PortalManager {
 				deletePortals(user);
 			UserManager.deleteDroppedItems(player);
 		}
+	}
+	
+	public static void deleteAll()
+	{
+		for (Portal p : portals.toArray(new Portal[0]))
+			p.delete();
 	}
 
 	private static Boolean checkPortal(PortalCoord portal, Portal oldportal)

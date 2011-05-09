@@ -7,15 +7,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.bukkit.Location;
-import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
+import com.matejdro.bukkit.portalstick.PortalManager;
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.RegionManager;
+import com.matejdro.bukkit.portalstick.User;
+import com.matejdro.bukkit.portalstick.UserManager;
 
 public class Config {
 	
@@ -43,6 +45,24 @@ public class Config {
 		mainConfig.load();
 		regionConfig = getConfigFile("regions.yml");
 		grillConfig = getConfigFile("grills.yml");
+		
+		load();
+
+	}
+	
+	public static void deleteGrill(String grill) {
+		List<String> list = grillConfig.getStringList("grills", null);
+		list.remove(grill);
+		grillConfig.setProperty("grills", list);
+		saveAll();
+	}
+	
+	public static void deleteRegion(String name) {
+		regionConfig.removeProperty(name);
+		saveAll();
+	}
+	
+	public static void load() {
 		
 		//Check main settings
 		if (mainConfig.getProperty("main.disabled-worlds") == null)
@@ -78,32 +98,35 @@ public class Config {
         PortalTool = mainConfig.getInt("main.portal-tool", 280);
         CompactPortal = mainConfig.getBoolean("main.compact-portal", false);
         RegionTool = mainConfig.getInt("main.region-tool", 268);
-        
+		
         //Load all regions
         if (regionConfig.getKeys("") != null)
         	for (String regionName : regionConfig.getKeys(""))
         		RegionManager.loadRegion(regionName);
-        if (RegionManager.getRegion("global") == null)
-        	RegionManager.loadRegion("global");
+        RegionManager.loadRegion("global");
+        Util.info(RegionManager.getRegionMap().size() + " region(s) loaded");
         
         //Load grills
         for (String grill : grillConfig.getStringList("grills", null))
         	GrillManager.loadGrill(grill);
+        Util.info(GrillManager.grills.size() + " grill(s) loaded");
         
         saveAll();
-
+		
 	}
 	
-	public static void deleteGrill(String grill) {
-		List<String> list = grillConfig.getStringList("grills", null);
-		list.remove(grill);
-		grillConfig.setProperty("grills", list);
-		saveAll();
-	}
-	
-	public static void deleteRegion(String name) {
-		regionConfig.removeProperty(name);
-		saveAll();
+	public static void unLoad() {
+		
+		PortalManager.deleteAll();
+		GrillManager.deleteAll();
+		
+		for (Map.Entry<String, User> entry : UserManager.getUserList().entrySet()) {
+			Player player = plugin.getServer().getPlayer(entry.getKey());
+			User user = entry.getValue();
+			if (player != null && user.getInventory() != null)
+				player.getInventory().setContents(user.getInventory().getContents());
+		}
+		
 	}
 	
 	public static void loadRegionSettings(Region region) {
@@ -146,11 +169,8 @@ public class Config {
 		//Save grills
 		grillConfig.removeProperty("grills");
 		List<String> list = new ArrayList<String>();
-		for (Grill grill : GrillManager.getGrillList()) {
-			Block b = grill.getFirstBlock();
-			Location loc = b.getLocation();
-			list.add(b.getWorld().getName() + "," + loc.getX() + "," + loc.getY() + "," + loc.getZ());
-		}
+		for (Grill grill : GrillManager.getGrillList())
+			list.add(grill.getStringLocation());
 		grillConfig.setProperty("grills", list);
 		if (!grillConfig.save())
 			Util.severe("Error while writing to grills.yml");

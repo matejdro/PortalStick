@@ -23,12 +23,17 @@ public class Grill {
 	
 	public void delete()
 	{
+		deleteInside();
+		Config.deleteGrill(getStringLocation());
+	}
+	
+	public void deleteInside()
+	{
 		for (Block b: inside)
 		{
 			b.setType(Material.AIR);
+			GrillManager.grills.remove(this);
 		}
-		GrillManager.grills.remove(this);
-		Config.deleteGrill(getStringLocation());
 	}
 		
 	public void create()

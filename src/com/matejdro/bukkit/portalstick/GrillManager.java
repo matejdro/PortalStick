@@ -35,6 +35,11 @@ public class GrillManager {
 		if (!placeRecursiveEmancipationGrill(b))
 			Config.deleteGrill(blockloc);
 	}
+	
+	public static void deleteAll() {
+		for (Grill g : grills.toArray(new Grill[0]))
+			g.deleteInside();
+	}
     
     public static List<Grill> getGrillList() {
     	return grills;

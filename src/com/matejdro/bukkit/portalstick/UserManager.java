@@ -39,7 +39,7 @@ public class UserManager {
 		Region region = RegionManager.getRegion(player.getLocation());
 		PortalManager.deletePortals(user);
 		
-		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_INVENTORY))
+		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_INVENTORY) && !user.getUsingTool())
 			PortalManager.setPortalInventory(player);
 		
 		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS)) {

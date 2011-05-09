@@ -11,7 +11,9 @@ public class RegionManager {
 	private static HashMap<String, Region> regions = new HashMap<String, Region>();
 	
 	public static Region loadRegion(String name) {
-		Region region = new Region(name);
+		Region region = getRegion(name);
+		if (region == null)
+			region = new Region(name);
 		Config.loadRegionSettings(region);
 		regions.put(name, region);
 		return region;

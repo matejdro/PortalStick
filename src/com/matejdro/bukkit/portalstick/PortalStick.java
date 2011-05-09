@@ -2,18 +2,17 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.matejdro.bukkit.portalstick.commands.BaseCommand;
-import com.matejdro.bukkit.portalstick.commands.RegionTool;
-import com.matejdro.bukkit.portalstick.commands.SetRegion;
+import com.matejdro.bukkit.portalstick.commands.RegionToolCommand;
+import com.matejdro.bukkit.portalstick.commands.ReloadCommand;
+import com.matejdro.bukkit.portalstick.commands.SetRegionCommand;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickBlockListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickPlayerListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickVehicleListener;
@@ -35,19 +34,8 @@ public class PortalStick extends JavaPlugin {
 	public static WorldGuardPlugin worldGuard = null;
 
 	public void onDisable() {
-		for (Object o: PortalManager.portals.toArray())
-		{
-			Portal p = (Portal) o;
-			p.delete();
-		}
-		
-		for (Map.Entry<String, User> entry : UserManager.getUserList().entrySet()) {
-			Player player = getServer().getPlayer(entry.getKey());
-			User user = entry.getValue();
-			if (player != null && user.getInventory() != null)
-				player.getInventory().setContents(user.getInventory().getContents());
-		}
 		Config.saveAll();
+		Config.unLoad();
 	}
 
 	public void onEnable() {
@@ -78,8 +66,9 @@ public class PortalStick extends JavaPlugin {
 		worldGuard = (WorldGuardPlugin) this.getServer().getPluginManager().getPlugin("WorldGuard");
 		
 		//Register commands
-		commands.add(new RegionTool());
-		commands.add(new SetRegion());
+		commands.add(new RegionToolCommand());
+		commands.add(new SetRegionCommand());
+		commands.add(new ReloadCommand());
 
 	}
 	
