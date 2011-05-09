@@ -1,22 +1,22 @@
 package com.matejdro.bukkit.portalstick.commands;
 
+import org.bukkit.entity.Player;
+
 import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.User;
 import com.matejdro.bukkit.portalstick.UserManager;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.Util;
 
-public class SetRegion extends BaseCommand {
+public class SetRegionCommand extends BaseCommand {
 	
-	public SetRegion() {
+	public SetRegionCommand() {
 		name = "setregion";
 		argLength = 1;
 		usage = "<name> <- saves your selected area as a region";
 	}
 	
 	public boolean execute() {
-		if (!Permission.adminRegions(player))
-			return false;
 		User user = UserManager.getUser(player);
 		if (user.getPointOne() == null || user.getPointTwo() == null)
 			Util.sendMessage(sender, "&cPlease select two points");
@@ -28,4 +28,9 @@ public class SetRegion extends BaseCommand {
 		}
 		return true;
 	}
+	
+	public boolean permission(Player player) {
+		return Permission.adminRegions(player);
+	}
+	
 }

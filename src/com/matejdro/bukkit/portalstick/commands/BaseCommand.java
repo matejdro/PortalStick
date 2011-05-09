@@ -8,18 +8,21 @@ import org.bukkit.entity.Player;
 
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.RegionManager;
+import com.matejdro.bukkit.portalstick.User;
+import com.matejdro.bukkit.portalstick.UserManager;
 import com.matejdro.bukkit.portalstick.util.Util;
 
 public abstract class BaseCommand {
 	
-	protected CommandSender sender;
-	protected List<String> args = new ArrayList<String>();
+	public CommandSender sender;
+	public List<String> args = new ArrayList<String>();
 	public String name;
 	public int argLength;
 	public String usage;
 	public boolean bePlayer = true;
 	public Player player;
 	public Region region;
+	public User user;
 	
 	public boolean run(CommandSender sender, String[] preArgs) {
 		this.sender = sender;
@@ -35,10 +38,15 @@ public abstract class BaseCommand {
 			return false;
 		player = (Player)sender;
 		region = RegionManager.getRegion(player.getLocation());
+		user = UserManager.getUser(player);
+		if (!permission(player))
+			return false;
 		return execute();
 	}
 	
 	public abstract boolean execute();
+	
+	public abstract boolean permission(Player player);
 	
 	public List<String> getArgs() {
 		return args;
