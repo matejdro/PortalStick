@@ -58,7 +58,7 @@ public class Config {
 	}
 	
 	public static void deleteRegion(String name) {
-		regionConfig.removeProperty(name);
+		regionConfig.removeProperty("regions." + name);
 		saveAll();
 	}
 	
@@ -99,6 +99,10 @@ public class Config {
         CompactPortal = mainConfig.getBoolean("main.compact-portal", false);
         RegionTool = mainConfig.getInt("main.region-tool", 268);
 		
+		//Load all current users
+		for (Player player : plugin.getServer().getOnlinePlayers())
+			UserManager.createUser(player);
+		
         //Load all regions
         if (regionConfig.getKeys("regions") != null)
         	for (String regionName : regionConfig.getKeys("regions"))
@@ -113,6 +117,11 @@ public class Config {
         
         saveAll();
 		
+	}
+	
+	public static void reLoad() {
+		unLoad();
+		load();
 	}
 	
 	public static void unLoad() {

@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -55,10 +54,6 @@ public class PortalStick extends JavaPlugin {
 		new GrillManager(this);
 		config = new Config(this);
 		permissions = new Permission(this);
-		
-		//Load all current users
-		for (Player player : getServer().getOnlinePlayers())
-			UserManager.createUser(player);
 		
 		//Register events
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BREAK, BlockListener, Event.Priority.Low, this);

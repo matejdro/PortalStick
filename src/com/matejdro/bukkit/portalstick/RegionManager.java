@@ -21,8 +21,8 @@ public class RegionManager {
 	
 	public static void deleteRegion(String name) {
 		Region region = getRegion(name);
+		regions.remove(region.Name);
 		Config.deleteRegion(name);
-		regions.remove(region);
 	}
 	
 	public static void createRegion(String name, Location one, Location two) {
