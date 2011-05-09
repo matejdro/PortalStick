@@ -23,7 +23,6 @@ public class PortalManager {
 		User user = UserManager.getUser(player);
 		if (user.getUsingTool()) return;
 
-		Util.info(regionTo.Name + " " + regionFrom.Name);
 		if (!regionTo.Name.equals(regionFrom.Name)) {
 
 			if (regionTo.Name == "global") {

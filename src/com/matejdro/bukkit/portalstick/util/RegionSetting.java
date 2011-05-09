@@ -21,9 +21,6 @@ public enum RegionSetting {
 	ENABLE_FALL_DAMAGE_BOOTS("enable-fall-damage-boots", true),
 	FALL_DAMAGE_BOOTS("fall-damage-boots", 313),
 	VELOCITY_MULTIPLIER("velocity-multiplier", 1.0),
-	BLUE_GEL_BLOCK("blue-gel-block", "22"),
-	RED_GEL_BLOCK("red-gel-block", "35:14"),
-	GEL_VELOCITY_MULTIPLIER("gel-velocity-multiplier", 1.5),
 	ENABLE_GELS("enable-gels", true),
 	LOCATION("location", "world:0,0,0:0,0,0");
 	

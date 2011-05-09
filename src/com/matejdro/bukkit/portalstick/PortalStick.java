@@ -2,10 +2,12 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,7 +19,9 @@ import com.matejdro.bukkit.portalstick.commands.RegionListCommand;
 import com.matejdro.bukkit.portalstick.commands.RegionToolCommand;
 import com.matejdro.bukkit.portalstick.commands.ReloadCommand;
 import com.matejdro.bukkit.portalstick.commands.SetRegionCommand;
+import com.matejdro.bukkit.portalstick.commands.TestCommand;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickBlockListener;
+import com.matejdro.bukkit.portalstick.listeners.PortalStickEntityListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickPlayerListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickVehicleListener;
 import com.matejdro.bukkit.portalstick.util.Config;
@@ -30,6 +34,7 @@ public class PortalStick extends JavaPlugin {
 	private PortalStickPlayerListener PlayerListener;
 	private PortalStickBlockListener BlockListener;
 	private PortalStickVehicleListener VehicleListener;
+	private PortalStickEntityListener EntityListener;
 	
 	public static List<BaseCommand> commands = new ArrayList<BaseCommand>();
 	public static Config config;
@@ -39,7 +44,15 @@ public class PortalStick extends JavaPlugin {
 
 	public void onDisable() {
 		Config.saveAll();
-		Config.unLoad();
+		PortalManager.deleteAll();
+		GrillManager.deleteAll();
+		
+		for (Map.Entry<String, User> entry : UserManager.getUserList().entrySet()) {
+			Player player = getServer().getPlayer(entry.getKey());
+			User user = entry.getValue();
+			if (player != null && user.getInventory() != null)
+				player.getInventory().setContents(user.getInventory().getContents());
+		}
 	}
 
 	public void onEnable() {
@@ -47,6 +60,7 @@ public class PortalStick extends JavaPlugin {
 		PlayerListener = new PortalStickPlayerListener(this);
 		BlockListener = new PortalStickBlockListener(this);
 		VehicleListener = new PortalStickVehicleListener();
+		EntityListener = new PortalStickEntityListener();
 		new GrillManager(this);
 		config = new Config(this);
 		permissions = new Permission(this);
@@ -55,17 +69,16 @@ public class PortalStick extends JavaPlugin {
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BREAK, BlockListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BURN, BlockListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PLACE, BlockListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PHYSICS, BlockListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_FROMTO, BlockListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_INTERACT, PlayerListener, Event.Priority.Monitor, this);
 		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_MOVE, PlayerListener, Event.Priority.Low, this);	
 		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, PlayerListener, Event.Priority.Monitor, this);
 		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, PlayerListener, Event.Priority.Monitor, this);
-		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, PlayerListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_TELEPORT, PlayerListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.VEHICLE_MOVE, VehicleListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_DROP_ITEM, PlayerListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PHYSICS, BlockListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_IGNITE, BlockListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_FROMTO, BlockListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_TELEPORT, PlayerListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, EntityListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.VEHICLE_MOVE, VehicleListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.REDSTONE_CHANGE, BlockListener, Event.Priority.Low, this);
 
 		worldGuard = (WorldGuardPlugin) this.getServer().getPluginManager().getPlugin("WorldGuard");
@@ -78,12 +91,15 @@ public class PortalStick extends JavaPlugin {
 		commands.add(new DeleteCommand());
 		commands.add(new HelpCommand());
 		commands.add(new RegionListCommand());
+		commands.add(new TestCommand());
 
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[])
 	{
-		if (cmd.getName().equalsIgnoreCase("portal") && args.length > 0) {
+		if (cmd.getName().equalsIgnoreCase("portal")) {
+			if (args.length == 0)
+				args[0] = "help";
 			for (BaseCommand command : commands.toArray(new BaseCommand[0])) {
 				if (command.name.equalsIgnoreCase(args[0]))
 					return command.run(sender, args);

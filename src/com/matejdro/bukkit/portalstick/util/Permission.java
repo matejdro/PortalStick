@@ -55,6 +55,9 @@ public class Permission {
 	public static boolean damageBoots(Player player) {
 		return hasPermission(player, "portalstick.damageboots", true);
 	}
+	public static boolean deleteAll(Player player) {
+		return hasPermission(player, "portalstick.admin.deleteall", false);
+	}
 	
 	private enum PermissionPlugin {
 		PERMISSIONS,

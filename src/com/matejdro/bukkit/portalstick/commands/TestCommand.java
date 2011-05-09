@@ -14,7 +14,7 @@ public class TestCommand extends BaseCommand {
 	}
 	
 	public boolean execute() {
-		player.setVelocity(new Vector(10,10,0));
+		player.setVelocity(new Vector(8,2,0));
 		return true;
 	}
 	

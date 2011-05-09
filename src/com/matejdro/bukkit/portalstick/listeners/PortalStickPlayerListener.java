@@ -121,22 +121,6 @@ public class PortalStickPlayerListener extends PlayerListener {
 				}
 			}
 		}
-		
-		//Gels
-		if (regionTo.getBoolean(RegionSetting.ENABLE_GELS)) {
-			Vector velocity = player.getVelocity();
-			if (Util.compareBlockToString(blockTo, regionTo.getString(RegionSetting.BLUE_GEL_BLOCK))) {
-				velocity.setY(velocity.getY() * regionTo.getDouble(RegionSetting.GEL_VELOCITY_MULTIPLIER));
-				player.setVelocity(velocity);
-			}
-			else if (Util.compareBlockToString(blockTo, regionTo.getString(RegionSetting.RED_GEL_BLOCK))) {
-				if (velocity.getX() > velocity.getZ())
-					velocity.setX(velocity.getX() * regionTo.getDouble(RegionSetting.GEL_VELOCITY_MULTIPLIER));
-				else
-					velocity.setZ(velocity.getZ() * regionTo.getDouble(RegionSetting.GEL_VELOCITY_MULTIPLIER));
-				player.setVelocity(velocity);
-			}
-		}
 			
 		//Portals
 		if (player.isInsideVehicle()) return;

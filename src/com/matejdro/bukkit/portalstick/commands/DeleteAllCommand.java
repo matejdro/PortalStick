@@ -21,7 +21,7 @@ public class DeleteAllCommand extends BaseCommand {
 	}
 	
 	public boolean permission(Player player) {
-		return Permission.adminRegions(player);
+		return Permission.deleteAll(player);
 	}
 
 }
