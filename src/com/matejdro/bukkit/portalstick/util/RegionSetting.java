@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public enum RegionSetting {
 	
-	ENABLE_PORTALS("enable-portalstick", true, true),
+	ENABLE_PORTALS("enable-portals", true, true),
 	TELEPORT_VEHICLES("teleport-vehicles", true, true),
 	TELEPORT_LIQUIDS("teleport-liquids", true, true),
 	INFINITE_DISPENSERS("infinite-dispensers", true, true),

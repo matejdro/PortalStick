@@ -2,12 +2,10 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -27,6 +25,7 @@ import com.matejdro.bukkit.portalstick.listeners.PortalStickPlayerListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickVehicleListener;
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Permission;
+import com.matejdro.bukkit.portalstick.util.Util;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 public class PortalStick extends JavaPlugin {
@@ -45,17 +44,8 @@ public class PortalStick extends JavaPlugin {
 
 	public void onDisable() {
 		Config.saveAll();
-		
-		PortalManager.deleteAll();
-		GrillManager.deleteAll();
-		
-		for (Map.Entry<String, User> entry : UserManager.getUserList().entrySet()) {
-			User user = entry.getValue();
-			Player player = getServer().getPlayer(entry.getKey());
-			if (player != null)
-				user.revertInventory(player);
-			UserManager.deleteUser(user);
-		}
+		Config.unLoad();
+		Util.info("PortalStick unloaded");
 	}
 
 	public void onEnable() {
@@ -96,6 +86,8 @@ public class PortalStick extends JavaPlugin {
 		commands.add(new RegionListCommand());
 		commands.add(new DeleteRegionCommand());
 		commands.add(new FlagCommand());
+		
+		Util.info("PortalStick enabled");
 
 	}
 	

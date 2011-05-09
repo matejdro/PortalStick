@@ -140,8 +140,6 @@ public class Portal {
 
     	}
     	
-    	
-    	
 	}
 	
 	public Location getTeleportLocation()

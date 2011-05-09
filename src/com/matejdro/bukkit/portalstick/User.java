@@ -38,6 +38,7 @@ public class User {
 	}
 	
 	public void revertInventory(Player player) {
+		if (inventory == null) return;
 		PlayerInventory inv = player.getInventory();
 		inv.clear();
 		for (ItemStack old : inventory) {

@@ -132,8 +132,10 @@ public class Config {
 		for (Map.Entry<String, User> entry : UserManager.getUserList().entrySet()) {
 			User user = entry.getValue();
 			Player player = plugin.getServer().getPlayer(entry.getKey());
-			if (player != null)
-				user.revertInventory(player);
+			if (player != null) {
+				if (!RegionManager.getRegion(player.getLocation()).Name.equalsIgnoreCase("global"))
+					user.revertInventory(player);
+			}
 			UserManager.deleteUser(user);
 		}
 		
