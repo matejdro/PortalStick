@@ -18,6 +18,8 @@ public enum RegionSetting {
 	PORTAL_BLOCKS("portallable-blocks", Arrays.asList(new Integer[]{1})),
 	ALL_BLOCKS_PORTAL("all-blocks-allow-portals", false),
 	UNIQUE_INVENTORY("unique-inventory", false),
+	ENABLE_FALL_DAMAGE_BOOTS("enable-fall-damage-boots", true),
+	FALL_DAMAGE_BOOTS("fall-damage-boots", 313),
 	VELOCITY_MULTIPLIER("velocity-multiplier", 1.0),
 	LOCATION("location", "world:0,0,0:0,0,0");
 	

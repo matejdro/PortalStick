@@ -39,7 +39,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 	public PortalStickPlayerListener(PortalStick instance)
 	{
 		plugin = instance;
-	}		
+	}	
 	
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{

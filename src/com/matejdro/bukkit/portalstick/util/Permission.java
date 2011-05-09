@@ -41,16 +41,19 @@ public class Permission {
 		return hasPermission(player, "portalstick.placeportal", true);
 	}
 	public static boolean createGrill(Player player) {
-		return hasPermission(player, "portalstick.creategrill", false);
+		return hasPermission(player, "portalstick.creategrill", true);
 	}
 	public static boolean deleteGrill(Player player) {
-		return hasPermission(player, "portalstick.deletegrill", false);
+		return hasPermission(player, "portalstick.deletegrill", true);
 	}
 	public static boolean teleport(Player player) {
 		return hasPermission(player, "portalstick.teleport", true);
 	}
 	public static boolean adminRegions(Player player) {
-		return hasPermission(player, "portalstick.admin.regions", true);
+		return hasPermission(player, "portalstick.admin.regions", false);
+	}
+	public static boolean damageBoots(Player player) {
+		return hasPermission(player, "portalstick.damageboots", true);
 	}
 	
 	private enum PermissionPlugin {
