@@ -75,6 +75,7 @@ public class Portal {
 
 		
 		PortalManager.portals.remove(this);
+		open = false;
 	}
 	
 	public void open()

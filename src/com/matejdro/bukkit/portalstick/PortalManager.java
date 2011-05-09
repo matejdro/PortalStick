@@ -163,7 +163,7 @@ public class PortalManager {
 	    	portal.inside.add(block);
 	    	portal.inside.add(block.getRelative(0,-1,0));
 	    	
-	    	portal.destloc = block.getRelative(z*2,-1,x*2).getLocation();
+	    	portal.destloc = block.getRelative(z*1,-1,x*1).getLocation();
 	       	}
 	
 		return portal;
