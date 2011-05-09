@@ -103,25 +103,42 @@ public class PortalStickPlayerListener extends PlayerListener {
 		
 		Player player = event.getPlayer();
 		Vector vector = player.getVelocity();
-		Block loc = event.getTo().getBlock();
+		Block blockTo = event.getTo().getBlock();
 		Region regionTo = RegionManager.getRegion(event.getTo());
 		Region regionFrom = RegionManager.getRegion(event.getFrom());
 		
-		//check for changing regions
+		//Check for changing regions
 		PortalManager.checkPlayerMove(player, regionFrom, regionTo);
 		
-		//emancipation grill
-		if (loc.getType() == Material.SUGAR_CANE_BLOCK && regionTo.getBoolean(RegionSetting.ENABLE_GRILLS))
+		//Emancipation grill
+		if (blockTo.getType() == Material.SUGAR_CANE_BLOCK && regionTo.getBoolean(RegionSetting.ENABLE_GRILLS))
 		{
 			for (Grill grill: GrillManager.grills)
 			{
-				if (grill.getInside().contains(loc))
+				if (grill.getInside().contains(blockTo))
 				{
 					UserManager.emancipate(player);
 				}
 			}
 		}
+		
+		//Gels
+		if (regionTo.getBoolean(RegionSetting.ENABLE_GELS)) {
+			Vector velocity = player.getVelocity();
+			if (Util.compareBlockToString(blockTo, regionTo.getString(RegionSetting.BLUE_GEL_BLOCK))) {
+				velocity.setY(velocity.getY() * regionTo.getDouble(RegionSetting.GEL_VELOCITY_MULTIPLIER));
+				player.setVelocity(velocity);
+			}
+			else if (Util.compareBlockToString(blockTo, regionTo.getString(RegionSetting.RED_GEL_BLOCK))) {
+				if (velocity.getX() > velocity.getZ())
+					velocity.setX(velocity.getX() * regionTo.getDouble(RegionSetting.GEL_VELOCITY_MULTIPLIER));
+				else
+					velocity.setZ(velocity.getZ() * regionTo.getDouble(RegionSetting.GEL_VELOCITY_MULTIPLIER));
+				player.setVelocity(velocity);
+			}
+		}
 			
+		//Portals
 		if (player.isInsideVehicle()) return;
 		if (!Permission.teleport(player)) return;
 			 
@@ -153,7 +170,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		{
 			for (Block b : p.getInside())
 			{
-				if (offsetequals(b.getLocation().getX(), loc.getX(),addX) && offsetequals(b.getLocation().getZ(), loc.getZ(), addZ) && offsetequals(b.getLocation().getY(), loc.getY(),addY))
+				if (offsetequals(b.getLocation().getX(), blockTo.getX(),addX) && offsetequals(b.getLocation().getZ(), blockTo.getZ(), addZ) && offsetequals(b.getLocation().getY(), blockTo.getY(),addY))
 				{
 					portal = p;
 					break;
