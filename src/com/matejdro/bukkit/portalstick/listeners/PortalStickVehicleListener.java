@@ -14,7 +14,6 @@ import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.User;
-import com.matejdro.bukkit.portalstick.listeners.PortalStickPlayerListener.EnablePortal;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
@@ -25,13 +24,14 @@ public class PortalStickVehicleListener extends VehicleListener {
 	{
 		plugin = instance;
 	}
+	
 	public void onVehicleMove(VehicleMoveEvent event) {
 		Vehicle vehicle = event.getVehicle();
 		Vector vector = vehicle.getVelocity();
 		Block blockTo = event.getTo().getBlock();
 		Region regionTo = RegionManager.getRegion(event.getTo());
-		Region regionFrom = RegionManager.getRegion(event.getFrom());
-
+		
+		if (!regionTo.getBoolean(RegionSetting.TELEPORT_VEHICLES)) return;
 		
 		//Portals
 		if (vehicle.getPassenger() != null && vehicle.getPassenger() instanceof Player) 

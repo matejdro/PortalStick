@@ -160,4 +160,19 @@ public class GrillManager {
     		recurse(initial, id, block.getFace(four), one, two, three, four);
     	}
     }
+
+	public static void emancipate(Player player) {
+		
+		User user = UserManager.getUser(player);
+		Region region = RegionManager.getRegion(player.getLocation());
+		PortalManager.deletePortals(user);
+		
+		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_INVENTORY) && !user.getUsingTool())
+			PortalManager.setPortalInventory(player);
+		
+		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS)) {
+			UserManager.deleteDroppedItems(player);
+		}
+		
+	}
 }

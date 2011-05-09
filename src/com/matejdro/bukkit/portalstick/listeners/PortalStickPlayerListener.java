@@ -53,7 +53,8 @@ public class PortalStickPlayerListener extends PlayerListener {
 		
 		//Portal tool
 		if (player.getItemInHand().getTypeId() == Config.PortalTool && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
-		{		
+		{
+			
 			if (Config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))
 			{
 				player.sendMessage(Config.MessageRestrictedWorld);
@@ -116,7 +117,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 			{
 				if (grill.getInside().contains(blockTo))
 				{
-					UserManager.emancipate(player);
+					GrillManager.emancipate(player);
 				}
 			}
 		}

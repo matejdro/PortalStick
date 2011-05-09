@@ -169,10 +169,10 @@ public class PortalManager {
 		return portal;
 	}
 
-	public static Boolean placePortal(Block block,BlockFace face, Player player, Boolean orange, Boolean end)
+	public static Boolean placePortal(Block block, BlockFace face, Player player, Boolean orange, Boolean end)
 	{   
 		//Check if player can place here
-		Region region = RegionManager.getRegion(player.getLocation());
+		Region region = RegionManager.getRegion(block.getLocation());
 		if (region.getBoolean(RegionSetting.CHECK_WORLDGUARD) && PortalStick.worldGuard != null && !PortalStick.worldGuard.canBuild(player, block))
 			return false;
 		if (!region.getBoolean(RegionSetting.ENABLE_PORTALS))
@@ -278,7 +278,6 @@ public class PortalManager {
 	{
 		PlayerInventory inv = player.getInventory();
 		inv.clear();
-		inv.clear(inv.getSize() + 0);
 		inv.clear(inv.getSize() + 1);
 		inv.clear(inv.getSize() + 2);
 		inv.clear(inv.getSize() + 3);

@@ -204,7 +204,7 @@ public PortalStickBlockListener(PortalStick instance)
 		 Block dispenserb = null;
 		 
 		 Region region = RegionManager.getRegion(block.getLocation());
-		if (!region.getBoolean(RegionSetting.INFINITE_DISPENSERS))
+		 if (!region.getBoolean(RegionSetting.INFINITE_DISPENSERS))
 				return;
 
 		 

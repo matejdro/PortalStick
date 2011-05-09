@@ -6,7 +6,6 @@ import java.util.Map;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 
-import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 public class UserManager {
 	
@@ -40,21 +39,6 @@ public class UserManager {
 				users.remove(entry.getKey());
 	}
 
-	public static void emancipate(Player player) {
-		
-		User user = getUser(player);
-		Region region = RegionManager.getRegion(player.getLocation());
-		PortalManager.deletePortals(user);
-		
-		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_INVENTORY) && !user.getUsingTool())
-			PortalManager.setPortalInventory(player);
-		
-		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS)) {
-			deleteDroppedItems(player);
-		}
-		
-	}
-	
 	public static void deleteDroppedItems(Player player) {
 		deleteDroppedItems(getUser(player));
 	}
