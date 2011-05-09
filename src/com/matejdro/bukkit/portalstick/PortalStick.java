@@ -13,12 +13,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.matejdro.bukkit.portalstick.commands.BaseCommand;
 import com.matejdro.bukkit.portalstick.commands.DeleteAllCommand;
 import com.matejdro.bukkit.portalstick.commands.DeleteCommand;
+import com.matejdro.bukkit.portalstick.commands.DeleteRegionCommand;
 import com.matejdro.bukkit.portalstick.commands.HelpCommand;
 import com.matejdro.bukkit.portalstick.commands.RegionListCommand;
 import com.matejdro.bukkit.portalstick.commands.RegionToolCommand;
 import com.matejdro.bukkit.portalstick.commands.ReloadCommand;
 import com.matejdro.bukkit.portalstick.commands.SetRegionCommand;
-import com.matejdro.bukkit.portalstick.commands.TestCommand;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickBlockListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickEntityListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickPlayerListener;
@@ -86,7 +86,7 @@ public class PortalStick extends JavaPlugin {
 		commands.add(new DeleteCommand());
 		commands.add(new HelpCommand());
 		commands.add(new RegionListCommand());
-		commands.add(new TestCommand());
+		commands.add(new DeleteRegionCommand());
 
 	}
 	
@@ -94,7 +94,7 @@ public class PortalStick extends JavaPlugin {
 	{
 		if (cmd.getName().equalsIgnoreCase("portal")) {
 			if (args.length == 0)
-				args[0] = "help";
+				args = new String[]{"help"};
 			for (BaseCommand command : commands.toArray(new BaseCommand[0])) {
 				if (command.name.equalsIgnoreCase(args[0]))
 					return command.run(sender, args);

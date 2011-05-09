@@ -100,8 +100,8 @@ public class Config {
         RegionTool = mainConfig.getInt("main.region-tool", 268);
 		
         //Load all regions
-        if (regionConfig.getKeys("") != null)
-        	for (String regionName : regionConfig.getKeys(""))
+        if (regionConfig.getKeys("regions") != null)
+        	for (String regionName : regionConfig.getKeys("regions"))
         		RegionManager.loadRegion(regionName);
         RegionManager.loadRegion("global");
         Util.info(RegionManager.getRegionMap().size() + " region(s) loaded");
@@ -132,12 +132,12 @@ public class Config {
 	
 	public static void loadRegionSettings(Region region) {
 		for (RegionSetting setting : RegionSetting.values()) {
-			Object prop = regionConfig.getProperty(region.Name + "." + setting.getYaml());
+			Object prop = regionConfig.getProperty("regions." + region.Name + "." + setting.getYaml());
     		if (prop == null)
     			region.settings.put(setting, setting.getDefault());
     		else
     			region.settings.put(setting, prop);
-    		regionConfig.setProperty(region.Name + "." + setting.getYaml(), region.settings.get(setting));
+    		regionConfig.setProperty("regions." + region.Name + "." + setting.getYaml(), region.settings.get(setting));
     	}
 		region.updateLocation();
 	}
@@ -162,7 +162,7 @@ public class Config {
 		for (Map.Entry<String, Region> entry : RegionManager.getRegionMap().entrySet()) {
 			Region region = entry.getValue();
 			for (Entry<RegionSetting, Object> setting : region.settings.entrySet())
-				regionConfig.setProperty(region.Name + "." + setting.getKey().getYaml(), setting.getValue());
+				regionConfig.setProperty("regions." + region.Name + "." + setting.getKey().getYaml(), setting.getValue());
 		}
 		if (!regionConfig.save())
 			Util.severe("Error while writing to regions.yml");

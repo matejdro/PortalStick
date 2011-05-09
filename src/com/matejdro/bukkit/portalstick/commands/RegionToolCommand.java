@@ -26,13 +26,8 @@ public class RegionToolCommand extends BaseCommand {
 		else {
 			user.setUsingTool(true);
 			Util.sendMessage(sender, "&aPortal region tool enabled.`n- Left click to set position one`n- Right click to set position two");
-			if (!player.getInventory().contains(Config.RegionTool)) {
-				int slot = player.getInventory().firstEmpty();
-				if (slot == -1)
-					player.getWorld().dropItem(player.getLocation(), new ItemStack(Config.RegionTool));
-				else
-					player.getInventory().setItem(slot, new ItemStack(Config.RegionTool));
-			}
+			if (!player.getInventory().contains(Config.RegionTool))
+					player.getInventory().addItem(new ItemStack(Config.RegionTool));
 		}
 		return true;
 	}
