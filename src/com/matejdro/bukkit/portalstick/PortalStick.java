@@ -71,6 +71,7 @@ public class PortalStick extends JavaPlugin {
 		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_DROP_ITEM, PlayerListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_TELEPORT, PlayerListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, EntityListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_EXPLODE, EntityListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.VEHICLE_MOVE, VehicleListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.REDSTONE_CHANGE, BlockListener, Event.Priority.Low, this);
 

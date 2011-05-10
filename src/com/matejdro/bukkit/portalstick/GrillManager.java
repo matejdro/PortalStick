@@ -39,6 +39,7 @@ public class GrillManager {
 	public static void deleteAll() {
 		for (Grill g : grills.toArray(new Grill[0]))
 			g.deleteInside();
+		grills = new ArrayList<Grill>();
 	}
     
     public static List<Grill> getGrillList() {
