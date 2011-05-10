@@ -258,8 +258,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 	}
 	
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
-		if (event.isCancelled())
-			PortalManager.checkPlayerMove(event.getPlayer(), RegionManager.getRegion(event.getFrom()), RegionManager.getRegion(event.getTo()));
+		PortalManager.checkPlayerMove(event.getPlayer(), RegionManager.getRegion(event.getFrom()), RegionManager.getRegion(event.getTo()));
 	}
 		 
 	public void onPlayerQuit(PlayerQuitEvent event)
