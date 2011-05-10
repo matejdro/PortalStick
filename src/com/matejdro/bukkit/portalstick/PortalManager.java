@@ -47,7 +47,7 @@ public class PortalManager {
 		for (Block b: portal.border)
 		{
 			Region region = RegionManager.getRegion(b.getLocation());
-			if (region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(b.getTypeId()) || (!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(b.getTypeId() ) && !oldportal.getInside().contains(b) && !oldportal.getBorder().contains(b)))
+			if ((!oldportal.getInside().contains(b) && !oldportal.getBorder().contains(b)) && (region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(b.getTypeId()) || (!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(b.getTypeId()))))
 			{
 				return false;
 			}
@@ -84,6 +84,15 @@ public class PortalManager {
 		block = block.getRelative(0,-1,0);
 		portal = generatePortal(block, face);
 		if (checkPortal(portal, oldportal)) return portal;
+		
+		block = block.getRelative(0,-2,0);
+		portal = generatePortal(block, face);
+		if (checkPortal(portal, oldportal)) return portal;
+		
+		block = block.getRelative(0,2,0);
+		portal = generatePortal(block, face);
+		if (checkPortal(portal, oldportal)) return portal;
+
 		
 		if (!checkPortal(portal, oldportal)) portal.finished = true;
 			return portal;
