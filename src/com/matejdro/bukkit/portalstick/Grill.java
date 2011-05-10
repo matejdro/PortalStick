@@ -25,6 +25,7 @@ public class Grill {
 	{
 		deleteInside();
 		Config.deleteGrill(getStringLocation());
+		GrillManager.grills.remove(this);
 	}
 	
 	public void deleteInside()
@@ -32,7 +33,6 @@ public class Grill {
 		for (Block b: inside)
 		{
 			b.setType(Material.AIR);
-			GrillManager.grills.remove(this);
 		}
 	}
 		
