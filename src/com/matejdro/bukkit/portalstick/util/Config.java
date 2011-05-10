@@ -35,8 +35,6 @@ public class Config {
 	public static boolean RestoreInvOnWorldChange;
 	
 	public static String MessageCannotPlacePortal;
-	public static String MessagePortalStickEnabled;
-	public static String MessagePortalStickDisabled;
 	public static String MessageRestrictedWorld;
 
 	public Config (PortalStick instance) {
@@ -82,17 +80,11 @@ public class Config {
 		//Check messages
 		if (mainConfig.getProperty("messages.cannot-place-portal") == null)
 			mainConfig.setProperty("messages.cannot-place-portal", "&cCannot place a portal there!");
-		if (mainConfig.getProperty("messages.portal-stick-enabled") == null);
-			mainConfig.setProperty("messages.portal-stick-enabled", "&7Aperture Science Handheld Portal Stick Enabled");
-		if (mainConfig.getProperty("messages.portal-stick-disabled") == null);
-			mainConfig.setProperty("messages.portal-stick-disabled", "&7Aperture Science Handheld Portal Stick Disabled");
 		if (mainConfig.getProperty("messages.restricted-world") == null)
 			mainConfig.setProperty("messages.restricted-world", "&cYou cannot do that in this world!");
 
 		//Load messages
 		MessageCannotPlacePortal = mainConfig.getString("messages.cannot-place-portal");
-		MessagePortalStickEnabled = mainConfig.getString("messages.portal-stick-enabled");
-		MessagePortalStickDisabled = mainConfig.getString("messages.portal-stick-disabled");
 		MessageRestrictedWorld = mainConfig.getString("messages.restricted-world");
         
         //Load main settings

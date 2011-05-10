@@ -259,7 +259,11 @@ public class PortalStickPlayerListener extends PlayerListener {
 	}
 	
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
-		PortalManager.checkPlayerMove(event.getPlayer(), RegionManager.getRegion(event.getFrom()), RegionManager.getRegion(event.getTo()));
+		Region regionFrom = RegionManager.getRegion(event.getFrom());
+		Region regionTo = RegionManager.getRegion(event.getTo());
+		if (!Config.RestoreInvOnWorldChange && !event.getFrom().getWorld().getName().equalsIgnoreCase(event.getTo().getWorld().getName()))
+			return;
+		PortalManager.checkPlayerMove(event.getPlayer(), regionFrom, regionTo);
 	}
 		 
 	public void onPlayerQuit(PlayerQuitEvent event)

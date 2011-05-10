@@ -40,7 +40,8 @@ public class Grill {
 	{
 		for (Block b: inside)
     	{
-    		b.setType(Material.SUGAR_CANE_BLOCK);
+			if (b.getType() != Material.SUGAR_CANE_BLOCK)
+				b.setType(Material.SUGAR_CANE_BLOCK);
     	}
 	}
 	

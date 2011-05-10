@@ -15,6 +15,7 @@ import com.matejdro.bukkit.portalstick.commands.DeleteCommand;
 import com.matejdro.bukkit.portalstick.commands.DeleteRegionCommand;
 import com.matejdro.bukkit.portalstick.commands.FlagCommand;
 import com.matejdro.bukkit.portalstick.commands.HelpCommand;
+import com.matejdro.bukkit.portalstick.commands.RegionInfoCommand;
 import com.matejdro.bukkit.portalstick.commands.RegionListCommand;
 import com.matejdro.bukkit.portalstick.commands.RegionToolCommand;
 import com.matejdro.bukkit.portalstick.commands.ReloadCommand;
@@ -91,6 +92,7 @@ public class PortalStick extends JavaPlugin {
 		commands.add(new RegionListCommand());
 		commands.add(new DeleteRegionCommand());
 		commands.add(new FlagCommand());
+		commands.add(new RegionInfoCommand());
 		
 		Util.info("PortalStick enabled");
 
