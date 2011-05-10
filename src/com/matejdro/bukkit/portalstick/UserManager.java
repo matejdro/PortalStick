@@ -34,9 +34,11 @@ public class UserManager {
 	public static void deleteUser(User user) {
 		PortalManager.deletePortals(user);
 		deleteDroppedItems(user);
+		String key = "";
 		for (Map.Entry<String, User> entry : users.entrySet())
 			if (entry.getValue() == user)
-				users.remove(entry.getKey());
+				key = entry.getKey();
+		users.remove(key);
 	}
 
 	public static void deleteDroppedItems(Player player) {

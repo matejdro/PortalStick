@@ -14,7 +14,7 @@ import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
-public class GrillManager {
+public class GrillManager implements Runnable {
 	
 	public static List<Grill> grills = new ArrayList<Grill>();
 	public static PortalStick plugin;
@@ -54,6 +54,7 @@ public class GrillManager {
 			return false;
 		}
 		if (GrillManager.placeRecursiveEmancipationGrill(block)) return true;
+		Config.saveAll();
 		return false;
     }
     
@@ -175,5 +176,11 @@ public class GrillManager {
 			UserManager.deleteDroppedItems(player);
 		}
 		
+	}
+
+	@Override
+	public void run() {
+		for (Grill g : grills.toArray(new Grill[0]))
+			g.create();
 	}
 }

@@ -35,6 +35,7 @@ public class PortalStick extends JavaPlugin {
 	private PortalStickBlockListener BlockListener;
 	private PortalStickVehicleListener VehicleListener;
 	private PortalStickEntityListener EntityListener;
+	private GrillManager grillManager;
 	
 	public static List<BaseCommand> commands = new ArrayList<BaseCommand>();
 	public static Config config;
@@ -54,7 +55,7 @@ public class PortalStick extends JavaPlugin {
 		BlockListener = new PortalStickBlockListener(this);
 		VehicleListener = new PortalStickVehicleListener(this);
 		EntityListener = new PortalStickEntityListener();
-		new GrillManager(this);
+		grillManager = new GrillManager(this);
 		config = new Config(this);
 		permissions = new Permission(this);
 		
@@ -76,6 +77,9 @@ public class PortalStick extends JavaPlugin {
 		getServer().getPluginManager().registerEvent(Event.Type.REDSTONE_CHANGE, BlockListener, Event.Priority.Low, this);
 
 		worldGuard = (WorldGuardPlugin) this.getServer().getPluginManager().getPlugin("WorldGuard");
+
+		//Start grill checking timer
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, grillManager, 400, 400);
 		
 		//Register commands
 		commands.add(new RegionToolCommand());

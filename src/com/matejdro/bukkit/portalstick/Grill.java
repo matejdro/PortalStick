@@ -42,7 +42,6 @@ public class Grill {
     	{
     		b.setType(Material.SUGAR_CANE_BLOCK);
     	}
-		Config.saveAll();
 	}
 	
 	public String getStringLocation()
