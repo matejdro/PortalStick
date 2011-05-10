@@ -128,7 +128,6 @@ public class Config {
 		
 		PortalManager.deleteAll();
 		GrillManager.deleteAll();
-		
 		for (Map.Entry<String, User> entry : UserManager.getUserList().entrySet()) {
 			User user = entry.getValue();
 			Player player = plugin.getServer().getPlayer(entry.getKey());
