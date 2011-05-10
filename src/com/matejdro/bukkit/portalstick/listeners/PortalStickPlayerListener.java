@@ -165,6 +165,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		if (portal != null)
 		{
 			if (!portal.isOpen() || portal.isDisabled()) return;
+			if (Math.abs(vector.getY()) > 1 && !portal.isVertical()) return;
 			User owner = portal.getOwner();
 				 
 			Location teleport;
