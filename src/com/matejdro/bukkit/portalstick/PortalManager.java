@@ -22,12 +22,16 @@ public class PortalManager {
 	{
 		User user = UserManager.getUser(player);
 		if (user.getUsingTool()) return;
+		if (!regionFrom.World.equalsIgnoreCase(regionTo.World)) return;
 		if (!regionTo.Name.equals(regionFrom.Name)) {
-			if (regionTo.Name.equalsIgnoreCase("global"))
-				user.revertInventory(player);
+			if (!Config.RestoreInvOnWorldChange && !regionFrom.World.equalsIgnoreCase(regionTo.World));
 			else {
-				user.saveInventory(player);
-				setPortalInventory(player);
+				if (regionTo.Name.equalsIgnoreCase("global"))
+					user.revertInventory(player);
+				else {
+					user.saveInventory(player);
+					setPortalInventory(player);
+				}
 			}
 			if (regionFrom.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE) || regionTo.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE))
 				deletePortals(user);
@@ -176,6 +180,7 @@ public class PortalManager {
 		if (region.getBoolean(RegionSetting.CHECK_WORLDGUARD) && PortalStick.worldGuard != null && !PortalStick.worldGuard.canBuild(player, block))
 			return false;
 		if (!region.getBoolean(RegionSetting.ENABLE_PORTALS))
+			return false;
 		if (!Permission.placePortal(player))
 			return false;
 	

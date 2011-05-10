@@ -32,6 +32,7 @@ public class Config {
 	public static boolean CompactPortal;
 	public static Region GlobalRegion;
 	public static int RegionTool;
+	public static boolean RestoreInvOnWorldChange;
 	
 	public static String MessageCannotPlacePortal;
 	public static String MessagePortalStickEnabled;
@@ -75,6 +76,8 @@ public class Config {
 			mainConfig.setProperty("main.portal-tool", 280);
 		if (mainConfig.getProperty("main.region-tool") == null)
 			mainConfig.setProperty("main.region-tool", 268);
+		if (mainConfig.getProperty("main.restore-inventory-on-world-change") == null)
+			mainConfig.setProperty("main.restore-inventory-on-world-change", true);
 		
 		//Check messages
 		if (mainConfig.getProperty("messages.cannot-place-portal") == null)
@@ -98,6 +101,7 @@ public class Config {
         PortalTool = mainConfig.getInt("main.portal-tool", 280);
         CompactPortal = mainConfig.getBoolean("main.compact-portal", false);
         RegionTool = mainConfig.getInt("main.region-tool", 268);
+        RestoreInvOnWorldChange = mainConfig.getBoolean("main.restore-inventory-on-world-change", true);
 		
 		//Load all current users
 		for (Player player : plugin.getServer().getOnlinePlayers())
