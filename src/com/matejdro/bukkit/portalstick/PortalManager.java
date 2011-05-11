@@ -1,5 +1,6 @@
 package com.matejdro.bukkit.portalstick;
 
+import java.util.Collection;
 import java.util.HashSet;
 
 import org.bukkit.Material;
@@ -59,6 +60,9 @@ public class PortalManager {
 				return false;
 			}
 		}
+		HashSet<Integer> walkableblocks = new HashSet<Integer>();
+		Region region = RegionManager.getRegion(portal.destloc);
+		if (!region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(portal.destloc.getBlock().getTypeId()) && !region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(portal.destloc.getBlock().getRelative(BlockFace.UP).getTypeId())) return false;
 		return true;
 	}
 
@@ -292,7 +296,7 @@ public class PortalManager {
 		inv.clear(inv.getSize() + 1);
 		inv.clear(inv.getSize() + 2);
 		inv.clear(inv.getSize() + 3);
-		inv.setItemInHand(new ItemStack(Material.STICK, 1));
+		inv.setItemInHand(new ItemStack(Config.PortalTool, 1));
 	}
 
 }

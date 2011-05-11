@@ -38,9 +38,9 @@ public class PortalStickVehicleListener extends VehicleListener {
 			if (!Permission.teleport((Player) vehicle.getPassenger())) return;
 			 
 		//Aiming assistant: 
-		double addX = 0.0;
-		double addY = 0.0;
-		double addZ = 0.0;
+		double addX = 1.0;
+		double addY = 1.0;
+		double addZ = 1.0;
 		if (Math.abs(vector.getX()) > 1)
 		{
 			addX += 3.0;
