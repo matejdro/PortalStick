@@ -46,9 +46,11 @@ public class UserManager {
 	}
 	
 	public static void deleteDroppedItems(User user) {
-		for (Item item : user.getDroppedItems())
-			item.remove();
-		user.resetItems();
+		if (user.getDroppedItems() != null) {
+			for (Item item : user.getDroppedItems())
+				item.remove();
+			user.resetItems();
+		}
 	}
 
 }
