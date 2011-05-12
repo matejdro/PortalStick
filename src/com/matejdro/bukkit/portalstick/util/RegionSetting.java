@@ -21,6 +21,7 @@ public enum RegionSetting {
 	ENABLE_FALL_DAMAGE_BOOTS("enable-fall-damage-boots", true, true),
 	FALL_DAMAGE_BOOTS("fall-damage-boots", 313, true),
 	VELOCITY_MULTIPLIER("velocity-multiplier", 1.0, true),
+	PREVENT_PORTAL_THROUGH_PORTAL("prevent-creating-portal-through-portal", false, true),
 	LOCATION("location", "world:0,0,0:0,0,0");
 	
 	private String yaml;

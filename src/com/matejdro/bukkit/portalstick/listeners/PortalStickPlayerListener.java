@@ -51,6 +51,10 @@ public class PortalStickPlayerListener extends PlayerListener {
 		for (int i : region.getList(RegionSetting.TRANSPARENT_BLOCKS).toArray(new Integer[0]))
 			tb.add((byte) i);
 		
+		List<Block> targetBlocks = event.getPlayer().getLineOfSight(tb, 20);
+		if (targetBlocks.size() < 1) return;
+
+		
 		//Portal tool
 		if (player.getItemInHand().getTypeId() == Config.PortalTool && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
 		{
@@ -61,14 +65,27 @@ public class PortalStickPlayerListener extends PlayerListener {
 				return;
 			}
 			
+			if (region.getBoolean(RegionSetting.PREVENT_PORTAL_THROUGH_PORTAL))
+			{
+				for (Block b : targetBlocks)
+				{
+					for (Portal p : PortalManager.portals)
+					{
+						if (p.getInside().contains(b))
+						{
+							Util.sendMessage(player, Config.MessageCannotPlacePortal);
+							return;
+						}
+					}
+				}
+			}
+			
 			Boolean orange = false;
 			if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)
 				orange = true;
 			if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR ||  tb.contains((byte) event.getClickedBlock().getTypeId()))
 			{
-				List<Block> targetBlocks = event.getPlayer().getLastTwoTargetBlocks(tb, 120);
-				if (targetBlocks.size() != 2) return;
-				Block b = targetBlocks.get(1);
+				Block b = targetBlocks.get(targetBlocks.size() - 1);
 				PortalManager.placePortal(b, event.getPlayer(), orange);
 			}
 			else
