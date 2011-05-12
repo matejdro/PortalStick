@@ -41,18 +41,20 @@ public class PortalStickPlayerListener extends PlayerListener {
 	}	
 	
 	public void onPlayerInteract(PlayerInteractEvent event)
-	{
-		
+	{		
 		Player player = event.getPlayer();
 		User user = UserManager.getUser(player);
-		Region region = RegionManager.getRegion(player.getLocation());
-		HashSet<Byte> tb = new HashSet<Byte>();
-		for (int i : region.getList(RegionSetting.TRANSPARENT_BLOCKS).toArray(new Integer[0]))
-			tb.add((byte) i);
-		
+
+	
 		//Portal tool
 		if (player.getItemInHand().getTypeId() == Config.PortalTool && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
 		{
+			
+			Region region = RegionManager.getRegion(player.getLocation());
+			HashSet<Byte> tb = new HashSet<Byte>();
+			for (int i : region.getList(RegionSetting.TRANSPARENT_BLOCKS).toArray(new Integer[0]))
+				tb.add((byte) i);
+
 			
 			if (region.getBoolean(RegionSetting.CHECK_WORLDGUARD) && PortalStick.worldGuard != null && !PortalStick.worldGuard.canBuild(player, player.getLocation().getBlock()))
 				return;
