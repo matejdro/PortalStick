@@ -15,7 +15,6 @@ import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.material.Door;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.Grill;
@@ -65,33 +64,33 @@ public class PortalStickPlayerListener extends PlayerListener {
 				return;
 			}
 			
-			if (region.getBoolean(RegionSetting.PREVENT_PORTAL_THROUGH_PORTAL))
+			if (region.getBoolean(RegionSetting.PREVENT_PORTAL_THROUGH_PORTAL) || region.getBoolean(RegionSetting.PREVENT_PORTAL_CLOSED_DOOR))
 			{
 				for (Block b : targetBlocks)
 				{
-					for (Portal p : PortalManager.portals)
+					if (region.getBoolean(RegionSetting.PREVENT_PORTAL_THROUGH_PORTAL))
 					{
-						if (p.getInside().contains(b))
+						for (Portal p : PortalManager.portals)
 						{
-							Util.sendMessage(player, Config.MessageCannotPlacePortal);
-							return;
+							if (p.getInside().contains(b))
+							{
+								Util.sendMessage(player, Config.MessageCannotPlacePortal);
+								return;
+							}
 						}
 					}
-				}
-			}
-			
-			if (region.getBoolean(RegionSetting.PREVENT_PORTAL_CLOSED_DOOR))
-			{
-				for (Block b : targetBlocks)
-				{
-					if ((b.getType() == Material.IRON_DOOR_BLOCK || b.getType() == Material.WOODEN_DOOR) && ((b.getData() & 4) != 4) )
+					if (region.getBoolean(RegionSetting.PREVENT_PORTAL_CLOSED_DOOR))
 					{
-							Util.sendMessage(player, Config.MessageCannotPlacePortal);
-							return;
+						if ((b.getType() == Material.IRON_DOOR_BLOCK || b.getType() == Material.WOODEN_DOOR) && ((b.getData() & 4) != 4) )
+						{
+								Util.sendMessage(player, Config.MessageCannotPlacePortal);
+								return;
+						}
 					}
+					
 				}
 			}
-			
+						
 			Boolean orange = false;
 			if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)
 				orange = true;
