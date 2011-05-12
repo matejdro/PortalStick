@@ -15,8 +15,8 @@ import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.material.Door;
 import org.bukkit.util.Vector;
-
 
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
@@ -76,6 +76,18 @@ public class PortalStickPlayerListener extends PlayerListener {
 							Util.sendMessage(player, Config.MessageCannotPlacePortal);
 							return;
 						}
+					}
+				}
+			}
+			
+			if (region.getBoolean(RegionSetting.PREVENT_PORTAL_CLOSED_DOOR))
+			{
+				for (Block b : targetBlocks)
+				{
+					if ((b.getType() == Material.IRON_DOOR_BLOCK || b.getType() == Material.WOODEN_DOOR) && ((b.getData() & 4) != 4) )
+					{
+							Util.sendMessage(player, Config.MessageCannotPlacePortal);
+							return;
 					}
 				}
 			}

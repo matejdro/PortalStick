@@ -14,7 +14,7 @@ public enum RegionSetting {
 	GRILLS_CLEAR_INVENTORY("grills-clear-inventory", true, true),
 	GRILLS_CLEAR_ITEM_DROPS("grills-clear-item-drops", true, true),
 	GRILL_MATERIAL("emancipation-grill-material", "48", true),
-	TRANSPARENT_BLOCKS("transparent-blocks", Arrays.asList(new Integer[]{0,8,9,10,11,20})),
+	TRANSPARENT_BLOCKS("transparent-blocks", Arrays.asList(new Integer[]{0,8,9,10,11,20,64,71})),
 	PORTAL_BLOCKS("portallable-blocks", Arrays.asList(new Integer[]{1})),
 	ALL_BLOCKS_PORTAL("all-blocks-allow-portals", false, true),
 	UNIQUE_INVENTORY("unique-inventory", false, true),
@@ -22,6 +22,7 @@ public enum RegionSetting {
 	FALL_DAMAGE_BOOTS("fall-damage-boots", 313, true),
 	VELOCITY_MULTIPLIER("velocity-multiplier", 1.0, true),
 	PREVENT_PORTAL_THROUGH_PORTAL("prevent-creating-portal-through-portal", false, true),
+	PREVENT_PORTAL_CLOSED_DOOR("prevent-creating-portal-through-closed-door", true, true),
 	LOCATION("location", "world:0,0,0:0,0,0");
 	
 	private String yaml;
