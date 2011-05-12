@@ -26,6 +26,7 @@ public class Grill {
 		deleteInside();
 		Config.deleteGrill(getStringLocation());
 		GrillManager.grills.remove(this);
+		Config.saveAll();
 	}
 	
 	public void deleteInside()

@@ -1,9 +1,7 @@
 package com.matejdro.bukkit.portalstick;
 
-import java.util.Collection;
 import java.util.HashSet;
 
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -60,7 +58,6 @@ public class PortalManager {
 				return false;
 			}
 		}
-		HashSet<Integer> walkableblocks = new HashSet<Integer>();
 		Region region = RegionManager.getRegion(portal.destloc);
 		if (!region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(portal.destloc.getBlock().getTypeId()) && !region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(portal.destloc.getBlock().getRelative(BlockFace.UP).getTypeId())) return false;
 		return true;
@@ -212,7 +209,8 @@ public class PortalManager {
 				if (end) Util.sendMessage(player, Config.MessageCannotPlacePortal);
 				return false;
 			}
-			
+			oldportal.delete();
+			portalc = generatePortal(block, face);
 		}
 		else
 		{
@@ -222,6 +220,8 @@ public class PortalManager {
 				if (end) Util.sendMessage(player, Config.MessageCannotPlacePortal);
 				return false;
 			}
+			oldportal.delete();
+			portalc = generateHorizontalPortal(block, face, oldportal);
 		}
 		
 		portalc.destloc.setX(portalc.destloc.getX() + 0.5);
