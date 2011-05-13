@@ -37,13 +37,17 @@ public class Grill {
 		}
 	}
 		
-	public void create()
+	public boolean create()
 	{
+		boolean complete = true;
 		for (Block b: inside)
     	{
-			if (b.getType() != Material.SUGAR_CANE_BLOCK)
+			if (b.getType() != Material.SUGAR_CANE_BLOCK) {
 				b.setType(Material.SUGAR_CANE_BLOCK);
+				complete = false;
+			}
     	}
+		return complete;
 	}
 	
 	public String getStringLocation()
