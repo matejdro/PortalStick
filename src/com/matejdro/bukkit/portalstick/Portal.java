@@ -8,7 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
-import com.matejdro.bukkit.portalstick.util.Util;
+import com.matejdro.bukkit.portalstick.util.BlockUtil;
 
 public class Portal {
 	private Location teleport;
@@ -47,13 +47,13 @@ public class Portal {
 			for (Block b: border)
 			{
 				if (oldBlocks.containsKey(b.getLocation()))
-					Util.setBlockData(b, oldBlocks.get(b.getLocation()));
+					BlockUtil.setBlockData(b, oldBlocks.get(b.getLocation()));
 				PortalManager.borderBlocks.remove(b.getLocation());
 			}
 			for (Block b: inside)
 			{
 				if (oldBlocks.containsKey(b.getLocation()))
-					Util.setBlockData(b, oldBlocks.get(b.getLocation()));
+					BlockUtil.setBlockData(b, oldBlocks.get(b.getLocation()));
 				PortalManager.insideBlocks.remove(b.getLocation());
 			}
 			for (Location l : awayBlocks)
@@ -116,7 +116,7 @@ public class Portal {
 	{
     	for (Block b: border)
     	{
-    		oldBlocks.put(b.getLocation(), Util.getBlockData(b));
+    		oldBlocks.put(b.getLocation(), BlockUtil.getBlockData(b));
     		b.setType(Material.WOOL);
     		if (orange)
     			b.setData((byte) 1);
@@ -126,7 +126,7 @@ public class Portal {
     	}
     	for (Block b: inside)
     	{
-			oldBlocks.put(b.getLocation(), Util.getBlockData(b));
+			oldBlocks.put(b.getLocation(), BlockUtil.getBlockData(b));
     	}
     	
     	if (orange)

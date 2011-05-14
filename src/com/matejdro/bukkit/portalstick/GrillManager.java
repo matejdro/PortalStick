@@ -11,6 +11,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
@@ -67,7 +68,7 @@ public class GrillManager implements Runnable {
     	
     	Region region = RegionManager.getRegion(initial.getLocation());
     	String borderID = region.getString(RegionSetting.GRILL_MATERIAL);
-    	if (!Util.compareBlockToString(initial, borderID)) return false;
+    	if (!BlockUtil.compareBlockToString(initial, borderID)) return false;
     	if (!region.getBoolean(RegionSetting.ENABLE_GRILLS)) return false;
     	
     	//Check if initial is already in a grill
@@ -134,11 +135,11 @@ public class GrillManager implements Runnable {
     	    				continue;
     	    			Block temp = block.getFace(face);
     	    			while (temp.getLocation().toVector().isInAABB(min, max)) {
-    	    				if (Util.compareBlockToString(temp, borderID))
+    	    				if (BlockUtil.compareBlockToString(temp, borderID))
     	    					break;
     	    				temp = temp.getFace(face);
     	    			}
-    	    			if (!Util.compareBlockToString(temp, borderID)) {
+    	    			if (!BlockUtil.compareBlockToString(temp, borderID)) {
     	    				add = false;
     	    				break;
     	    			}
@@ -158,7 +159,7 @@ public class GrillManager implements Runnable {
     		complete = true;
     		return;
     	}
-    	if (Util.compareBlockToString(block, id) && !border.contains(block)) {
+    	if (BlockUtil.compareBlockToString(block, id) && !border.contains(block)) {
     		border.add(block);
     		max++;
     		recurse(initial, id, block.getFace(one), one, two, three, four);

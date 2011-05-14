@@ -15,9 +15,9 @@ import com.matejdro.bukkit.portalstick.Portal;
 import com.matejdro.bukkit.portalstick.PortalManager;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.RegionManager;
+import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalStickEntityListener extends EntityListener {
 	
@@ -51,7 +51,7 @@ public class PortalStickEntityListener extends EntityListener {
 				}
 			}
 			
-			if (block.getType() == Material.SUGAR_CANE_BLOCK || Util.compareBlockToString(block, region.getString(RegionSetting.GRILL_MATERIAL)))
+			if (block.getType() == Material.SUGAR_CANE_BLOCK || BlockUtil.compareBlockToString(block, region.getString(RegionSetting.GRILL_MATERIAL)))
 			{
 				Grill grill = GrillManager.insideBlocks.get(loc);
 				if (grill == null) grill = GrillManager.borderBlocks.get(loc);
