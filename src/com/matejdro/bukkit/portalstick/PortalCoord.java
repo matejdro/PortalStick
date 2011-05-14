@@ -12,6 +12,7 @@ public class PortalCoord {
 	public Location destloc;
 	public BlockFace tpface;
 	public Boolean finished;
+	public Boolean vertical;
 	
 	public PortalCoord()
 	{

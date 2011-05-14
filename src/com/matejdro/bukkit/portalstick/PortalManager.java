@@ -69,7 +69,7 @@ public class PortalManager {
 			}
 		}
 		Region region = RegionManager.getRegion(portal.destloc);
-		if (!region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(portal.destloc.getBlock().getTypeId()) && !region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(portal.destloc.getBlock().getRelative(BlockFace.UP).getTypeId())) return false;
+		if (!portal.vertical && !region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(portal.destloc.getBlock().getTypeId()) && !region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(portal.destloc.getBlock().getRelative(BlockFace.UP).getTypeId())) return false;
 		return true;
 	}
 
@@ -142,7 +142,7 @@ public class PortalManager {
 	    		portal.destloc = block.getRelative(0,2,0).getLocation();
 	    		portal.tpface = BlockFace.UP;
 	    	}
-	    		
+	    portal.vertical = true;		
 		}
 		else
 		{
@@ -185,6 +185,7 @@ public class PortalManager {
 	    	portal.inside.add(block.getRelative(0,-1,0));
 	    	
 	    	portal.destloc = block.getRelative(z*1,-1,x*1).getLocation();
+	    	portal.vertical = false;
 	       	}
 	
 		return portal;
