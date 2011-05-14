@@ -23,29 +23,29 @@ public class GelManager {
 		if (vector.getX() >= 0)
 		{
 			if (BlockUtil.compareBlockToString(block.getRelative(1,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 1);
-			else if (BlockUtil.compareBlockToString(block.getRelative(2,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 1);
-			else if (BlockUtil.compareBlockToString(block.getRelative(3,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 1);
+			else if (Math.abs(vector.getX()) > 0.3 && BlockUtil.compareBlockToString(block.getRelative(2,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 1);
+			else if (Math.abs(vector.getX()) > 0.5 &&BlockUtil.compareBlockToString(block.getRelative(3,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 1);
 
 		}
 		else if (vector.getX() <= 0)
 		{
 			if (BlockUtil.compareBlockToString(block.getRelative(-1,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 2);
-			else if (BlockUtil.compareBlockToString(block.getRelative(-2,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 2);
-			else if (BlockUtil.compareBlockToString(block.getRelative(-3,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 2);
+			else if (Math.abs(vector.getX()) > 0.3 && BlockUtil.compareBlockToString(block.getRelative(-2,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 2);
+			else if (Math.abs(vector.getX()) > 0.5 && BlockUtil.compareBlockToString(block.getRelative(-3,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 2);
 
 		}
 		if (vector.getZ() >= 0)
 		{
 			if (BlockUtil.compareBlockToString(block.getRelative(0,0,1), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 3);
-			else if (BlockUtil.compareBlockToString(block.getRelative(0,0,2), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 3);
-			else if (BlockUtil.compareBlockToString(block.getRelative(0,0,3), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 3);
+			else if (Math.abs(vector.getZ()) > 0.3 && BlockUtil.compareBlockToString(block.getRelative(0,0,2), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 3);
+			else if (Math.abs(vector.getZ()) > 0.5 && BlockUtil.compareBlockToString(block.getRelative(0,0,3), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 3);
 
 		}
 		else if (vector.getZ() <=0 )
 		{
 			if (BlockUtil.compareBlockToString(block.getRelative(0,0,-1), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 4);
-			else if (BlockUtil.compareBlockToString(block.getRelative(0,0,-2), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 4);
-			else if (BlockUtil.compareBlockToString(block.getRelative(0,0,-3), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 4);
+			else if (Math.abs(vector.getZ()) < 0.3 && BlockUtil.compareBlockToString(block.getRelative(0,0,-2), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 4);
+			else if (Math.abs(vector.getZ()) > 0.5 &&BlockUtil.compareBlockToString(block.getRelative(0,0,-3), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 4);
 
 		}
 		
