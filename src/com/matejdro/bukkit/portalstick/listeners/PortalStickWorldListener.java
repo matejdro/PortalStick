@@ -5,7 +5,6 @@ import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldListener;
 
 import com.matejdro.bukkit.portalstick.PortalManager;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalStickWorldListener extends WorldListener {
 
