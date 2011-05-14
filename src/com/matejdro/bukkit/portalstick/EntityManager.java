@@ -1,13 +1,24 @@
 package com.matejdro.bukkit.portalstick;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Vehicle;
 import org.bukkit.util.Vector;
 
+import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
+import com.matejdro.bukkit.portalstick.util.Util;
 
-public class EntityManager {
+public class EntityManager implements Runnable {
+	private PortalStick plugin;
+
+	public EntityManager(PortalStick instance)
+	{
+		plugin = instance;
+	}
 
 	public static Location teleport(Entity entity, Location LocTo, Vector vector)
 	{
@@ -114,5 +125,25 @@ public class EntityManager {
 			return teleport;
 		}
 		return null;
+	}
+	
+	@Override
+	public void run() {
+		for (World w : plugin.getServer().getWorlds())
+		{
+			if (Config.DisabledWorlds.contains(w.getName())) return;
+			for (Entity e : w.getEntities())
+			{
+				if (e instanceof Player || e instanceof Vehicle) return;
+				Location LocTo = e.getLocation();
+				LocTo = new Location(LocTo.getWorld(), LocTo.getBlockX(), LocTo.getBlockY(), LocTo.getBlockZ());
+				Util.info(e.toString());
+
+				Vector vector = e.getVelocity();
+				
+				teleport(e, LocTo, vector);
+			}
+		}
+	    		
 	}
 }
