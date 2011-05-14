@@ -21,9 +21,9 @@ import com.matejdro.bukkit.portalstick.PortalManager;
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.RegionManager;
+import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalStickBlockListener extends BlockListener {
 	
@@ -58,7 +58,7 @@ public class PortalStickBlockListener extends BlockListener {
 		}
 		
 		
-		if (Util.compareBlockToString(event.getBlock(), region.getString(RegionSetting.GRILL_MATERIAL)))
+		if (BlockUtil.compareBlockToString(event.getBlock(), region.getString(RegionSetting.GRILL_MATERIAL)))
 		{
 			grill = GrillManager.borderBlocks.get(event.getBlock().getLocation());
 				if (grill == null || !Permission.deleteGrill(event.getPlayer())) return;

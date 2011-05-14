@@ -23,6 +23,7 @@ public enum RegionSetting {
 	VELOCITY_MULTIPLIER("velocity-multiplier", 1.0, true),
 	PREVENT_PORTAL_THROUGH_PORTAL("prevent-creating-portal-through-portal", false, true),
 	PREVENT_PORTAL_CLOSED_DOOR("prevent-creating-portal-through-closed-door", true, true),
+	FAITH_PLATE_BLOCK("aerial-faith-plate-block", "57", true),
 	LOCATION("location", "world:0,0,0:0,0,0");
 	
 	private String yaml;

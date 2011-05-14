@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
@@ -28,6 +29,7 @@ import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.User;
 import com.matejdro.bukkit.portalstick.UserManager;
+import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
@@ -136,11 +138,10 @@ public class PortalStickPlayerListener extends PlayerListener {
 
 		Player player = event.getPlayer();
 		Vector vector = player.getVelocity();
-		Location LocTo = event.getTo();
-		LocTo = new Location(LocTo.getWorld(), LocTo.getBlockX(), LocTo.getBlockY(), LocTo.getBlockZ());
+		Location locTo = event.getTo();
+		locTo = new Location(locTo.getWorld(), locTo.getBlockX(), locTo.getBlockY(), locTo.getBlockZ());
 		Region regionTo = RegionManager.getRegion(event.getTo());
 		Region regionFrom = RegionManager.getRegion(event.getFrom());
-		
 		
 		//Check for changing regions
 		PortalManager.checkPlayerMove(player, regionFrom, regionTo);
@@ -148,11 +149,52 @@ public class PortalStickPlayerListener extends PlayerListener {
 		//Emancipation grill
 		if (regionTo.getBoolean(RegionSetting.ENABLE_GRILLS))
 		{
-				Grill grill = GrillManager.insideBlocks.get(LocTo);
+				Grill grill = GrillManager.insideBlocks.get(locTo);
 				if (grill != null)
 				{
 					GrillManager.emancipate(player);
 				}
+		}
+		
+		//Aerial faith plate
+		Block blockIn = locTo.getBlock();
+		Block blockUnder = blockIn.getFace(BlockFace.DOWN);
+		Block block = null;
+		String faithBlock = regionTo.getString(RegionSetting.FAITH_PLATE_BLOCK);
+		Vector velocity = new Vector(0,2,0);
+		
+		if (blockIn.getType() == Material.STONE_PLATE && BlockUtil.compareBlockToString(blockUnder, faithBlock))
+			block = blockUnder;
+		else
+			block = blockIn;
+		
+		if (block != null) {
+			BlockFace[] faces = new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
+			BlockFace face = BlockUtil.getFaceOfMaterial(blockIn, faces, faithBlock);
+			if (face != null) {
+				block = blockIn.getFace(face);
+				if (BlockUtil.getFaceOfMaterial(block, new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH}, faithBlock) != null) {
+					switch (face) {
+						case NORTH:
+							velocity.setX(2);
+							break;
+						case SOUTH:
+							velocity.setX(-2);
+							break;
+						case EAST:
+							velocity.setZ(2);
+							break;
+						case WEST:
+							velocity.setZ(-2);
+							break;
+					}
+					if (block == blockUnder) {
+						velocity.setX(velocity.getX() * -1);
+						velocity.setZ(velocity.getZ() * -1);
+					}
+					player.setVelocity(velocity);
+				}
+			}
 		}
 		
 		//Teleport
@@ -165,7 +207,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 			UserManager.teleportPermissionCache.put(player, permission);
 		}
 		if (!permission) return;
-		Location out = EntityManager.teleport((Entity) player, LocTo, vector);
+		Location out = EntityManager.teleport((Entity) player, locTo, vector);
 		if (out != null) event.setTo(out);
 		
 
