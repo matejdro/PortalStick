@@ -13,6 +13,7 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
 public class EntityManager implements Runnable {
+	
 	private PortalStick plugin;
 
 	public EntityManager(PortalStick instance)
@@ -23,13 +24,13 @@ public class EntityManager implements Runnable {
 	public static Location teleport(Entity entity, Location LocTo, Vector vector)
 	{
 		Region regionTo = RegionManager.getRegion(LocTo);
-		Portal portal = PortalManager.insideblocks.get(LocTo);
+		Portal portal = PortalManager.insideBlocks.get(LocTo);
 		if (portal == null && ((Math.abs(vector.getBlockX()) > 1 || (Math.abs(vector.getBlockY()) > 1 || (Math.abs(vector.getBlockZ()) > 1))) || entity instanceof Boat)) 
 		{
-			portal = PortalManager.awayblocksgeneral.get(LocTo);
-			if (portal == null && (Math.abs(vector.getX()) > 1)) portal = PortalManager.awayblocksX.get(LocTo);
-			if (portal == null && (Math.abs(vector.getY()) > 1))portal = PortalManager.awayblocksY.get(LocTo);
-			if (portal == null && (Math.abs(vector.getZ()) > 1)) portal = PortalManager.awayblocksZ.get(LocTo);
+			portal = PortalManager.awayBlocksGeneral.get(LocTo);
+			if (portal == null && (Math.abs(vector.getX()) > 1)) portal = PortalManager.awayBlocksX.get(LocTo);
+			if (portal == null && (Math.abs(vector.getY()) > 1))portal = PortalManager.awayBlocksY.get(LocTo);
+			if (portal == null && (Math.abs(vector.getZ()) > 1)) portal = PortalManager.awayBlocksZ.get(LocTo);
 		}
 		
 		

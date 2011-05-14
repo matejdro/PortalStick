@@ -148,7 +148,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		//Emancipation grill
 		if (regionTo.getBoolean(RegionSetting.ENABLE_GRILLS))
 		{
-				Grill grill = GrillManager.insideblocks.get(LocTo);
+				Grill grill = GrillManager.insideBlocks.get(LocTo);
 				if (grill != null)
 				{
 					GrillManager.emancipate(player);
@@ -158,11 +158,11 @@ public class PortalStickPlayerListener extends PlayerListener {
 		//Teleport
 		if (player.isInsideVehicle()) return;
 		
-		Boolean permission = UserManager.teleportpermissioncache.get(player);
+		Boolean permission = UserManager.teleportPermissionCache.get(player);
 		if (permission == null)
 		{
 			permission = Permission.teleport(player);
-			UserManager.teleportpermissioncache.put(player, permission);
+			UserManager.teleportPermissionCache.put(player, permission);
 		}
 		if (!permission) return;
 		Location out = EntityManager.teleport((Entity) player, LocTo, vector);

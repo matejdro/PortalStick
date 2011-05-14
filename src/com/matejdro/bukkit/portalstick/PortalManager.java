@@ -19,12 +19,12 @@ public class PortalManager {
 	
 	public static HashSet<Portal> portals = new HashSet<Portal>();
 	//public static HashMap<Chunk, HashMap<Location, String>> oldportals = new HashMap<Chunk, HashMap<Location, String> >(); //Some preparation for unloaded chunk fix
-	public static HashMap<Location, Portal> borderblocks = new HashMap<Location, Portal>();
-	public static HashMap<Location, Portal> insideblocks = new HashMap<Location, Portal>();
-	public static HashMap<Location, Portal> awayblocksgeneral = new HashMap<Location, Portal>();
-	public static HashMap<Location, Portal> awayblocksX = new HashMap<Location, Portal>();
-	public static HashMap<Location, Portal> awayblocksY = new HashMap<Location, Portal>();
-	public static HashMap<Location, Portal> awayblocksZ = new HashMap<Location, Portal>();
+	public static HashMap<Location, Portal> borderBlocks = new HashMap<Location, Portal>();
+	public static HashMap<Location, Portal> insideBlocks = new HashMap<Location, Portal>();
+	public static HashMap<Location, Portal> awayBlocksGeneral = new HashMap<Location, Portal>();
+	public static HashMap<Location, Portal> awayBlocksX = new HashMap<Location, Portal>();
+	public static HashMap<Location, Portal> awayBlocksY = new HashMap<Location, Portal>();
+	public static HashMap<Location, Portal> awayBlocksZ = new HashMap<Location, Portal>();
 
 	public static void checkPlayerMove(Player player, Region regionFrom, Region regionTo)
 	{
@@ -67,8 +67,8 @@ public class PortalManager {
 				return false;
 			}
 		}
-		Region region = RegionManager.getRegion(portal.destloc);
-		if (!portal.vertical && !region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(portal.destloc.getBlock().getTypeId()) && !region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(portal.destloc.getBlock().getRelative(BlockFace.UP).getTypeId())) return false;
+		Region region = RegionManager.getRegion(portal.destLoc);
+		if (!portal.vertical && !region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(portal.destLoc.getBlock().getTypeId()) && !region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(portal.destLoc.getBlock().getRelative(BlockFace.UP).getTypeId())) return false;
 		return true;
 	}
 
@@ -133,13 +133,13 @@ public class PortalManager {
 	    	
 	    	if (face == BlockFace.DOWN)
 	    	{
-	    		portal.destloc = block.getRelative(0,-2,0).getLocation();
-	    		portal.tpface = BlockFace.DOWN;
+	    		portal.destLoc = block.getRelative(0,-2,0).getLocation();
+	    		portal.tpFace = BlockFace.DOWN;
 	    	}
 	    	else
 	    	{
-	    		portal.destloc = block.getRelative(0,2,0).getLocation();
-	    		portal.tpface = BlockFace.UP;
+	    		portal.destLoc = block.getRelative(0,2,0).getLocation();
+	    		portal.tpFace = BlockFace.UP;
 	    	}
 	    portal.vertical = true;		
 		}
@@ -151,19 +151,19 @@ public class PortalManager {
 	    	{
 	    	case NORTH:
 	    		z = -1;
-	    		portal.tpface = BlockFace.SOUTH;
+	    		portal.tpFace = BlockFace.SOUTH;
 	    		break;
 	    	case EAST:
 	    		x = -1;
-	    		portal.tpface = BlockFace.WEST;
+	    		portal.tpFace = BlockFace.WEST;
 	    		break;
 	    	case SOUTH:
 	    		z = 1;
-	    		portal.tpface = BlockFace.NORTH;
+	    		portal.tpFace = BlockFace.NORTH;
 	    		break;
 	    	case WEST:
 	    		x = 1;
-	    		portal.tpface = BlockFace.EAST;
+	    		portal.tpFace = BlockFace.EAST;
 	    		break;
 	    	}
 	    	if (!Config.CompactPortal)
@@ -183,7 +183,7 @@ public class PortalManager {
 	    	portal.inside.add(block);
 	    	portal.inside.add(block.getRelative(0,-1,0));
 	    	
-	    	portal.destloc = block.getRelative(z*1,-1,x*1).getLocation();
+	    	portal.destLoc = block.getRelative(z*1,-1,x*1).getLocation();
 	    	portal.vertical = false;
 	       	}
 	
@@ -234,11 +234,11 @@ public class PortalManager {
 			portalc = generateHorizontalPortal(block, face, oldportal);
 		}
 		
-		portalc.destloc.setX(portalc.destloc.getX() + 0.5);
-		portalc.destloc.setZ(portalc.destloc.getZ() + 0.5);
+		portalc.destLoc.setX(portalc.destLoc.getX() + 0.5);
+		portalc.destLoc.setZ(portalc.destLoc.getZ() + 0.5);
 	
 		
-		Portal portal = new Portal(portalc.destloc, portalc.border, portalc.inside, owner, orange, vertical, portalc.tpface);
+		Portal portal = new Portal(portalc.destLoc, portalc.border, portalc.inside, owner, orange, vertical, portalc.tpFace);
 		
 		if (orange)
 		{

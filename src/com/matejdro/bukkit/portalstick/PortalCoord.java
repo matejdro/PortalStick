@@ -9,8 +9,8 @@ import org.bukkit.block.BlockFace;
 public class PortalCoord {
 	public HashSet<Block> border;
 	public HashSet<Block> inside;
-	public Location destloc;
-	public BlockFace tpface;
+	public Location destLoc;
+	public BlockFace tpFace;
 	public Boolean finished;
 	public Boolean vertical;
 	

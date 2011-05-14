@@ -9,8 +9,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 public class User {
-	private Portal blueportal;
-	private Portal orangeportal;
+	private Portal bluePortal;
+	private Portal orangePortal;
 	private ItemStack[] inventory;
 	private ItemStack boots;
 	private ItemStack chest;
@@ -22,19 +22,19 @@ public class User {
 	private HashSet<Item> droppedItems = new HashSet<Item>();
 	
 	public Portal getBluePortal() {
-		return blueportal;
+		return bluePortal;
 	}
 	
 	public void setBluePortal(Portal portal) {
-		blueportal = portal;
+		bluePortal = portal;
 	}
 	
 	public Portal getOrangePortal() {
-		return orangeportal;
+		return orangePortal;
 	}
 	
 	public void setOrangePortal(Portal portal) {
-		orangeportal = portal;
+		orangePortal = portal;
 	}
 	
 	public void revertInventory(Player player) {

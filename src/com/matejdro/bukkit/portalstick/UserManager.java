@@ -9,7 +9,8 @@ import org.bukkit.entity.Player;
 
 
 public class UserManager {
-	public static HashMap<Player, Boolean> teleportpermissioncache  = new HashMap<Player, Boolean>();
+	
+	public static HashMap<Player, Boolean> teleportPermissionCache  = new HashMap<Player, Boolean>();
 	private static ConcurrentHashMap<String, User> users = new ConcurrentHashMap<String, User>();
 	
 	public static ConcurrentHashMap<String, User> getUserList() {

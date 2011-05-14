@@ -32,12 +32,11 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 public class PortalStick extends JavaPlugin {
 	public static Logger log = Logger.getLogger("Minecraft");
 
-	private PortalStickPlayerListener PlayerListener;
-	private PortalStickBlockListener BlockListener;
-	private PortalStickVehicleListener VehicleListener;
-	private PortalStickEntityListener EntityListener;
+	private PortalStickPlayerListener playerListener;
+	private PortalStickBlockListener blockListener;
+	private PortalStickVehicleListener vehicleListener;
+	private PortalStickEntityListener entityListener;
 	private GrillManager grillManager;
-	private EntityManager entityManager;
 	
 	public static List<BaseCommand> commands = new ArrayList<BaseCommand>();
 	public static Config config;
@@ -56,31 +55,31 @@ public class PortalStick extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 		
-		PlayerListener = new PortalStickPlayerListener();
-		BlockListener = new PortalStickBlockListener(this);
-		VehicleListener = new PortalStickVehicleListener();
-		EntityListener = new PortalStickEntityListener();
+		playerListener = new PortalStickPlayerListener();
+		blockListener = new PortalStickBlockListener(this);
+		vehicleListener = new PortalStickVehicleListener();
+		entityListener = new PortalStickEntityListener();
 		grillManager = new GrillManager(this);
-		entityManager = new EntityManager(this);
 		config = new Config(this);
 		permissions = new Permission(this);
+		new EntityManager(this);
 		
 		//Register events
-		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BREAK, BlockListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BURN, BlockListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PLACE, BlockListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PHYSICS, BlockListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_FROMTO, BlockListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_INTERACT, PlayerListener, Event.Priority.Monitor, this);
-		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_MOVE, PlayerListener, Event.Priority.Low, this);	
-		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, PlayerListener, Event.Priority.Monitor, this);
-		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, PlayerListener, Event.Priority.Monitor, this);
-		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_DROP_ITEM, PlayerListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_TELEPORT, PlayerListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, EntityListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_EXPLODE, EntityListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.VEHICLE_MOVE, VehicleListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.REDSTONE_CHANGE, BlockListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BURN, blockListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_FROMTO, blockListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Monitor, this);
+		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_MOVE, playerListener, Event.Priority.Low, this);	
+		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Monitor, this);
+		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Monitor, this);
+		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_DROP_ITEM, playerListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.VEHICLE_MOVE, vehicleListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.REDSTONE_CHANGE, blockListener, Event.Priority.Low, this);
 
 		worldGuard = (WorldGuardPlugin) this.getServer().getPluginManager().getPlugin("WorldGuard");
 

@@ -30,7 +30,7 @@ public class Grill {
 		
 		for (Block b : border)
 		{
-			GrillManager.borderblocks.remove(b.getLocation());
+			GrillManager.borderBlocks.remove(b.getLocation());
 		}
 	}
 	
@@ -39,7 +39,7 @@ public class Grill {
 		for (Block b: inside)
 		{
 			b.setType(Material.AIR);
-			GrillManager.insideblocks.remove(b.getLocation());
+			GrillManager.insideBlocks.remove(b.getLocation());
 		}
 	}
 		
@@ -48,7 +48,7 @@ public class Grill {
 		boolean complete = true;
 		for (Block b: inside)
     	{
-			GrillManager.insideblocks.put(b.getLocation(), this);
+			GrillManager.insideBlocks.put(b.getLocation(), this);
 			if (b.getType() != Material.SUGAR_CANE_BLOCK) {
 				b.setType(Material.SUGAR_CANE_BLOCK);
 				complete = false;
@@ -57,7 +57,7 @@ public class Grill {
     	}
 		for (Block b : border)
 		{
-			GrillManager.borderblocks.put(b.getLocation(), this);
+			GrillManager.borderBlocks.put(b.getLocation(), this);
 		}
 		return complete;
 	}
