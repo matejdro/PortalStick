@@ -41,7 +41,6 @@ public class Config {
 		
 		plugin = instance;
 		mainConfig = plugin.getConfiguration();
-		mainConfig.load();
 		regionConfig = getConfigFile("regions.yml");
 		grillConfig = getConfigFile("grills.yml");
 		
@@ -62,6 +61,10 @@ public class Config {
 	}
 	
 	public static void load() {
+		
+		mainConfig.load();
+		regionConfig.load();
+		grillConfig.load();
 		
 		//Check main settings
 		if (mainConfig.getProperty("main.disabled-worlds") == null)
