@@ -16,7 +16,7 @@ public class Portal {
 	private HashSet<Block> inside;
 	private boolean vertical;
 	private User owner;
-	private Boolean orange;
+	private Boolean orange = false;
 	private Boolean open = false;
 	private boolean disabled = false;
 	BlockFace teleportface;
@@ -41,38 +41,40 @@ public class Portal {
 	
 	public void delete()
 	{
-		for (Block b: border)
-		{
-			if (oldblocks.containsKey(b.getLocation()))
-				Util.setBlockData(b, oldblocks.get(b.getLocation()));
-		}
-		for (Block b: inside)
-		{
-			if (oldblocks.containsKey(b.getLocation()))
-				Util.setBlockData(b, oldblocks.get(b.getLocation()));
-		}
 		
-		if (orange)
-		{
-			owner.setOrangePortal(null);
+		if (orange != null && owner != null) {
+			for (Block b: border)
+			{
+				if (oldblocks.containsKey(b.getLocation()))
+					Util.setBlockData(b, oldblocks.get(b.getLocation()));
+			}
+			for (Block b: inside)
+			{
+				if (oldblocks.containsKey(b.getLocation()))
+					Util.setBlockData(b, oldblocks.get(b.getLocation()));
+			}
+			
+			if (orange)
+			{
+				owner.setOrangePortal(null);
+			}
+			else
+			{
+				owner.setBluePortal(null);
+			}
+			
+			if (orange)
+	    	{
+	    		if (owner.getBluePortal() != null)
+	    			owner.getBluePortal().close();
+	    	}
+	    	else
+	    	{
+	    		if (owner.getOrangePortal() != null)
+	    			owner.getOrangePortal().close();
+	
+	    	}
 		}
-		else
-		{
-			owner.setBluePortal(null);
-		}
-		
-		if (orange)
-    	{
-    		if (owner.getBluePortal() != null)
-    			owner.getBluePortal().close();
-    	}
-    	else
-    	{
-    		if (owner.getOrangePortal() != null)
-    			owner.getOrangePortal().close();
-
-    	}
-
 		
 		PortalManager.portals.remove(this);
 		open = false;

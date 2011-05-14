@@ -54,7 +54,6 @@ public class GrillManager implements Runnable {
 			return false;
 		}
 		if (GrillManager.placeRecursiveEmancipationGrill(block)) return true;
-		Config.saveAll();
 		return false;
     }
     
@@ -180,7 +179,12 @@ public class GrillManager implements Runnable {
 
 	@Override
 	public void run() {
-		for (Grill g : grills.toArray(new Grill[0]))
-			g.create();
+		for (Grill g : grills.toArray(new Grill[0])) {
+			if (!g.create()) {
+				Block b = g.getFirstBlock();
+				g.delete();
+				GrillManager.placeRecursiveEmancipationGrill(b);
+			}
+		}
 	}
 }
