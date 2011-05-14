@@ -159,41 +159,39 @@ public class PortalStickPlayerListener extends PlayerListener {
 		//Aerial faith plate
 		Block blockIn = locTo.getBlock();
 		Block blockUnder = blockIn.getFace(BlockFace.DOWN);
-		Block block = null;
+		Block blockStart = null;
+		Integer horPower = Integer.parseInt(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[0]);
 		String faithBlock = regionTo.getString(RegionSetting.FAITH_PLATE_BLOCK);
-		Vector velocity = new Vector(0,2,0);
+		Vector velocity = new Vector(0, Integer.parseInt(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[1]),0);
 		
 		if (blockIn.getType() == Material.STONE_PLATE && BlockUtil.compareBlockToString(blockUnder, faithBlock))
-			block = blockUnder;
+			blockStart = blockUnder;
 		else
-			block = blockIn;
+			blockStart = blockIn;
 		
-		if (block != null) {
+		if (blockStart != null) {
 			BlockFace[] faces = new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
-			BlockFace face = BlockUtil.getFaceOfMaterial(blockIn, faces, faithBlock);
+			BlockFace face = BlockUtil.getFaceOfMaterial(blockStart, faces, faithBlock);
 			if (face != null) {
-				block = blockIn.getFace(face);
-				if (BlockUtil.getFaceOfMaterial(block, new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH}, faithBlock) != null) {
-					switch (face) {
-						case NORTH:
-							velocity.setX(2);
-							break;
-						case SOUTH:
-							velocity.setX(-2);
-							break;
-						case EAST:
-							velocity.setZ(2);
-							break;
-						case WEST:
-							velocity.setZ(-2);
-							break;
-					}
-					if (block == blockUnder) {
-						velocity.setX(velocity.getX() * -1);
-						velocity.setZ(velocity.getZ() * -1);
-					}
-					player.setVelocity(velocity);
+				switch (face) {
+					case NORTH:
+						velocity.setX(horPower);
+						break;
+					case SOUTH:
+						velocity.setX(-horPower);
+						break;
+					case EAST:
+						velocity.setZ(horPower);
+						break;
+					case WEST:
+						velocity.setZ(-horPower);
+						break;
 				}
+				if (blockStart == blockUnder) {
+					velocity.setX(-velocity.getX());
+					velocity.setZ(-velocity.getZ());
+				}
+				player.setVelocity(velocity);
 			}
 		}
 		

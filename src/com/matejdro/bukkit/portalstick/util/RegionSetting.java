@@ -24,6 +24,7 @@ public enum RegionSetting {
 	PREVENT_PORTAL_THROUGH_PORTAL("prevent-creating-portal-through-portal", false, true),
 	PREVENT_PORTAL_CLOSED_DOOR("prevent-creating-portal-through-closed-door", true, true),
 	FAITH_PLATE_BLOCK("aerial-faith-plate-block", "57", true),
+	FAITH_PLATE_POWER("aerial-faith-plate-power", "6-2", true),
 	LOCATION("location", "world:0,0,0:0,0,0");
 	
 	private String yaml;
