@@ -13,7 +13,6 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
 public class EntityManager implements Runnable {
-	
 	private PortalStick plugin;
 
 	public EntityManager(PortalStick instance)

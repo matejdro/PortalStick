@@ -24,6 +24,7 @@ import com.matejdro.bukkit.portalstick.listeners.PortalStickBlockListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickEntityListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickPlayerListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickVehicleListener;
+import com.matejdro.bukkit.portalstick.listeners.PortalStickWorldListener;
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.Util;
@@ -36,6 +37,7 @@ public class PortalStick extends JavaPlugin {
 	private PortalStickBlockListener blockListener;
 	private PortalStickVehicleListener vehicleListener;
 	private PortalStickEntityListener entityListener;
+	private PortalStickWorldListener worldListener;
 	private GrillManager grillManager;
 	
 	public static List<BaseCommand> commands = new ArrayList<BaseCommand>();
@@ -59,6 +61,7 @@ public class PortalStick extends JavaPlugin {
 		blockListener = new PortalStickBlockListener(this);
 		vehicleListener = new PortalStickVehicleListener();
 		entityListener = new PortalStickEntityListener();
+		worldListener = new PortalStickWorldListener();
 		grillManager = new GrillManager(this);
 		config = new Config(this);
 		permissions = new Permission(this);
@@ -79,7 +82,8 @@ public class PortalStick extends JavaPlugin {
 		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, entityListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_EXPLODE, entityListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.VEHICLE_MOVE, vehicleListener, Event.Priority.Low, this);
-		getServer().getPluginManager().registerEvent(Event.Type.REDSTONE_CHANGE, blockListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.REDSTONE_CHANGE, blockListener, Event.Priority.Monitor, this);
+		getServer().getPluginManager().registerEvent(Event.Type.CHUNK_UNLOAD, worldListener, Event.Priority.Low, this);
 
 		worldGuard = (WorldGuardPlugin) this.getServer().getPluginManager().getPlugin("WorldGuard");
 
