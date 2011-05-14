@@ -63,7 +63,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 			if (!Permission.placePortal(player))
 				return;
 		
-			List<Block> targetBlocks = event.getPlayer().getLineOfSight(tb, 20);
+			List<Block> targetBlocks = event.getPlayer().getLineOfSight(tb, 120);
 			if (targetBlocks.size() < 1) return;
 			
 			if (Config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))
