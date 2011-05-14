@@ -39,6 +39,7 @@ public class PortalStick extends JavaPlugin {
 	private PortalStickEntityListener entityListener;
 	private PortalStickWorldListener worldListener;
 	private GrillManager grillManager;
+	private EntityManager entityManager;
 	
 	public static List<BaseCommand> commands = new ArrayList<BaseCommand>();
 	public static Config config;
@@ -63,9 +64,9 @@ public class PortalStick extends JavaPlugin {
 		entityListener = new PortalStickEntityListener();
 		worldListener = new PortalStickWorldListener();
 		grillManager = new GrillManager(this);
+		entityManager = new EntityManager(this);
 		config = new Config(this);
 		permissions = new Permission(this);
-		new EntityManager(this);
 		
 		//Register events
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Low, this);

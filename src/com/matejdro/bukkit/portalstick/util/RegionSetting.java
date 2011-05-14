@@ -23,6 +23,10 @@ public enum RegionSetting {
 	VELOCITY_MULTIPLIER("velocity-multiplier", 1.0, true),
 	PREVENT_PORTAL_THROUGH_PORTAL("prevent-creating-portal-through-portal", false, true),
 	PREVENT_PORTAL_CLOSED_DOOR("prevent-creating-portal-through-closed-door", true, true),
+	BLUE_GEL_BLOCK("blue-gel-block", "22"),
+	RED_GEL_BLOCK("red-gel-block", "35:14"),
+	BLUE_GEL_VELOCITY_MULTIPLIER("blue-gel-velocity-multiplier", 2.0),
+	RED_GEL_VELOCITY_MULTIPLIER("red-gel-velocity-multiplier", 2.0),
 	LOCATION("location", "world:0,0,0:0,0,0");
 	
 	private String yaml;

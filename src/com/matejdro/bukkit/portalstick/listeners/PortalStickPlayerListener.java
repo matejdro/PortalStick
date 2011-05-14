@@ -19,6 +19,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.EntityManager;
+import com.matejdro.bukkit.portalstick.GelManager;
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
 import com.matejdro.bukkit.portalstick.Portal;
@@ -166,6 +167,9 @@ public class PortalStickPlayerListener extends PlayerListener {
 		}
 		if (!permission) return;
 		Location out = EntityManager.teleport((Entity) player, LocTo, vector);
+		if (out != null) event.setTo(out);
+		
+		out = GelManager.useGel((Entity) player, LocTo, vector);
 		if (out != null) event.setTo(out);
 		
 

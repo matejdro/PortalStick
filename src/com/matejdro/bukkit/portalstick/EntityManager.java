@@ -129,6 +129,8 @@ public class EntityManager implements Runnable {
 	
 	@Override
 	public void run() {
+		Util.info("test3");
+		
 		for (World w : plugin.getServer().getWorlds())
 		{
 			if (Config.DisabledWorlds.contains(w.getName())) return;
