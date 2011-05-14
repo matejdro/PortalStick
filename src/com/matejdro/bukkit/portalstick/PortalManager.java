@@ -1,7 +1,10 @@
 package com.matejdro.bukkit.portalstick;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
+import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -16,6 +19,12 @@ import com.matejdro.bukkit.portalstick.util.Util;
 public class PortalManager {
 	
 	public static HashSet<Portal> portals = new HashSet<Portal>();
+	//public static HashMap<Chunk, HashMap<Location, String>> oldportals = new HashMap<Chunk, HashMap<Location, String> >(); //Some preparation for unloaded chunk fix
+	public static HashMap<Location, Portal> insideblocks = new HashMap<Location, Portal>();
+	public static HashMap<Location, Portal> awayblocksgeneral = new HashMap<Location, Portal>();
+	public static HashMap<Location, Portal> awayblocksX = new HashMap<Location, Portal>();
+	public static HashMap<Location, Portal> awayblocksY = new HashMap<Location, Portal>();
+	public static HashMap<Location, Portal> awayblocksZ = new HashMap<Location, Portal>();
 
 	public static void checkPlayerMove(Player player, Region regionFrom, Region regionTo)
 	{

@@ -20,6 +20,7 @@ public class Portal {
 	private Boolean open = false;
 	private boolean disabled = false;
 	BlockFace teleportface;
+	private HashSet<Location> awayblocks = new HashSet<Location>();
 	private HashMap<Location, String> oldblocks = new HashMap<Location, String>();
 	
 	public Portal()
@@ -52,6 +53,14 @@ public class Portal {
 			{
 				if (oldblocks.containsKey(b.getLocation()))
 					Util.setBlockData(b, oldblocks.get(b.getLocation()));
+				PortalManager.insideblocks.remove(b.getLocation());
+			}
+			for (Location l : awayblocks)
+			{
+				PortalManager.awayblocksgeneral.remove(l);
+				PortalManager.awayblocksX.remove(l);
+				PortalManager.awayblocksY.remove(l);
+				PortalManager.awayblocksZ.remove(l);
 			}
 			
 			if (orange)
@@ -75,7 +84,7 @@ public class Portal {
 	
 	    	}
 		}
-		
+				
 		PortalManager.portals.remove(this);
 		open = false;
 	}
@@ -141,6 +150,61 @@ public class Portal {
     		}
 
     	}
+    	
+    	for (Block b : inside)
+    	{
+    		PortalManager.insideblocks.put(b.getLocation(), this);
+    		
+    		for (int x = -2;x<3;x++)
+    		{
+    			for (int y = -2;y<3;y++)
+        		{
+    				for (int z = -2;z<3;z++)
+    	    		{
+    	    			PortalManager.awayblocksgeneral.put(b.getRelative(x,y,z).getLocation(), this);
+    	    			awayblocks.add(b.getRelative(x,y,z).getLocation());
+    	    		}
+        		}
+    		}
+    		
+    			for (int y = -2;y<3;y++)
+        		{
+    				for (int z = -2;z<3;z++)
+    	    		{
+    	    			PortalManager.awayblocksX.put(b.getRelative(3,y,z).getLocation(), this);
+    	    			PortalManager.awayblocksX.put(b.getRelative(-3,y,z).getLocation(), this);
+    	    			awayblocks.add(b.getRelative(3,y,z).getLocation());
+    	    			awayblocks.add(b.getRelative(-3,y,z).getLocation());
+    	    		}
+        		}
+    			
+    			for (int x = -2;x<3;x++)
+        		{
+    				for (int z = -2;z<3;z++)
+    	    		{
+    	    			PortalManager.awayblocksY.put(b.getRelative(x,3,z).getLocation(), this);
+    	    			PortalManager.awayblocksY.put(b.getRelative(x,-3,z).getLocation(), this);
+    	    			awayblocks.add(b.getRelative(x,3,z).getLocation());
+    	    			awayblocks.add(b.getRelative(x,-3,z).getLocation());
+    	    		}
+        		}
+    			
+    			for (int x = -2;x<3;x++)
+        		{
+    				for (int y = -2;y<3;y++)
+    	    		{
+    	    			PortalManager.awayblocksZ.put(b.getRelative(x,y,3).getLocation(), this);
+    	    			PortalManager.awayblocksZ.put(b.getRelative(x,y,-3).getLocation(), this);
+    	    			awayblocks.add(b.getRelative(x,y,3).getLocation());
+    	    			awayblocks.add(b.getRelative(x,y,-3).getLocation());
+    	    		}
+        		}
+    		    		
+    	}
+    		
+    	
+    
+    		
     	
 	}
 	

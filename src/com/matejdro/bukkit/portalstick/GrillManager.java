@@ -1,9 +1,11 @@
 package com.matejdro.bukkit.portalstick;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -17,7 +19,8 @@ import com.matejdro.bukkit.portalstick.util.Util;
 public class GrillManager implements Runnable {
 	
 	public static List<Grill> grills = new ArrayList<Grill>();
-	public static PortalStick plugin;
+	public static HashMap<Location, Grill> insideblocks = new HashMap<Location, Grill>();
+	public static PortalStick plugin; 
 	
 	private static HashSet<Block> border;
 	private static HashSet<Block> inside;

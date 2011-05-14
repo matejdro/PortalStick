@@ -1,5 +1,6 @@
 package com.matejdro.bukkit.portalstick;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -8,7 +9,7 @@ import org.bukkit.entity.Player;
 
 
 public class UserManager {
-	
+	public static HashMap<Player, Boolean> teleportpermissioncache  = new HashMap<Player, Boolean>();
 	private static ConcurrentHashMap<String, User> users = new ConcurrentHashMap<String, User>();
 	
 	public static ConcurrentHashMap<String, User> getUserList() {

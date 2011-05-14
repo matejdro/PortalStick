@@ -34,6 +34,7 @@ public class Grill {
 		for (Block b: inside)
 		{
 			b.setType(Material.AIR);
+			GrillManager.insideblocks.remove(b.getLocation());
 		}
 	}
 		
@@ -46,6 +47,7 @@ public class Grill {
 				b.setType(Material.SUGAR_CANE_BLOCK);
 				complete = false;
 			}
+			GrillManager.insideblocks.put(b.getLocation(), this);
     	}
 		return complete;
 	}

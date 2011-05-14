@@ -137,69 +137,53 @@ public class PortalStickPlayerListener extends PlayerListener {
 	}
  	    
 	public void onPlayerMove(PlayerMoveEvent event)
-	{
-		
+	{		
+		long time = System.nanoTime();
+
 		Player player = event.getPlayer();
 		Vector vector = player.getVelocity();
-		Block blockTo = event.getTo().getBlock();
+		Location LocTo = event.getTo();
+		LocTo = new Location(LocTo.getWorld(), LocTo.getBlockX(), LocTo.getBlockY(), LocTo.getBlockZ());
 		Region regionTo = RegionManager.getRegion(event.getTo());
 		Region regionFrom = RegionManager.getRegion(event.getFrom());
+		
 		
 		//Check for changing regions
 		PortalManager.checkPlayerMove(player, regionFrom, regionTo);
 		
 		//Emancipation grill
-		if (blockTo.getType() == Material.SUGAR_CANE_BLOCK && regionTo.getBoolean(RegionSetting.ENABLE_GRILLS))
+		if (regionTo.getBoolean(RegionSetting.ENABLE_GRILLS))
 		{
-			for (Grill grill: GrillManager.grills)
-			{
-				if (grill.getInside().contains(blockTo))
+				Grill grill = GrillManager.insideblocks.get(LocTo);
+				if (grill != null)
 				{
 					GrillManager.emancipate(player);
 				}
-			}
 		}
 			
 		//Portals
 		if (player.isInsideVehicle()) return;
-		if (!Permission.teleport(player)) return;
-			 
-		//Aiming assistant: 
-		double addX = 0.0;
-		double addY = 0.0;
-		double addZ = 0.0;
-		if (Math.abs(vector.getX()) > 1)
+		
+		Boolean permission = UserManager.teleportpermissioncache.get(player);
+		if (permission == null)
 		{
-			addX += 3.0;
-			addY += 2.0;
-			addZ += 2.0;
+			permission = Permission.teleport(player);
+			UserManager.teleportpermissioncache.put(player, permission);
 		}
-		if (Math.abs(vector.getZ()) > 1)
+		if (!permission) return;
+			
+		
+		
+		Portal portal = PortalManager.insideblocks.get(LocTo);
+		if (portal == null && (Math.abs(vector.getBlockX()) > 1 || (Math.abs(vector.getBlockY()) > 1 || (Math.abs(vector.getBlockZ()) > 1)))) 
 		{
-			addX += 2.0;
-			addY += 2.0;
-			addZ += 3.0;
+			portal = PortalManager.awayblocksgeneral.get(LocTo);
+			if (portal == null && (Math.abs(vector.getX()) > 1)) portal = PortalManager.awayblocksX.get(LocTo);
+			if (portal == null && (Math.abs(vector.getY()) > 1))portal = PortalManager.awayblocksY.get(LocTo);
+			if (portal == null && (Math.abs(vector.getZ()) > 1)) portal = PortalManager.awayblocksZ.get(LocTo);
 		}
-		if (Math.abs(vector.getY()) > 1)
-		{
-			addX += 2.0;
-			addY += 3.0;
-			addZ += 2.0;
-		}
-				 
-		Portal portal = null;
-		for (Portal p : PortalManager.portals)
-		{
-			for (Block b : p.getInside())
-			{
-				if (offsetequals(b.getLocation().getX(), blockTo.getX(),addX) && offsetequals(b.getLocation().getZ(), blockTo.getZ(), addZ) && offsetequals(b.getLocation().getY(), blockTo.getY(),addY))
-				{
-					portal = p;
-					break;
-				}
-			}	 
-		}
-			 
+		
+		
 		if (portal != null)
 		{
 			if (!portal.isOpen() || portal.isDisabled()) return;
