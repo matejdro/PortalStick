@@ -41,6 +41,8 @@ public class PortalStick extends JavaPlugin {
 	public static List<BaseCommand> commands = new ArrayList<BaseCommand>();
 	public static Config config;
 	public static Permission permissions;
+	
+	public static PortalStick instance;
 
 	public static WorldGuardPlugin worldGuard = null;
 
@@ -51,6 +53,7 @@ public class PortalStick extends JavaPlugin {
 	}
 
 	public void onEnable() {
+		instance = this;
 		
 		PlayerListener = new PortalStickPlayerListener(this);
 		BlockListener = new PortalStickBlockListener(this);

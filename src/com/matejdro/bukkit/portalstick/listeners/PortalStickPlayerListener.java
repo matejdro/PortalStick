@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -17,6 +18,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
+import com.matejdro.bukkit.portalstick.EntityManager;
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
 import com.matejdro.bukkit.portalstick.Portal;
@@ -160,8 +162,8 @@ public class PortalStickPlayerListener extends PlayerListener {
 					GrillManager.emancipate(player);
 				}
 		}
-			
-		//Portals
+		
+		//Teleport
 		if (player.isInsideVehicle()) return;
 		
 		Boolean permission = UserManager.teleportpermissioncache.get(player);
@@ -171,102 +173,11 @@ public class PortalStickPlayerListener extends PlayerListener {
 			UserManager.teleportpermissioncache.put(player, permission);
 		}
 		if (!permission) return;
-			
+		Location out = EntityManager.teleport((Entity) player, LocTo, vector);
+		if (out != null) event.setTo(out);
 		
-		
-		Portal portal = PortalManager.insideblocks.get(LocTo);
-		if (portal == null && (Math.abs(vector.getBlockX()) > 1 || (Math.abs(vector.getBlockY()) > 1 || (Math.abs(vector.getBlockZ()) > 1)))) 
-		{
-			portal = PortalManager.awayblocksgeneral.get(LocTo);
-			if (portal == null && (Math.abs(vector.getX()) > 1)) portal = PortalManager.awayblocksX.get(LocTo);
-			if (portal == null && (Math.abs(vector.getY()) > 1))portal = PortalManager.awayblocksY.get(LocTo);
-			if (portal == null && (Math.abs(vector.getZ()) > 1)) portal = PortalManager.awayblocksZ.get(LocTo);
-		}
-		
-		
-		if (portal != null)
-		{
-			if (!portal.isOpen() || portal.isDisabled()) return;
-			if (Math.abs(vector.getY()) > 1 && !portal.isVertical()) return;
-			User owner = portal.getOwner();
-				 
-			Location teleport;
-			Portal destination;
-			if (portal.isOrange())
-				destination = owner.getBluePortal();
-			else
-				destination = owner.getOrangePortal();
-				 				 
-			teleport = destination.getTeleportLocation().clone();
-								 
-			float yaw = 0;
-			float pitch = 0;
-				
-			//Read input velocity
-			Double momentum = 0.0;
-			switch(portal.getTeleportFace())
-	        {
-	        	case NORTH:
-	        	case SOUTH:
-	        		momentum = vector.getX();
-	        		break;
-	        	case EAST:
-	        	case WEST:
-	        		momentum = vector.getZ();
-	        		break;
-	        	case UP:
-	        	case DOWN:
-	        		momentum = vector.getY();
-	        		break;
-	        }
-				
-			momentum = Math.abs(momentum);
-			momentum = momentum * regionTo.getDouble(RegionSetting.VELOCITY_MULTIPLIER);
 
-			//reposition velocity to match output portal's orientation
-			Vector outvector = player.getVelocity().zero();
-			switch(destination.getTeleportFace())
-	        {
-	        	case NORTH:
-	        		yaw = 270;
-	        		outvector = outvector.setX(momentum);
-	        		break;
-	        	case EAST:
-	        		yaw = 0;
-	        		outvector = outvector.setZ(momentum);
-	        		break;
-	        	case SOUTH:
-	        		yaw = 90;
-	        		outvector = outvector.setX(-momentum);
-	        		break;
-	        	case WEST:
-	        		yaw = 180;
-	        		outvector = outvector.setZ(-momentum);
-	        		break;
-	        	case UP:
-	        		pitch = 90;
-	        		outvector = outvector.setY(momentum);
-	        		break;
-	        	case DOWN:
-	        		pitch = -90;
-	        		outvector = outvector.setY(-momentum);
-	        		break;
-	        }
-				 				
-			player.setFallDistance(0);	
-			player.setVelocity(player.getVelocity().zero());
-				 
-			teleport.setPitch(pitch);
-			teleport.setYaw(yaw);
-				 
-			event.setTo(teleport);
-			player.teleport(teleport);
-				 				 
-			player.setVelocity(outvector);
-				 
-			destination.setDisabled(true);
-			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new EnablePortal(destination), 10L);
-		}
+			
 	}
 		 
 	public void onPlayerDropItem(PlayerDropItemEvent event) {
@@ -312,22 +223,5 @@ public class PortalStickPlayerListener extends PlayerListener {
 		if (!region.Name.equals("global") && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
 			user.saveInventory(player);
 	}
-		 
-	private Boolean offsetequals(double x, double y, double difference)
-	{
-		return (x + difference >= y && y + difference >= x );
-	}		
-		 
-	public class EnablePortal implements Runnable
-	{
-		Portal portal = null;
-		public EnablePortal(Portal p){
-			portal = p;
-		}
-		@Override
-		public void run() {
-			// this part knows plugin
-			if (portal != null) portal.setDisabled(false);
-		}
-	}
+		 		 
 }

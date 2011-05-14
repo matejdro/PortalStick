@@ -20,6 +20,7 @@ public class GrillManager implements Runnable {
 	
 	public static List<Grill> grills = new ArrayList<Grill>();
 	public static HashMap<Location, Grill> insideblocks = new HashMap<Location, Grill>();
+	public static HashMap<Location, Grill> borderblocks = new HashMap<Location, Grill>();
 	public static PortalStick plugin; 
 	
 	private static HashSet<Block> border;
@@ -43,6 +44,8 @@ public class GrillManager implements Runnable {
 		for (Grill g : grills.toArray(new Grill[0]))
 			g.deleteInside();
 		grills = new ArrayList<Grill>();
+		insideblocks.clear();
+		borderblocks.clear();
 	}
     
     public static List<Grill> getGrillList() {

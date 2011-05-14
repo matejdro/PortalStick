@@ -1,5 +1,6 @@
 package com.matejdro.bukkit.portalstick.listeners;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -35,60 +36,33 @@ public PortalStickBlockListener(PortalStick instance)
 	public void onBlockBreak(BlockBreakEvent event) {
 		Region region = RegionManager.getRegion(event.getBlock().getLocation());
 		Material type = event.getBlock().getType();
+		Location loc = event.getBlock().getLocation();
 		if (type == Material.WOOL)
 		{
-			for (Portal p : PortalManager.portals)
+			Portal portal = PortalManager.borderblocks.get(loc);
+			if (portal == null) portal = PortalManager.insideblocks.get(loc);
+			if (portal != null)
 			{
-				for (Block b : p.getBorder())
-				{
-					if (event.getBlock() == b)
-					{
-						event.setCancelled(true);
-						p.delete();
-						return;
-					}
-				}
-				 
-				if (!p.isOpen())
-				{
-					for (Block b : p.getInside())
-					{
-						if (event.getBlock() == b)
-						{
-							event.setCancelled(true);
-							p.delete();
-							return;
-						}
-					}
-				}
-			}
+				portal.delete();
+				event.setCancelled(true);
+				return;
+			}		
 		}
 		
-		
-		if (type == Material.SUGAR_CANE_BLOCK)
+		Grill grill = GrillManager.insideblocks.get(event.getBlock().getLocation());
+		if (grill != null )
 		{
-			for (Grill grill: GrillManager.grills)
-			{
-				if (grill.getInside().contains(event.getBlock()))
-				{
-					event.setCancelled(true);
-					return;
-				}
-			}
-
+				event.setCancelled(true);
+				return;
 		}
+		
 		
 		if (Util.compareBlockToString(event.getBlock(), region.getString(RegionSetting.GRILL_MATERIAL)))
 		{
-			for (Grill grill: GrillManager.grills)
-			{
-				if (grill.getBorder().contains(event.getBlock()))
-				{
-					if (!Permission.deleteGrill(event.getPlayer())) return;
-					grill.delete();
-					return;
-				}
-			}
+			grill = GrillManager.borderblocks.get(event.getBlock().getLocation());
+				if (grill == null || !Permission.deleteGrill(event.getPlayer())) return;
+				grill.delete();
+				return;
 		}
 
 	}
@@ -96,70 +70,48 @@ public PortalStickBlockListener(PortalStick instance)
 	public void onBlockBurn(BlockBurnEvent event) {
 		if (event.getBlock().getType() != Material.WOOL) return;
 		
-		for (Portal p : PortalManager.portals)
+		Location loc = event.getBlock().getLocation();
+		
+		Portal portal = PortalManager.borderblocks.get(loc);
+		if (portal == null) portal = PortalManager.insideblocks.get(loc);
+		if (portal != null)
 		{
-			for (Block b : p.getBorder())
-			{
-				if (event.getBlock() == b)
-				{
-					event.setCancelled(true);
-					return;
-				}
-			}
-			 
-			if (!p.isOpen())
-			{
-				for (Block b : p.getInside())
-				{
-					if (event.getBlock() == b)
-					{
-						event.setCancelled(true);
-						return;
-					}
-				}
-			}
-		}
-	}
+			event.setCancelled(true);
+			return;
+		}		
+	}	
 	
 	public void onBlockPlace(BlockPlaceEvent event) {
 		Material block = event.getBlock().getType();
-		 
+		Location loc = event.getBlockPlaced().getLocation();
+		
 		if (block == Material.RAILS || block == Material.POWERED_RAIL || block == Material.DETECTOR_RAIL) return;
 		 
-		for (Portal p : PortalManager.portals)
+		
+		Portal portal = PortalManager.insideblocks.get(loc);
+		if (portal != null)
 		{
-			for (Block b : p.getInside())
-			{
-				if (event.getBlockPlaced() == b)
-				{
-					event.setCancelled(true);
-					return;
-				}
-			}
+			event.setCancelled(true);
+			return;
 		}
 	}
 	 	 
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		if (event.getBlock().getType() != Material.SUGAR_CANE_BLOCK) return;
 		 
-		for (Grill grill: GrillManager.grills)
-		{
-			if (grill.getInside().contains(event.getBlock()))
-			{
-				event.setCancelled(true);
-				return;
-			}
-		}
+		Grill grill = GrillManager.insideblocks.get(event.getBlock().getLocation());
+		if (grill == null ) return;
+		event.setCancelled(true);
+		return;
+
 	}
 	
 	 public void onBlockFromTo(BlockFromToEvent event) {
 		 Region region = RegionManager.getRegion(event.getBlock().getLocation());
 			if (!region.getBoolean(RegionSetting.TELEPORT_LIQUIDS))
 				return;
-
-			for (Portal portal : PortalManager.portals)
-			{
-				if (portal.isOpen() && portal.getOwner() != null && portal.getInside().contains(event.getBlock()))
+				Portal portal = PortalManager.insideblocks.get(event.getBlock().getLocation());
+				if (portal != null && portal.isOpen() && portal.getOwner() != null)
 				{
 					Portal destination;
 					if (portal.isOrange())
@@ -196,7 +148,6 @@ public PortalStickBlockListener(PortalStick instance)
 					}
 				}
 			}
-	 }
 	 
 	 public void onBlockRedstoneChange(BlockRedstoneEvent event) {
 		 if (event.getNewCurrent() == 0) return;

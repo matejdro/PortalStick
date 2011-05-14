@@ -20,6 +20,7 @@ public class PortalManager {
 	
 	public static HashSet<Portal> portals = new HashSet<Portal>();
 	//public static HashMap<Chunk, HashMap<Location, String>> oldportals = new HashMap<Chunk, HashMap<Location, String> >(); //Some preparation for unloaded chunk fix
+	public static HashMap<Location, Portal> borderblocks = new HashMap<Location, Portal>();
 	public static HashMap<Location, Portal> insideblocks = new HashMap<Location, Portal>();
 	public static HashMap<Location, Portal> awayblocksgeneral = new HashMap<Location, Portal>();
 	public static HashMap<Location, Portal> awayblocksX = new HashMap<Location, Portal>();

@@ -1,5 +1,6 @@
 package com.matejdro.bukkit.portalstick.listeners;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -36,44 +37,28 @@ public class PortalStickEntityListener extends EntityListener {
 		Region region = RegionManager.getRegion(event.getLocation());
 		
 		for (Block block : event.blockList().toArray(new Block[0])) {
-			
+			Location loc = block.getLocation();
+
 			if (block.getType() == Material.WOOL)
 			{
-				for (Portal p : PortalManager.portals)
+				Portal portal = PortalManager.borderblocks.get(loc);
+				if (portal == null) portal = PortalManager.insideblocks.get(loc);
+				if (portal != null)
 				{
-					for (Block b : p.getBorder())
-					{
-						if (block == b)
-						{
-							event.setCancelled(true);
-							p.delete();
-							return;
-						}
-					}
-					if (!p.isOpen())
-					{
-						for (Block b : p.getInside())
-						{
-							if (block == b)
-							{
-								event.setCancelled(true);
-								p.delete();
-								return;
-							}
-						}
-					}
+					portal.delete();
+					event.setCancelled(true);
+					return;
 				}
 			}
 			
 			if (block.getType() == Material.SUGAR_CANE_BLOCK || Util.compareBlockToString(block, region.getString(RegionSetting.GRILL_MATERIAL)))
 			{
-				for (Grill grill: GrillManager.grills)
+				Grill grill = GrillManager.insideblocks.get(loc);
+				if (grill == null) grill = GrillManager.borderblocks.get(loc);
+				if (grill != null )
 				{
-					if (grill.getInside().contains(block) || grill.getBorder().contains(block))
-					{
 						event.setCancelled(true);
 						return;
-					}
 				}
 			}
 		}

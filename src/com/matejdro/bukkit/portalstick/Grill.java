@@ -27,6 +27,11 @@ public class Grill {
 		Config.deleteGrill(getStringLocation());
 		GrillManager.grills.remove(this);
 		Config.saveAll();
+		
+		for (Block b : border)
+		{
+			GrillManager.borderblocks.remove(b.getLocation());
+		}
 	}
 	
 	public void deleteInside()
@@ -43,12 +48,17 @@ public class Grill {
 		boolean complete = true;
 		for (Block b: inside)
     	{
+			GrillManager.insideblocks.put(b.getLocation(), this);
 			if (b.getType() != Material.SUGAR_CANE_BLOCK) {
 				b.setType(Material.SUGAR_CANE_BLOCK);
 				complete = false;
 			}
-			GrillManager.insideblocks.put(b.getLocation(), this);
+			
     	}
+		for (Block b : border)
+		{
+			GrillManager.borderblocks.put(b.getLocation(), this);
+		}
 		return complete;
 	}
 	

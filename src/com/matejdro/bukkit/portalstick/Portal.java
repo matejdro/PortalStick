@@ -48,6 +48,7 @@ public class Portal {
 			{
 				if (oldblocks.containsKey(b.getLocation()))
 					Util.setBlockData(b, oldblocks.get(b.getLocation()));
+				PortalManager.borderblocks.remove(b.getLocation());
 			}
 			for (Block b: inside)
 			{
@@ -121,6 +122,7 @@ public class Portal {
     			b.setData((byte) 1);
     		else
     			b.setData((byte) 11);
+    		PortalManager.borderblocks.put(b.getLocation(), this);
     	}
     	for (Block b: inside)
     	{
