@@ -9,20 +9,12 @@ import org.bukkit.event.vehicle.VehicleMoveEvent;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.EntityManager;
-import com.matejdro.bukkit.portalstick.Portal;
-import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 public class PortalStickVehicleListener extends VehicleListener {
-	private PortalStick plugin;
-	
-	public PortalStickVehicleListener(PortalStick instance)
-	{
-		plugin = instance;
-	}
 	
 	public void onVehicleMove(VehicleMoveEvent event) {
 		Vehicle vehicle = event.getVehicle();

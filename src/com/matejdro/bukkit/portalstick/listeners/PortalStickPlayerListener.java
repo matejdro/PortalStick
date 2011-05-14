@@ -34,14 +34,7 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalStickPlayerListener extends PlayerListener {
-	
-	private PortalStick plugin;
 
-	public PortalStickPlayerListener(PortalStick instance)
-	{
-		plugin = instance;
-	}	
-	
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{		
 		Player player = event.getPlayer();
@@ -139,8 +132,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 	}
  	    
 	public void onPlayerMove(PlayerMoveEvent event)
-	{		
-		long time = System.nanoTime();
+	{
 
 		Player player = event.getPlayer();
 		Vector vector = player.getVelocity();

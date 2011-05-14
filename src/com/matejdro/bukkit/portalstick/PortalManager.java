@@ -3,7 +3,6 @@ package com.matejdro.bukkit.portalstick;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;

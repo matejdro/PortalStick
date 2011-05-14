@@ -55,9 +55,9 @@ public class PortalStick extends JavaPlugin {
 	public void onEnable() {
 		instance = this;
 		
-		PlayerListener = new PortalStickPlayerListener(this);
+		PlayerListener = new PortalStickPlayerListener();
 		BlockListener = new PortalStickBlockListener(this);
-		VehicleListener = new PortalStickVehicleListener(this);
+		VehicleListener = new PortalStickVehicleListener();
 		EntityListener = new PortalStickEntityListener();
 		grillManager = new GrillManager(this);
 		config = new Config(this);
