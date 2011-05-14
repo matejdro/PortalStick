@@ -37,6 +37,7 @@ public class PortalStick extends JavaPlugin {
 	private PortalStickVehicleListener VehicleListener;
 	private PortalStickEntityListener EntityListener;
 	private GrillManager grillManager;
+	private EntityManager entityManager;
 	
 	public static List<BaseCommand> commands = new ArrayList<BaseCommand>();
 	public static Config config;
@@ -60,6 +61,7 @@ public class PortalStick extends JavaPlugin {
 		VehicleListener = new PortalStickVehicleListener();
 		EntityListener = new PortalStickEntityListener();
 		grillManager = new GrillManager(this);
+		entityManager = new EntityManager(this);
 		config = new Config(this);
 		permissions = new Permission(this);
 		
@@ -84,6 +86,9 @@ public class PortalStick extends JavaPlugin {
 
 		//Start grill checking timer
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, grillManager, 400, 400);
+		
+		//Teleport all entities - uncompleted.
+		//getServer().getScheduler().scheduleSyncRepeatingTask(this, entityManager, 2, 2);
 		
 		//Register commands
 		commands.add(new RegionToolCommand());
