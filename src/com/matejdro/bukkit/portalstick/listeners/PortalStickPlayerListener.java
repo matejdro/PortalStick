@@ -3,10 +3,14 @@ package com.matejdro.bukkit.portalstick.listeners;
 import java.util.HashSet;
 import java.util.List;
 
+import net.minecraft.server.EntityPlayer;
+import net.minecraft.server.Packet54PlayNoteBlock;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
@@ -136,13 +140,21 @@ public class PortalStickPlayerListener extends PlayerListener {
  	    
 	public void onPlayerMove(PlayerMoveEvent event)
 	{
-
+		
 		Player player = event.getPlayer();
-		Vector vector = player.getVelocity();
+		//Vector vector = player.getVelocity();
 		Location locTo = event.getTo();
 		locTo = new Location(locTo.getWorld(), locTo.getBlockX(), locTo.getBlockY(), locTo.getBlockZ());
 		Region regionTo = RegionManager.getRegion(event.getTo());
 		Region regionFrom = RegionManager.getRegion(event.getFrom());
+		
+		Vector vec2 = event.getTo().toVector();
+	    Vector vec1 = event.getFrom().toVector();
+	    Vector vector = vec2.subtract(vec1);
+	    
+	    //player.sendMessage(vector.toString());
+	    //player.sendMessage(velocit.toString());
+	    //player.sendMessage(".");
 		
 		//Check for changing regions
 		PortalManager.checkPlayerMove(player, regionFrom, regionTo);
@@ -193,9 +205,10 @@ public class PortalStickPlayerListener extends PlayerListener {
 					velocity.setZ(-velocity.getZ());
 				}
 				player.setVelocity(velocity);
+				Util.PlayNote(player, 4, 5);
 			}
 		}
-		
+
 		//Teleport
 		if (player.isInsideVehicle()) return;
 		
@@ -208,9 +221,10 @@ public class PortalStickPlayerListener extends PlayerListener {
 		if (!permission) return;
 		Location out = EntityManager.teleport((Entity) player, locTo, vector);
 		if (out != null) event.setTo(out);
-		
+
 		out = GelManager.useGel((Entity) player, locTo, vector);
 		if (out != null) event.setTo(out);
+
 		
 
 			

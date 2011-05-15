@@ -8,6 +8,7 @@ import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
+import com.matejdro.bukkit.portalstick.util.Util;
 
 public class GelManager {
 	public static Location useGel(Entity entity, Location LocTo, Vector vector)
@@ -55,27 +56,40 @@ public class GelManager {
 	public static Location BlueGel(Entity entity, Vector vector, Region region, int direction)
 	{
 		if (entity instanceof Player && ((Player) entity).isSneaking()) return null;
-			vector = vector.setX(-vector.getX() * region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER));
-			vector = vector.setY(-vector.getY() * region.getDouble(RegionSetting.BLUE_GEL_VERTICAL_VELOCITY_MULTIPLIER));
-			vector = vector.setZ(-vector.getZ() * region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER));
+			
 			switch (direction)
 			{
 				case 0:
+					vector = vector.setX(vector.getX() * region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER));
+					vector = vector.setY(-vector.getY() * region.getDouble(RegionSetting.BLUE_GEL_VERTICAL_VELOCITY_MULTIPLIER));
+					vector = vector.setZ(vector.getZ() * region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER));
 					if (vector.getY() < region.getDouble(RegionSetting.BLUE_GEL_VERTICAL_BOUNCE_VELOCITY)) vector.setY(region.getDouble(RegionSetting.BLUE_GEL_VERTICAL_BOUNCE_VELOCITY));
 					break;
 				case 1:
+					vector = vector.setX(-vector.getX() * region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER));
+					vector = vector.setY(vector.getY() * region.getDouble(RegionSetting.BLUE_GEL_VERTICAL_VELOCITY_MULTIPLIER));
+					vector = vector.setZ(-vector.getZ() * region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER));
 					if (vector.getY() < 1) vector.setY(1);
 					if (vector.getX() > -region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_BOUNCE_VELOCITY)) vector.setX(-region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_BOUNCE_VELOCITY));
 					break;
 				case 2:
+					vector = vector.setX(-vector.getX() * region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER));
+					vector = vector.setY(vector.getY() * region.getDouble(RegionSetting.BLUE_GEL_VERTICAL_VELOCITY_MULTIPLIER));
+					vector = vector.setZ(-vector.getZ() * region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER));
 					if (vector.getY() < 1) vector.setY(1);
 					if (vector.getX() < region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_BOUNCE_VELOCITY)) vector.setX(region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_BOUNCE_VELOCITY));
 					break;
 				case 3:
+					vector = vector.setX(-vector.getX() * region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER));
+					vector = vector.setY(vector.getY() * region.getDouble(RegionSetting.BLUE_GEL_VERTICAL_VELOCITY_MULTIPLIER));
+					vector = vector.setZ(-vector.getZ() * region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER));
 					if (vector.getY() < 1) vector.setY(1);
 					if (vector.getZ() > -region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_BOUNCE_VELOCITY)) vector.setZ(-region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_BOUNCE_VELOCITY));
 					break;
 				case 4:
+					vector = vector.setX(-vector.getX() * region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER));
+					vector = vector.setY(vector.getY() * region.getDouble(RegionSetting.BLUE_GEL_VERTICAL_VELOCITY_MULTIPLIER));
+					vector = vector.setZ(-vector.getZ() * region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER));
 					if (vector.getY() < 1) vector.setY(1);
 					if (vector.getZ() < region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_BOUNCE_VELOCITY)) vector.setZ(region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_BOUNCE_VELOCITY));
 					break;
@@ -83,6 +97,8 @@ public class GelManager {
 					
 			}
 			entity.setVelocity(vector);
+			
+			Util.PlayNote((Player) entity, 4, 5);
 		return null;
 	}
 	

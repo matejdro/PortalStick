@@ -35,8 +35,8 @@ public class EntityManager implements Runnable {
 		
 		if (portal != null)
 		{
+			Util.info(portal.isDisabled().toString());
 			if (!portal.isOpen() || portal.isDisabled()) return null;
-			if (Math.abs(vector.getY()) > 1 && !portal.isVertical()) return null;
 			User owner = portal.getOwner();
 				 
 			Location teleport;
@@ -48,8 +48,29 @@ public class EntityManager implements Runnable {
 				 				 
 			teleport = destination.getTeleportLocation().clone();
 								 
-			float yaw = 0;
-			float pitch = 0;
+			float yaw = entity.getLocation().getYaw();
+			float pitch = entity.getLocation().getPitch();
+			float startyaw = yaw;
+			switch(portal.getTeleportFace())
+	        {
+	        	case EAST:
+	        		yaw -= 90;
+	        		break;
+	        	case SOUTH:
+	        		yaw -= 180;
+	        		break;
+	        	case WEST:
+	        		yaw = -270;
+	        		break;
+	        	case UP:
+	        		yaw = pitch;
+	        		pitch = 0;
+	        		break;
+	        	case DOWN:
+	        		yaw = pitch;
+	        		pitch = 0;
+	        		break;
+	        }
 				
 			//Read input velocity
 			Double momentum = 0.0;
@@ -77,27 +98,30 @@ public class EntityManager implements Runnable {
 			switch(destination.getTeleportFace())
 	        {
 	        	case NORTH:
-	        		yaw = 270;
+	        		yaw += 180;
 	        		outvector = outvector.setX(momentum);
 	        		break;
 	        	case EAST:
-	        		yaw = 0;
+	        		yaw += 270;
 	        		outvector = outvector.setZ(momentum);
 	        		break;
 	        	case SOUTH:
-	        		yaw = 90;
+	        		yaw += 360;
 	        		outvector = outvector.setX(-momentum);
 	        		break;
 	        	case WEST:
-	        		yaw = 180;
+	        		yaw += 430;
 	        		outvector = outvector.setZ(-momentum);
 	        		break;
 	        	case UP:
-	        		pitch = 90;
+	        		pitch = startyaw;
+	        		yaw = 0;
 	        		outvector = outvector.setY(momentum);
 	        		break;
 	        	case DOWN:
-	        		pitch = -90;
+	        		pitch = startyaw;
+	        		yaw = 0;
+	        		
 	        		outvector = outvector.setY(-momentum);
 	        		break;
 	        }
@@ -113,14 +137,7 @@ public class EntityManager implements Runnable {
 			entity.setVelocity(outvector);
 				 
 			destination.setDisabled(true);
-			final Portal disabledportal = portal;
-			PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new Runnable()
-				{
-					public void run()
-					{
-						if (disabledportal != null) disabledportal.setDisabled(false);
-					}
-				}, 10L);
+			PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new enablePortal(destination), 10L);
 		
 			return teleport;
 		}
@@ -129,7 +146,6 @@ public class EntityManager implements Runnable {
 	
 	@Override
 	public void run() {
-		Util.info("test3");
 		
 		for (World w : plugin.getServer().getWorlds())
 		{
@@ -147,5 +163,22 @@ public class EntityManager implements Runnable {
 			}
 		}
 	    		
+	}
+	
+	public static class enablePortal implements Runnable
+	{
+		Portal portal;
+		public enablePortal(Portal instance)
+		{
+			portal = instance;
+		}
+
+		@Override
+		public void run() {
+			if (portal != null) portal.setDisabled(false);
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 }
