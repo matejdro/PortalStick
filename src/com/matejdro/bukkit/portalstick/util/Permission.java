@@ -1,5 +1,8 @@
 package com.matejdro.bukkit.portalstick.util;
 
+import java.util.HashMap;
+import java.util.HashSet;
+
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -12,6 +15,7 @@ public class Permission {
 	private PortalStick plugin;
 	private static PermissionPlugin handler = PermissionPlugin.OP;
 	private static PermissionHandler permissionPlugin;
+	private static HashSet<PermissionCache> cache = new HashSet<PermissionCache>();
 	
 	public Permission(PortalStick instance) {
 		plugin = instance;
@@ -62,6 +66,13 @@ public class Permission {
 	private enum PermissionPlugin {
 		PERMISSIONS,
 		OP
+	}
+	
+	private class PermissionCache {
+		
+		public String node = null;
+		public HashMap<Player, Boolean> cache = new HashMap<Player, Boolean>();
+		
 	}
 
 }
