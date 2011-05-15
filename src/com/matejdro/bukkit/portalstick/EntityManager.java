@@ -24,19 +24,19 @@ public class EntityManager implements Runnable {
 	{
 		Region regionTo = RegionManager.getRegion(LocTo);
 		Portal portal = PortalManager.insideBlocks.get(LocTo);
-		if (portal == null && ((Math.abs(vector.getBlockX()) > 1 || (Math.abs(vector.getBlockY()) > 1 || (Math.abs(vector.getBlockZ()) > 1))) || entity instanceof Boat)) 
+		if (portal == null && ((Math.abs(vector.getX()) > 0.5 || (Math.abs(vector.getY()) > 1 || (Math.abs(vector.getZ()) > 0.5))) || entity instanceof Boat)) 
 		{
 			portal = PortalManager.awayBlocksGeneral.get(LocTo);
-			if (portal == null && (Math.abs(vector.getX()) > 1)) portal = PortalManager.awayBlocksX.get(LocTo);
-			if (portal == null && (Math.abs(vector.getY()) > 1))portal = PortalManager.awayBlocksY.get(LocTo);
-			if (portal == null && (Math.abs(vector.getZ()) > 1)) portal = PortalManager.awayBlocksZ.get(LocTo);
+			if (portal == null && (Math.abs(vector.getX()) > 0.5)) portal = PortalManager.awayBlocksX.get(LocTo);
+			if (portal == null && (Math.abs(vector.getY()) > 1)) portal = PortalManager.awayBlocksY.get(LocTo);
+			if (portal == null && (Math.abs(vector.getZ()) > 0.5)) portal = PortalManager.awayBlocksZ.get(LocTo);
 		}
 		
 		
 		if (portal != null)
 		{
-			Util.info(portal.isDisabled().toString());
 			if (!portal.isOpen() || portal.isDisabled()) return null;
+			if (Math.abs(vector.getY()) > 1 && !portal.isVertical()) return null;
 			User owner = portal.getOwner();
 				 
 			Location teleport;
