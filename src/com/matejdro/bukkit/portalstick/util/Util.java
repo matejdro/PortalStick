@@ -3,7 +3,13 @@ package com.matejdro.bukkit.portalstick.util;
 import java.util.logging.Logger;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import com.matejdro.bukkit.portalstick.PortalStick;
 
 public class Util {
 	
@@ -79,6 +85,26 @@ public class Util {
     	return str;
     }
     
+    public static void PlayNote(final Player player, final int instrument, final int note)
+    {
+    	final Block block = player.getLocation().getBlock().getRelative(0,-5,0);
+        final Byte data = block.getData();
+        final Material material = block.getType();
+
+        player.sendBlockChange(block.getLocation(), Material.NOTE_BLOCK, (byte)instrument);
+        PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(
+        		PortalStick.instance,
+                new Runnable(){
+                    public void run(){
+                        player.playNote(block.getLocation(), (byte) instrument, (byte) note);
+                        player.sendBlockChange(block.getLocation(), material, data);
+                    }
+                },
+                1
+        );
+    }
+
+        
     private enum CustomColor {
     	
     	RED("c", 0xC),
