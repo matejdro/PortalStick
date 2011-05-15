@@ -15,6 +15,9 @@ public class GelManager {
 	{
 		Region region = RegionManager.getRegion(LocTo);
 		Block block = LocTo.getBlock();
+		
+		if (BlockUtil.compareBlockToString(block.getRelative(0,-1,0), region.getString(RegionSetting.RED_GEL_BLOCK))) return redGel(entity, vector, region);
+		
 		if (vector.getY() <= 0)
 		{
 			if (BlockUtil.compareBlockToString(block.getRelative(0,-1,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(entity, vector, region, 0);
@@ -102,8 +105,25 @@ public class GelManager {
 		return null;
 	}
 	
-	public Location redGel()
+	public static Location redGel(Entity entity, Vector vector, Region region)
 	{
-		return null;
+		if (((Player) entity).isSneaking())
+		{
+			vector = vector.setX(0);
+			vector = vector.setZ(0);
+		}
+		else
+		{
+			vector = vector.setX(vector.getX() * region.getDouble(RegionSetting.RED_GEL_VELOCITY_MULTIPLIER));
+			vector = vector.setZ(vector.getZ() * region.getDouble(RegionSetting.RED_GEL_VELOCITY_MULTIPLIER));
+		}
+		
+		if (vector.getX() > region.getDouble(RegionSetting.RED_GEL_MAXIMUM_VELOCITY)) vector = vector.setX(region.getDouble(RegionSetting.RED_GEL_MAXIMUM_VELOCITY));
+		if (vector.getZ() > region.getDouble(RegionSetting.RED_GEL_MAXIMUM_VELOCITY)) vector = vector.setZ(region.getDouble(RegionSetting.RED_GEL_MAXIMUM_VELOCITY));
+		if (vector.getX() < -region.getDouble(RegionSetting.RED_GEL_MAXIMUM_VELOCITY)) vector = vector.setX(-region.getDouble(RegionSetting.RED_GEL_MAXIMUM_VELOCITY));
+		if (vector.getZ() < -region.getDouble(RegionSetting.RED_GEL_MAXIMUM_VELOCITY)) vector = vector.setZ(-region.getDouble(RegionSetting.RED_GEL_MAXIMUM_VELOCITY));
+		
+		entity.setVelocity(vector);
+				return null;
 	}
 }

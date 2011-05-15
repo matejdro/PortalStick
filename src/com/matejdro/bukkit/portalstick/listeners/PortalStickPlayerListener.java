@@ -142,16 +142,12 @@ public class PortalStickPlayerListener extends PlayerListener {
 	{
 		
 		Player player = event.getPlayer();
-		//Vector vector = player.getVelocity();
+		Vector vector = player.getVelocity();
 		Location locTo = event.getTo();
 		locTo = new Location(locTo.getWorld(), locTo.getBlockX(), locTo.getBlockY(), locTo.getBlockZ());
 		Region regionTo = RegionManager.getRegion(event.getTo());
 		Region regionFrom = RegionManager.getRegion(event.getFrom());
-		
-		Vector vec2 = event.getTo().toVector();
-	    Vector vec1 = event.getFrom().toVector();
-	    Vector vector = vec2.subtract(vec1);
-	    
+			    
 	    //player.sendMessage(vector.toString());
 	    //player.sendMessage(velocit.toString());
 	    //player.sendMessage(".");
@@ -220,8 +216,16 @@ public class PortalStickPlayerListener extends PlayerListener {
 		}
 		if (!permission) return;
 		Location out = EntityManager.teleport((Entity) player, locTo, vector);
-		if (out != null) event.setTo(out);
+		if (out != null) 
+		{
+			event.setTo(out);
+			return;
+		}
 
+		Vector vec2 = event.getTo().toVector();
+	    Vector vec1 = event.getFrom().toVector();
+	    vector = vec2.subtract(vec1);
+		
 		out = GelManager.useGel((Entity) player, locTo, vector);
 		if (out != null) event.setTo(out);
 

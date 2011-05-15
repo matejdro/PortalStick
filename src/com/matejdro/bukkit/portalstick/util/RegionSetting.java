@@ -29,7 +29,8 @@ public enum RegionSetting {
 	BLUE_GEL_VERTICAL_VELOCITY_MULTIPLIER("blue-gel-vertical-velocity-multiplier", 1.5),
 	BLUE_GEL_VERTICAL_BOUNCE_VELOCITY("blue-gel-vertical-bounce-velocity", 1.0),
 	BLUE_GEL_HORIZONTAL_BOUNCE_VELOCITY("blue-gel-horizontal-bounce-velocity", 1.0),
-	RED_GEL_VELOCITY_MULTIPLIER("red-gel-velocity-multiplier", 1.0),
+	RED_GEL_VELOCITY_MULTIPLIER("red-gel-velocity-multiplier", 1.5),
+	RED_GEL_MAXIMUM_VELOCITY("red-gel-maximum-velocity", 11.0),
 	FAITH_PLATE_BLOCK("aerial-faith-plate-block", "57", true),
 	FAITH_PLATE_POWER("aerial-faith-plate-power", "6-2", true),
 	LOCATION("location", "world:0,0,0:0,0,0");
