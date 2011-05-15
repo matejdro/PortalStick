@@ -119,7 +119,7 @@ public class EntityManager implements Runnable {
 	        		outvector = outvector.setY(momentum);
 	        		break;
 	        	case DOWN:
-	        		pitch = startyaw;
+	        		pitch = startyaw + 180;
 	        		yaw = 0;
 	        		
 	        		outvector = outvector.setY(-momentum);
