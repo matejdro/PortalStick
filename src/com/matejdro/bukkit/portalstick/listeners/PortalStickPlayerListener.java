@@ -3,14 +3,10 @@ package com.matejdro.bukkit.portalstick.listeners;
 import java.util.HashSet;
 import java.util.List;
 
-import net.minecraft.server.EntityPlayer;
-import net.minecraft.server.Packet54PlayNoteBlock;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
@@ -226,7 +222,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 	    Vector vec1 = event.getFrom().toVector();
 	    vector = vec2.subtract(vec1);
 		
-		out = GelManager.useGel((Entity) player, locTo, vector);
+		out = GelManager.useGel( player, locTo, vector);
 		if (out != null) event.setTo(out);
 
 		
