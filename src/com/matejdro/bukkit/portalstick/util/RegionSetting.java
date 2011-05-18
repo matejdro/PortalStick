@@ -35,6 +35,7 @@ public enum RegionSetting {
 	RED_GEL_VELOCITY_MULTIPLIER("red-gel-velocity-multiplier", 1.5),
 	FAITH_PLATE_BLOCK("aerial-faith-plate-block", "57", true),
 	FAITH_PLATE_POWER("aerial-faith-plate-power", "6-2", true),
+	ENABLE_SOUNDS("enable-sounds", true, true),
 	LOCATION("location", "world:0,0,0:0,0,0");
 	
 	private String yaml;
