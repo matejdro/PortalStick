@@ -1,14 +1,10 @@
 package com.matejdro.bukkit.portalstick;
 
-import java.util.HashSet;
-
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import com.matejdro.bukkit.portalstick.EntityManager.enablePortal;
 import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;

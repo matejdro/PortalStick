@@ -39,7 +39,6 @@ public class PortalStick extends JavaPlugin {
 	private PortalStickEntityListener entityListener;
 	private PortalStickWorldListener worldListener;
 	private GrillManager grillManager;
-	private EntityManager entityManager;
 	
 	public static List<BaseCommand> commands = new ArrayList<BaseCommand>();
 	public static Config config;
@@ -64,7 +63,6 @@ public class PortalStick extends JavaPlugin {
 		entityListener = new PortalStickEntityListener();
 		worldListener = new PortalStickWorldListener();
 		grillManager = new GrillManager(this);
-		entityManager = new EntityManager(this);
 		config = new Config(this);
 		permissions = new Permission(this);
 		
@@ -112,12 +110,12 @@ public class PortalStick extends JavaPlugin {
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[])
 	{
-		if (cmd.getName().equalsIgnoreCase("portal")) {
+		if (cmd.getName().equalsIgnoreCase("portalstick")) {
 			if (args.length == 0)
 				args = new String[]{"help"};
 			for (BaseCommand command : commands.toArray(new BaseCommand[0])) {
 				if (command.name.equalsIgnoreCase(args[0]))
-					return command.run(sender, args);
+					return command.run(sender, args, commandLabel);
 			}
 		}
 		return false;

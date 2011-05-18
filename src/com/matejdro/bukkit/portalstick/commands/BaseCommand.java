@@ -23,8 +23,9 @@ public abstract class BaseCommand {
 	public Player player;
 	public Region region;
 	public User user;
+	public String usedCommand;
 	
-	public boolean run(CommandSender sender, String[] preArgs) {
+	public boolean run(CommandSender sender, String[] preArgs, String cmd) {
 		this.sender = sender;
 		args.clear();
 		for (String arg : preArgs)
@@ -40,6 +41,7 @@ public abstract class BaseCommand {
 		player = (Player)sender;
 		region = RegionManager.getRegion(player.getLocation());
 		user = UserManager.getUser(player);
+		usedCommand = cmd;
 		if (!permission(player))
 			return false;
 		return execute();
@@ -49,7 +51,7 @@ public abstract class BaseCommand {
 	public abstract boolean permission(Player player);
 	
 	public void sendUsage() {
-		Util.sendMessage(sender, "&c/portal " + name + " " + usage);
+		Util.sendMessage(sender, "&c/"+usedCommand+" " + name + " " + usage);
 	}
 
 }
