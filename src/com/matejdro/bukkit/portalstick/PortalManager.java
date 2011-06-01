@@ -35,12 +35,16 @@ public class PortalManager {
 				deletePortals(user);
 			UserManager.deleteDroppedItems(player);
 
-			if (regionTo.Name.equalsIgnoreCase("global"))
-				user.revertInventory(player);
-			else {
-				user.saveInventory(player);
-				setPortalInventory(player);
+			if (regionFrom.getBoolean(RegionSetting.UNIQUE_INVENTORY) || regionTo.getBoolean(RegionSetting.UNIQUE_INVENTORY))
+			{
+				if (regionTo.Name.equalsIgnoreCase("global"))
+					user.revertInventory(player);
+				else {
+					user.saveInventory(player);
+					setPortalInventory(player);
+				}
 			}
+			
 		}
 	}
 	

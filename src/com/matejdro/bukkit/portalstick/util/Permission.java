@@ -36,7 +36,7 @@ public class Permission {
 			case PERMISSIONS:
 				return permissionPlugin.has(player, node);
 			case OP:
-				return player.isOp();
+				return def ? true : player.isOp();
 		}
 		return def;
 	}
@@ -45,10 +45,10 @@ public class Permission {
 		return hasPermission(player, "portalstick.placeportal", true);
 	}
 	public static boolean createGrill(Player player) {
-		return hasPermission(player, "portalstick.creategrill", true);
+		return hasPermission(player, "portalstick.creategrill", false);
 	}
 	public static boolean deleteGrill(Player player) {
-		return hasPermission(player, "portalstick.deletegrill", true);
+		return hasPermission(player, "portalstick.deletegrill", false);
 	}
 	public static boolean teleport(Player player) {
 		return hasPermission(player, "portalstick.teleport", true);

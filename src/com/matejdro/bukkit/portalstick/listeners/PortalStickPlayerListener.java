@@ -3,14 +3,10 @@ package com.matejdro.bukkit.portalstick.listeners;
 import java.util.HashSet;
 import java.util.List;
 
-import net.minecraft.server.EntityPlayer;
-import net.minecraft.server.Packet54PlayNoteBlock;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
@@ -140,18 +136,21 @@ public class PortalStickPlayerListener extends PlayerListener {
  	    
 	public void onPlayerMove(PlayerMoveEvent event)
 	{
-		
 		Player player = event.getPlayer();
-		Vector vector = player.getVelocity();
+		
+		if (player.isInsideVehicle()) return;
+
 		Location locTo = event.getTo();
 		locTo = new Location(locTo.getWorld(), locTo.getBlockX(), locTo.getBlockY(), locTo.getBlockZ());
 		Region regionTo = RegionManager.getRegion(event.getTo());
 		Region regionFrom = RegionManager.getRegion(event.getFrom());
-			    
-	    //player.sendMessage(vector.toString());
-	    //player.sendMessage(velocit.toString());
-	    //player.sendMessage(".");
 		
+		Vector vec2 = event.getTo().toVector();
+	    Vector vec1 = event.getFrom().toVector();
+	    Vector vector = vec2.subtract(vec1);
+		
+	    if (Config.DisabledWorlds.contains(locTo.getWorld().getName())) return;
+	    
 		//Check for changing regions
 		PortalManager.checkPlayerMove(player, regionFrom, regionTo);
 		
@@ -166,72 +165,66 @@ public class PortalStickPlayerListener extends PlayerListener {
 		}
 		
 		//Aerial faith plate
-		Block blockIn = locTo.getBlock();
-		Block blockUnder = blockIn.getFace(BlockFace.DOWN);
-		Block blockStart = null;
-		Integer horPower = Integer.parseInt(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[0]);
-		String faithBlock = regionTo.getString(RegionSetting.FAITH_PLATE_BLOCK);
-		Vector velocity = new Vector(0, Integer.parseInt(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[1]),0);
-		
-		if (blockIn.getType() == Material.STONE_PLATE && BlockUtil.compareBlockToString(blockUnder, faithBlock))
-			blockStart = blockUnder;
-		else
-			blockStart = blockIn;
-		
-		if (blockStart != null) {
-			BlockFace[] faces = new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
-			BlockFace face = BlockUtil.getFaceOfMaterial(blockStart, faces, faithBlock);
-			if (face != null) {
-				switch (face) {
-					case NORTH:
-						velocity.setX(horPower);
-						break;
-					case SOUTH:
-						velocity.setX(-horPower);
-						break;
-					case EAST:
-						velocity.setZ(horPower);
-						break;
-					case WEST:
-						velocity.setZ(-horPower);
-						break;
+		if (regionTo.getBoolean(RegionSetting.ENABLE_AERIAL_FAITH_PLATES))
+		{
+			Block blockIn = locTo.getBlock();
+			Block blockUnder = blockIn.getFace(BlockFace.DOWN);
+			Block blockStart = null;
+			Integer horPower = Integer.parseInt(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[0]);
+			String faithBlock = regionTo.getString(RegionSetting.FAITH_PLATE_BLOCK);
+			Vector velocity = new Vector(0, Integer.parseInt(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[1]),0);
+			
+			if (blockIn.getType() == Material.STONE_PLATE && BlockUtil.compareBlockToString(blockUnder, faithBlock))
+				blockStart = blockUnder;
+			else
+				blockStart = blockIn;
+			
+			if (blockStart != null) {
+				BlockFace[] faces = new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
+				BlockFace face = BlockUtil.getFaceOfMaterial(blockStart, faces, faithBlock);
+				if (face != null) {
+					switch (face) {
+						case NORTH:
+							velocity.setX(horPower);
+							break;
+						case SOUTH:
+							velocity.setX(-horPower);
+							break;
+						case EAST:
+							velocity.setZ(horPower);
+							break;
+						case WEST:
+							velocity.setZ(-horPower);
+							break;
+					}
+					if (blockStart == blockUnder) {
+						velocity.setX(-velocity.getX());
+						velocity.setZ(-velocity.getZ());
+					}
+					player.setVelocity(velocity);
+					Util.PlayNote(player, 4, 5);
 				}
-				if (blockStart == blockUnder) {
-					velocity.setX(-velocity.getX());
-					velocity.setZ(-velocity.getZ());
-				}
-				player.setVelocity(velocity);
-				Util.PlayNote(player, 4, 5);
 			}
 		}
-
-		//Teleport
-		if (player.isInsideVehicle()) return;
 		
+
+		//Teleport		
 		Boolean permission = UserManager.teleportPermissionCache.get(player);
 		if (permission == null)
 		{
 			permission = Permission.teleport(player);
 			UserManager.teleportPermissionCache.put(player, permission);
 		}
-		if (!permission) return;
-		Location out = EntityManager.teleport((Entity) player, locTo, vector);
-		if (out != null) 
+		if (permission) 
 		{
-			event.setTo(out);
-			return;
+			Location out = EntityManager.teleport((Entity) player, locTo, vector);
+			if (out != null) 
+			{
+				event.setTo(out);
+				return;
+			}
 		}
-
-		Vector vec2 = event.getTo().toVector();
-	    Vector vec1 = event.getFrom().toVector();
-	    vector = vec2.subtract(vec1);
-		
-		out = GelManager.useGel((Entity) player, locTo, vector);
-		if (out != null) event.setTo(out);
-
-		
-
-			
+		GelManager.useGel( player, locTo, vector);		
 	}
 		 
 	public void onPlayerDropItem(PlayerDropItemEvent event) {

@@ -23,6 +23,9 @@ public enum RegionSetting {
 	VELOCITY_MULTIPLIER("velocity-multiplier", 1.0, true),
 	PREVENT_PORTAL_THROUGH_PORTAL("prevent-creating-portal-through-portal", false, true),
 	PREVENT_PORTAL_CLOSED_DOOR("prevent-creating-portal-through-closed-door", true, true),
+	ENABLE_AERIAL_FAITH_PLATES("enable-aerial-faith-plates", true, true),
+	ENABLE_BLUE_GEL_BLOCKS("enable-blue-gel-blocks", true, true),
+	ENABLE_RED_GEL_BLOCKS("enable-red-gel-blocks", true, true),
 	BLUE_GEL_BLOCK("blue-gel-block", "22"),
 	RED_GEL_BLOCK("red-gel-block", "35:14"),
 	BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER("blue-gel-horizontal-velocity-multiplier", 1.5),
@@ -30,9 +33,9 @@ public enum RegionSetting {
 	BLUE_GEL_VERTICAL_BOUNCE_VELOCITY("blue-gel-vertical-bounce-velocity", 1.0),
 	BLUE_GEL_HORIZONTAL_BOUNCE_VELOCITY("blue-gel-horizontal-bounce-velocity", 1.0),
 	RED_GEL_VELOCITY_MULTIPLIER("red-gel-velocity-multiplier", 1.5),
-	RED_GEL_MAXIMUM_VELOCITY("red-gel-maximum-velocity", 11.0),
 	FAITH_PLATE_BLOCK("aerial-faith-plate-block", "57", true),
 	FAITH_PLATE_POWER("aerial-faith-plate-power", "6-2", true),
+	ENABLE_SOUNDS("enable-sounds", true, true),
 	LOCATION("location", "world:0,0,0:0,0,0");
 	
 	private String yaml;

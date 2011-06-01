@@ -17,7 +17,7 @@ public class HelpCommand extends BaseCommand {
 		Util.sendMessage(player, "&c--------------------- &7PortalStick &c---------------------");
 		for (BaseCommand cmd : PortalStick.commands.toArray(new BaseCommand[0]))
 			if (cmd.permission(player))
-				Util.sendMessage(player, "&7- /portal &c" + cmd.name + " &7" + cmd.usage);
+				Util.sendMessage(player, "&7- /"+usedCommand+" &c" + cmd.name + " &7" + cmd.usage);
 		return true;
 	}
 	

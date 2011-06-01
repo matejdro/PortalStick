@@ -3,7 +3,7 @@ main: com.matejdro.bukkit.portalstick.PortalStick
 version: 2.2.0
 author: matejdro and oliverw92
 commands:
-  portal:
+  portalstick:
     description: Aperture Science Portal Stick
-    aliases:
+    aliases: portal
     usage: /<command> help

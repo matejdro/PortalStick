@@ -5,11 +5,12 @@ import java.util.logging.Logger;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.matejdro.bukkit.portalstick.PortalStick;
+import com.matejdro.bukkit.portalstick.Region;
+import com.matejdro.bukkit.portalstick.RegionManager;
 
 public class Util {
 	
@@ -90,6 +91,9 @@ public class Util {
     	final Block block = player.getLocation().getBlock().getRelative(0,-5,0);
         final Byte data = block.getData();
         final Material material = block.getType();
+        
+        Region region = RegionManager.getRegion(player.getLocation());
+        if (!region.getBoolean(RegionSetting.ENABLE_SOUNDS)) return;
 
         player.sendBlockChange(block.getLocation(), Material.NOTE_BLOCK, (byte)instrument);
         PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(
