@@ -90,7 +90,7 @@ public class PortalStick extends JavaPlugin {
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, grillManager, 400, 400);
 		
 		//Teleport all entities - uncompleted.
-		//getServer().getScheduler().scheduleSyncRepeatingTask(this, entityManager, 2, 2);
+		//getServer().getScheduler().scheduleSyncRepeatingTask(this, new EntityManager(this), 2, 2);
 		
 		//Register commands
 		commands.add(new RegionToolCommand());

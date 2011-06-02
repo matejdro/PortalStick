@@ -29,6 +29,7 @@ public class PortalManager {
 	public static void checkPlayerMove(Player player, Region regionFrom, Region regionTo)
 	{
 		User user = UserManager.getUser(player);
+		if (user == null) return;
 		if (user.getUsingTool()) return;
 		if (!regionTo.Name.equals(regionFrom.Name)) {
 			if (regionFrom.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE) || regionTo.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE))
