@@ -138,7 +138,7 @@ public class PortalManager {
 	    	
 	    	if (face == BlockFace.DOWN)
 	    	{
-	    		portal.destLoc = block.getRelative(0,-2,0).getLocation();
+	    		portal.destLoc = block.getRelative(0,-1,0).getLocation();
 	    		portal.tpFace = BlockFace.DOWN;
 	    	}
 	    	else

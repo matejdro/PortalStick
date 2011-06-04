@@ -205,6 +205,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 					Util.PlayNote(player, 4, 5);
 				}
 			}
+		
 		}
 		
 

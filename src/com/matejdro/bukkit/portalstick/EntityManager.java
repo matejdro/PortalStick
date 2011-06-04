@@ -1,16 +1,26 @@
 package com.matejdro.bukkit.portalstick;
 
+import net.minecraft.server.EntityFallingSand;
+
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.entity.CraftFallingSand;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Boat;
+import org.bukkit.entity.Creature;
+import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.FallingSand;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
+import com.matejdro.bukkit.portalstick.util.Util;
 
 public class EntityManager implements Runnable {
 	private PortalStick plugin;
@@ -31,6 +41,8 @@ public class EntityManager implements Runnable {
 			if (portal == null && (Math.abs(vector.getY()) > 1)) portal = PortalManager.awayBlocksY.get(LocTo);
 			if (portal == null && (Math.abs(vector.getZ()) > 0.5)) portal = PortalManager.awayBlocksZ.get(LocTo);
 		}
+		if (portal == null && entity instanceof FallingSand) portal = PortalManager.awayBlocksY.get(LocTo);
+		
 		if (portal != null)
 		{
 			if (!portal.isOpen() || portal.isDisabled()) return null;
@@ -112,14 +124,29 @@ public class EntityManager implements Runnable {
 	        		outvector = outvector.setZ(-momentum);
 	        		break;
 	        	case UP:
-	        		pitch = startyaw;
-	        		yaw = 0;
+	        		if (portal.getTeleportFace() != BlockFace.UP || portal.getTeleportFace() != BlockFace.DOWN)
+	        		{
+		        		pitch = startyaw;
+		        		yaw = 0;
+	        		}
+	        		else
+	        		{
+	        			pitch = yaw;
+	        			startyaw = pitch;
+	        		}
 	        		outvector = outvector.setY(momentum);
 	        		break;
 	        	case DOWN:
-	        		pitch = startyaw + 180;
-	        		yaw = 0;
-	        		
+	        		if (portal.getTeleportFace() != BlockFace.UP || portal.getTeleportFace() != BlockFace.DOWN)
+	        		{
+		        		pitch = startyaw + 180;
+		        		yaw = 0;
+	        		}
+	        		else
+	        		{
+	        			pitch = yaw;
+	        			startyaw = pitch;
+	        		}
 	        		outvector = outvector.setY(-momentum);
 	        		break;
 	        }
@@ -129,19 +156,45 @@ public class EntityManager implements Runnable {
 				 
 			teleport.setPitch(pitch);
 			teleport.setYaw(yaw);
-				 			
-//			if (entity instanceof Arrow)
-//			{
-//				teleport.setY(teleport.getY() + 1);
-//				//entity.remove();
-//				//teleport.getWorld().spawnArrow(teleport, outvector, 0.6f, 12.0f);
-//			}
-//			else
-//			{
-//			}
-			entity.teleport(teleport);
+			
+			Util.info(momentum.toString());
+
+			if (entity instanceof Arrow)
+			{
+				teleport.setY(teleport.getY() + 1);
+				entity.remove();
+				teleport.getWorld().spawnArrow(teleport, outvector, (float) (momentum * 1.0f), 12.0f);
+			}
+			else if (entity instanceof FallingSand)
+			{
+				EntityFallingSand sand = (EntityFallingSand) ((CraftFallingSand) entity).getHandle() ;
+				
+				Material db = teleport.getBlock().getType();
+				if (db == Material.AIR || db == Material.WATER || db == Material.STATIONARY_WATER || db == Material.LAVA || db == Material.STATIONARY_LAVA)
+				{
+					teleport.getBlock().setTypeId(sand.a);	
+					entity.remove();
+				}
+				
+			}
+			else if (entity instanceof Creature)
+			{
+				Creature creature = (Creature) entity;
+				CreatureType type = Util.creatureTypeFromEntity(entity);
+				
+				LivingEntity mob = teleport.getWorld().spawnCreature(teleport, type);
+				mob.setHealth(creature.getHealth());
+				mob.setFireTicks(creature.getFireTicks());
+				mob.setRemainingAir(creature.getRemainingAir());
+				
+				creature.remove();
+			}
+			else
+			{
+				entity.teleport(teleport);
+				entity.setVelocity(outvector);
+			}
 		 
-			entity.setVelocity(outvector);
 				 
 			destination.setDisabled(true);
 			PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new enablePortal(destination), 10L);
@@ -153,7 +206,6 @@ public class EntityManager implements Runnable {
 	
 	@Override
 	public void run() {
-		
 		for (World w : plugin.getServer().getWorlds())
 		{
 			if (Config.DisabledWorlds.contains(w.getName())) return;
