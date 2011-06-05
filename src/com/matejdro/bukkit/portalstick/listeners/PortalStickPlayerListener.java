@@ -3,6 +3,7 @@ package com.matejdro.bukkit.portalstick.listeners;
 import java.util.HashSet;
 import java.util.List;
 
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -42,7 +43,6 @@ public class PortalStickPlayerListener extends PlayerListener {
 	{		
 		Player player = event.getPlayer();
 		User user = UserManager.getUser(player);
-
 	
 		//Portal tool
 		if (player.getItemInHand().getTypeId() == Config.PortalTool && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
@@ -130,6 +130,28 @@ public class PortalStickPlayerListener extends PlayerListener {
 		//Flint and steel
 		else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && player.getItemInHand().getType() == Material.FLINT_AND_STEEL) {
 			GrillManager.createGrill(player, event.getClickedBlock());
+		}
+		//Color changing
+		else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && player.getItemInHand().getTypeId() == 0 && event.getClickedBlock().getType() == Material.WOOL)
+		{
+			Portal portal = PortalManager.borderBlocks.get(event.getClickedBlock().getLocation());
+			if (portal == null) portal = PortalManager.insideBlocks.get(event.getClickedBlock().getLocation());
+			if (portal == null) return;
+		
+			
+			int preset = user.getColorPreset();
+			if (preset == Config.ColorPresets.size() - 1)
+				preset = 0;
+			else
+				preset++;
+			
+			user.setColorPreset(preset);
+			user.recreatePortals();
+
+			String color1 = DyeColor.values()[Util.getLeftPortalColor(preset)].toString().replace("_", " ");
+			String color2 = DyeColor.values()[Util.getRightPortalColor(preset)].toString().replace("_", " ");
+
+			Util.sendMessage(player, "Your new portal color is " + color1 + " - " + color2);
 		}
 
 	}

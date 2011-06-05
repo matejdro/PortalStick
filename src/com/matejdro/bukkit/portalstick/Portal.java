@@ -8,7 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
-import com.matejdro.bukkit.portalstick.listeners.PortalStickBlockListener;
 import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
@@ -136,27 +135,54 @@ public class Portal {
 	
 	public void close()
 	{
+		byte color;
+		if (orange)
+			color = (byte) Util.getRightPortalColor(getOwner().getColorPreset());
+		else
+			color = (byte) Util.getLeftPortalColor(getOwner().getColorPreset());			
 		for (Block b: inside)
     	{
     		b.setType(Material.WOOL);
-    		if (orange)
-    			b.setData((byte) 1);
-    		else
-    			b.setData((byte) 11);
+    		b.setData(color);
     		open = false;
     	}
 	}
 	
+	public void recreate()
+	{
+		byte color;
+		if (orange)
+			color = (byte) Util.getRightPortalColor(getOwner().getColorPreset());
+		else
+			color = (byte) Util.getLeftPortalColor(getOwner().getColorPreset());			
+		
+		for (Block b: border)
+    	{
+    		b.setData(color);
+    	}
+
+		if (!isOpen())
+		{
+			for (Block b: inside)
+	    	{
+	    		b.setData(color);
+	    	}
+		}
+	}
+	
 	public void create()
 	{
+		byte color;
+		if (orange)
+			color = (byte) Util.getRightPortalColor(getOwner().getColorPreset());
+		else
+			color = (byte) Util.getLeftPortalColor(getOwner().getColorPreset());			
+
     	for (Block b: border)
     	{
     		oldBlocks.put(b.getLocation(), BlockUtil.getBlockData(b));
     		b.setType(Material.WOOL);
-    		if (orange)
-    			b.setData((byte) 1);
-    		else
-    			b.setData((byte) 11);
+    		b.setData(color);
     		PortalManager.borderBlocks.put(b.getLocation(), this);
     	}
     	for (Block b: inside)

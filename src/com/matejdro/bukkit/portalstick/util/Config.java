@@ -2,6 +2,7 @@ package com.matejdro.bukkit.portalstick.util;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ public class Config {
 	public static Region GlobalRegion;
 	public static int RegionTool;
 	public static boolean RestoreInvOnWorldChange;
+	public static List<String> ColorPresets;
 	
 	public static String MessageCannotPlacePortal;
 	public static String MessageRestrictedWorld;
@@ -79,6 +81,8 @@ public class Config {
 			mainConfig.setProperty("main.region-tool", 268);
 		if (mainConfig.getProperty("main.restore-inventory-on-world-change") == null)
 			mainConfig.setProperty("main.restore-inventory-on-world-change", true);
+		if (mainConfig.getProperty("main.portal-color-presets") == null)
+			mainConfig.setProperty("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
 		
 		//Check messages
 		if (mainConfig.getProperty("messages.cannot-place-portal") == null)
@@ -97,6 +101,8 @@ public class Config {
         CompactPortal = mainConfig.getBoolean("main.compact-portal", false);
         RegionTool = mainConfig.getInt("main.region-tool", 268);
         RestoreInvOnWorldChange = mainConfig.getBoolean("main.restore-inventory-on-world-change", true);
+        ColorPresets = mainConfig.getStringList("main.restore-inventory-on-world-change", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
+        
 		
 		//Load all current users
 		for (Player player : plugin.getServer().getOnlinePlayers())

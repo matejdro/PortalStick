@@ -107,6 +107,19 @@ public class Util {
                 1
         );
     }
+    
+    public static int getLeftPortalColor(int preset)
+    {
+    	String p = Config.ColorPresets.get(preset);
+    	return Integer.parseInt(p.split("-")[0]);
+    }
+    
+    public static int getRightPortalColor(int preset)
+    {
+    	String p = Config.ColorPresets.get(preset);
+    	return Integer.parseInt(p.split("-")[1]);
+    }
+
            
     private enum CustomColor {
     	

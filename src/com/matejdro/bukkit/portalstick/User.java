@@ -19,6 +19,7 @@ public class User {
 	private Location pointOne;
 	private Location pointTwo;
 	private Boolean usingTool = false;
+	private int colorPreset = 0;
 	private HashSet<Item> droppedItems = new HashSet<Item>();
 	
 	public Portal getBluePortal() {
@@ -35,6 +36,22 @@ public class User {
 	
 	public void setOrangePortal(Portal portal) {
 		orangePortal = portal;
+	}
+	
+	public int getColorPreset()
+	{
+		return colorPreset;
+	}
+	
+	public void setColorPreset(int input)
+	{
+		colorPreset = input;
+	}
+	
+	public void recreatePortals()
+	{
+		if (bluePortal != null) bluePortal.recreate();
+		if (orangePortal != null) orangePortal.recreate();
 	}
 	
 	public void revertInventory(Player player) {
