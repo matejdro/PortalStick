@@ -85,7 +85,7 @@ public class Config {
 		if (mainConfig.getProperty("main.portal-color-presets") == null)
 			mainConfig.setProperty("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
 		if (mainConfig.getProperty("main.fill-portal-back") == null)
-			mainConfig.setProperty("main.fill-portal-back", 1);
+			mainConfig.setProperty("main.fill-portal-back", -1);
 
 		//Check messages
 		if (mainConfig.getProperty("messages.cannot-place-portal") == null)
@@ -105,7 +105,7 @@ public class Config {
         RegionTool = mainConfig.getInt("main.region-tool", 268);
         RestoreInvOnWorldChange = mainConfig.getBoolean("main.restore-inventory-on-world-change", true);
         ColorPresets = mainConfig.getStringList("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
-        FillPortalBack = mainConfig.getInt("main.fill-portal-back", 1);
+        FillPortalBack = mainConfig.getInt("main.fill-portal-back", -1);
 		
 		//Load all current users
 		for (Player player : plugin.getServer().getOnlinePlayers())
