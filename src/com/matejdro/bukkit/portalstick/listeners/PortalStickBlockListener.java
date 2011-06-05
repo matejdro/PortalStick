@@ -1,5 +1,7 @@
 package com.matejdro.bukkit.portalstick.listeners;
 
+import java.util.HashSet;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -28,7 +30,7 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 public class PortalStickBlockListener extends BlockListener {
 	
 	private PortalStick plugin;
-	
+		
 	public PortalStickBlockListener(PortalStick instance)
 	{
 		plugin = instance;
@@ -38,23 +40,18 @@ public class PortalStickBlockListener extends BlockListener {
 		Region region = RegionManager.getRegion(event.getBlock().getLocation());
 		Material type = event.getBlock().getType();
 		Location loc = event.getBlock().getLocation();
-		if (type == Material.WOOL)
-		{
 			Portal portal = PortalManager.borderBlocks.get(loc);
 			if (portal == null) portal = PortalManager.insideBlocks.get(loc);
 			if (portal != null)
 			{
-				portal.delete();
+				if (type == Material.WOOL) portal.delete();
 				event.setCancelled(true);
-				return;
-			}		
-		}
+			}
 		
 		Grill grill = GrillManager.insideBlocks.get(event.getBlock().getLocation());
 		if (grill != null )
 		{
 				event.setCancelled(true);
-				return;
 		}
 		
 		
@@ -63,8 +60,29 @@ public class PortalStickBlockListener extends BlockListener {
 			grill = GrillManager.borderBlocks.get(event.getBlock().getLocation());
 				if (grill == null || !Permission.deleteGrill(event.getPlayer())) return;
 				grill.delete();
-				return;
 		}
+		
+		if (type == Material.REDSTONE_WIRE && region.getBoolean(RegionSetting.ENABLE_REDSTONE_TRANSFER))
+		{
+			Location l = event.getBlock().getLocation();
+			 
+			 for (int i = 0; i < 4; i++)
+			 {
+				 BlockFace face = BlockFace.values()[i];
+				 if (PortalManager.insideBlocks.containsKey(new Location(l.getWorld(), l.getX() + face.getModX(), l.getY() + face.getModY(), l.getZ() + face.getModZ()))) 
+					 {
+					 	portal = PortalManager.insideBlocks.get(new Location(l.getWorld(), l.getX() + face.getModX(), l.getY() + face.getModY(), l.getZ() + face.getModZ()));
+					 	if (!portal.isOpen()) continue;
+					 
+					 	Portal destination = portal.getDestination();
+					 	if (destination == null || destination.isTransmitter()) continue;
+					 	
+				 		portal.setTransmitter(false);
+					 	((Block)destination.getInside().toArray()[0]).setType(Material.AIR);
+					 }
+			 }
+		}
+			
 
 	}
 	
@@ -151,30 +169,65 @@ public class PortalStickBlockListener extends BlockListener {
 			}
 	 
 	 public void onBlockRedstoneChange(BlockRedstoneEvent event) {
-		 if (event.getNewCurrent() == 0) return;
 		 Block block = event.getBlock();
 		 Block dispenserb = null;
 		 
 		 Region region = RegionManager.getRegion(block.getLocation());
-		 if (!region.getBoolean(RegionSetting.INFINITE_DISPENSERS))
-				return;
-
-		 
-		 if (block.getFace(BlockFace.NORTH).getType() == Material.DISPENSER) dispenserb = block.getFace(BlockFace.NORTH);
-		 else if (block.getFace(BlockFace.SOUTH).getType() == Material.DISPENSER) dispenserb = block.getFace(BlockFace.SOUTH);
-		 else if (block.getFace(BlockFace.WEST).getType() == Material.DISPENSER) dispenserb = block.getFace(BlockFace.WEST);
-		 else if (block.getFace(BlockFace.EAST).getType() == Material.DISPENSER) dispenserb = block.getFace(BlockFace.EAST);
-		 
-		 if (dispenserb != null)
-		 {
-			 Dispenser dispenser = (Dispenser) dispenserb.getState();
-			 ItemStack item = dispenser.getInventory().getItem(4);
-			 if (item != null && item.getType() != Material.AIR)
+		 if (region.getBoolean(RegionSetting.INFINITE_DISPENSERS) && event.getNewCurrent() > 0)
+		 { 
+			 for (int i = 0; i < 5; i++)
 			 {
-				 item.setAmount(item.getAmount() + 1);
-				 dispenser.getInventory().setItem(4, item);
+				 if (block.getFace(BlockFace.values()[i]).getType() == Material.DISPENSER) 
+					 {
+					 	dispenserb = block.getFace(BlockFace.values()[i]);
+					 }
+			 }
+			 
+			 if (dispenserb != null )
+			 {
+				 Dispenser dispenser = (Dispenser) dispenserb.getState();
+				 ItemStack item = dispenser.getInventory().getItem(4);
+				 if (item != null && item.getType() != Material.AIR)
+				 {
+					 item.setAmount(item.getAmount() + 1);
+					 dispenser.getInventory().setItem(4, item);
+				 }
 			 }
 		 }
+		 if (region.getBoolean(RegionSetting.ENABLE_REDSTONE_TRANSFER))
+		 {			 
+			 Location l = block.getLocation();
+			 
+			 for (int i = 0; i < 5; i++)
+			 {
+				 BlockFace face = BlockFace.values()[i];
+				 if (PortalManager.insideBlocks.containsKey(new Location(l.getWorld(), l.getX() + face.getModX(), l.getY() + face.getModY(), l.getZ() + face.getModZ()))) 
+					 {
+					 	Portal portal = PortalManager.insideBlocks.get(new Location(l.getWorld(), l.getX() + face.getModX(), l.getY() + face.getModY(), l.getZ() + face.getModZ()));
+					 	if (!portal.isOpen()) continue;
+					 
+					 	Portal destination = portal.getDestination();
+					 	if (destination == null || destination.isTransmitter()) continue;
+					 
+					 	if (event.getNewCurrent() > 0)
+					 	{
+					 		portal.setTransmitter(true);
+					 		((Block)destination.getInside().toArray()[0]).setType(Material.REDSTONE_TORCH_ON);
+					 	}
+					 	else
+					 	{
+					 		portal.setTransmitter(false);
+					 		((Block)destination.getInside().toArray()[0]).setType(Material.AIR);
+					 	}
+					 }
+			 }
+			 
+			 
+		 }
+		 
+
+		 
+			 
 	 }
 	 
 	 public class RemoveLiquid implements Runnable
@@ -199,6 +252,8 @@ public class PortalStickBlockListener extends BlockListener {
 			    		
 			}
 		}
+	 	 
+	 
 	 
 	 
 

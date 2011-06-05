@@ -47,14 +47,9 @@ public class EntityManager implements Runnable {
 		{
 			if (!portal.isOpen() || portal.isDisabled()) return null;
 			if (Math.abs(vector.getY()) > 1 && !portal.isVertical()) return null;
-			User owner = portal.getOwner();
 				 
 			Location teleport;
-			Portal destination;
-			if (portal.isOrange())
-				destination = owner.getBluePortal();
-			else
-				destination = owner.getOrangePortal();
+			Portal destination = portal.getDestination();
 				 				 
 			teleport = destination.getTeleportLocation().clone();
 								 

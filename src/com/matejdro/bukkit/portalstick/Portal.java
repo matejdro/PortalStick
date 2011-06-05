@@ -8,7 +8,10 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
+import com.matejdro.bukkit.portalstick.listeners.PortalStickBlockListener;
 import com.matejdro.bukkit.portalstick.util.BlockUtil;
+import com.matejdro.bukkit.portalstick.util.RegionSetting;
+import com.matejdro.bukkit.portalstick.util.Util;
 
 public class Portal {
 	private Location teleport;
@@ -19,6 +22,8 @@ public class Portal {
 	private Boolean orange = false;
 	private Boolean open = false;
 	private boolean disabled = false;
+	private boolean transmitter = false;
+	private boolean placetorch = false;
 	BlockFace teleportFace;
 	private HashSet<Location> awayBlocks = new HashSet<Location>();
 	private HashMap<Location, String> oldBlocks = new HashMap<Location, String>();
@@ -92,11 +97,41 @@ public class Portal {
 	
 	public void open()
 	{
+		Region region = RegionManager.getRegion(((Block)inside.toArray()[0]).getLocation());
+	
 		for (Block b: inside)
     	{
-			b.setType(Material.AIR);    		
+			b.setType(Material.AIR); 
+			
+			if (region.getBoolean(RegionSetting.ENABLE_REDSTONE_TRANSFER))
+			 {			 				 
+				 for (int i = 0; i < 4; i++)
+				 {
+					 BlockFace face = BlockFace.values()[i];
+					 if (b.getRelative(face).getBlockPower() > 0) 
+						 {						 
+						 	Portal destination = getDestination();
+						 	if (destination == null || destination.isTransmitter()) continue;
+						 
+						 		setTransmitter(true);
+						 		if (destination.isOpen())
+						 			((Block)destination.getInside().toArray()[0]).setType(Material.REDSTONE_TORCH_ON);
+						 		else
+						 			destination.setPlaceTorch(true);
+						 }
+				 }
+			 }
+
     	}
+		
+		if (placetorch)
+		{
+			((Block)inside.toArray()[0]).setType(Material.REDSTONE_TORCH_ON);
+			placetorch = false;
+		}
+		
 		open = true;
+		
 	}
 	
 	public void close()
@@ -259,6 +294,29 @@ public class Portal {
 	public void setDisabled(Boolean input)
 	{
 		disabled = input;
+	}
+	
+	public Boolean isTransmitter()
+	{
+		return transmitter;
+	}
+	
+	public void setTransmitter(Boolean input)
+	{
+		transmitter = input;
+	}
+	
+	public void setPlaceTorch(Boolean input)
+	{
+		placetorch = true;
+	}
+	public Portal getDestination()
+	{
+		if (isOrange())
+			return(owner.getBluePortal());
+		else
+			return(owner.getOrangePortal());
+
 	}
 
 }
