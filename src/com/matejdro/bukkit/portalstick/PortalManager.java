@@ -20,6 +20,7 @@ public class PortalManager {
 	public static HashSet<Portal> portals = new HashSet<Portal>();
 	//public static HashMap<Chunk, HashMap<Location, String>> oldportals = new HashMap<Chunk, HashMap<Location, String> >(); //Some preparation for unloaded chunk fix
 	public static HashMap<Location, Portal> borderBlocks = new HashMap<Location, Portal>();
+	public static HashMap<Location, Portal> behindBlocks = new HashMap<Location, Portal>();
 	public static HashMap<Location, Portal> insideBlocks = new HashMap<Location, Portal>();
 	public static HashMap<Location, Portal> awayBlocksGeneral = new HashMap<Location, Portal>();
 	public static HashMap<Location, Portal> awayBlocksX = new HashMap<Location, Portal>();
@@ -130,8 +131,9 @@ public class PortalManager {
 	    		portal.border.add(block.getRelative(1,0,1));
 	    		portal.border.add(block.getRelative(-1,0,-1));
 			}
+			
 	
-			portal.border.add(block.getRelative(1,0,0));
+			if (Config.FillPortalBack < 0 || !Config.CompactPortal) portal.border.add(block.getRelative(1,0,0));
 	
 			
 			portal.inside.add(block);
@@ -139,11 +141,14 @@ public class PortalManager {
 	    	if (face == BlockFace.DOWN)
 	    	{
 	    		portal.destLoc = block.getRelative(0,-1,0).getLocation();
+				portal.behind.add(block.getRelative(0,1,0));
 	    		portal.tpFace = BlockFace.DOWN;
 	    	}
 	    	else
 	    	{
 	    		portal.destLoc = block.getRelative(0,2,0).getLocation();
+				portal.behind.add(block.getRelative(0,-1,0));
+
 	    		portal.tpFace = BlockFace.UP;
 	    	}
 	    portal.vertical = true;		
@@ -183,13 +188,16 @@ public class PortalManager {
 	        	portal.border.add(block.getRelative(x*1,-2,z*1));
 	        	portal.border.add(block.getRelative(x*-1,-2,z*-1));
 	    	}
-	    	portal.border.add(block.getRelative(0,-2,0));
+	    	if (Config.FillPortalBack < 0 || !Config.CompactPortal) portal.border.add(block.getRelative(0,-2,0));
 	
 	    	portal.inside.add(block);
 	    	portal.inside.add(block.getRelative(0,-1,0));
 	    	
 	    	portal.destLoc = block.getRelative(z*1,-1,x*1).getLocation();
 	    	portal.vertical = false;
+	    	
+	    	portal.behind.add(block.getRelative(z*-1,-1,x*-1));
+	    	portal.behind.add(block.getRelative(z*-1,0,x*-1));
 	       	}
 	
 		return portal;
@@ -243,7 +251,7 @@ public class PortalManager {
 		portalc.destLoc.setZ(portalc.destLoc.getZ() + 0.5);
 	
 		
-		Portal portal = new Portal(portalc.destLoc, portalc.border, portalc.inside, owner, orange, vertical, portalc.tpFace);
+		Portal portal = new Portal(portalc.destLoc, portalc.border, portalc.inside, portalc.behind, owner, orange, vertical, portalc.tpFace);
 		
 		if (orange)
 		{

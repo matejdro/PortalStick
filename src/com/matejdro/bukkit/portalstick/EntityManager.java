@@ -96,7 +96,7 @@ public class EntityManager implements Runnable {
 	        }
 				
 			momentum = Math.abs(momentum);
-			momentum = momentum * regionTo.getDouble(RegionSetting.VELOCITY_MULTIPLIER) * 0.5;
+			momentum = momentum * regionTo.getDouble(RegionSetting.VELOCITY_MULTIPLIER);
 
 			//reposition velocity to match output portal's orientation
 			Vector outvector = entity.getVelocity().zero();

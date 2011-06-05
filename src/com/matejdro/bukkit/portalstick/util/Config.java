@@ -35,6 +35,7 @@ public class Config {
 	public static int RegionTool;
 	public static boolean RestoreInvOnWorldChange;
 	public static List<String> ColorPresets;
+	public static int FillPortalBack;
 	
 	public static String MessageCannotPlacePortal;
 	public static String MessageRestrictedWorld;
@@ -83,7 +84,9 @@ public class Config {
 			mainConfig.setProperty("main.restore-inventory-on-world-change", true);
 		if (mainConfig.getProperty("main.portal-color-presets") == null)
 			mainConfig.setProperty("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
-		
+		if (mainConfig.getProperty("main.fill-portal-back") == null)
+			mainConfig.setProperty("main.fill-portal-back", 1);
+
 		//Check messages
 		if (mainConfig.getProperty("messages.cannot-place-portal") == null)
 			mainConfig.setProperty("messages.cannot-place-portal", "&cCannot place a portal there!");
@@ -101,8 +104,8 @@ public class Config {
         CompactPortal = mainConfig.getBoolean("main.compact-portal", false);
         RegionTool = mainConfig.getInt("main.region-tool", 268);
         RestoreInvOnWorldChange = mainConfig.getBoolean("main.restore-inventory-on-world-change", true);
-        ColorPresets = mainConfig.getStringList("main.restore-inventory-on-world-change", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
-        
+        ColorPresets = mainConfig.getStringList("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
+        FillPortalBack = mainConfig.getInt("main.fill-portal-back", 1);
 		
 		//Load all current users
 		for (Player player : plugin.getServer().getOnlinePlayers())

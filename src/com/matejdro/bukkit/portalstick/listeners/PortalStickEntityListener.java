@@ -42,6 +42,7 @@ public class PortalStickEntityListener extends EntityListener {
 			{
 				Portal portal = PortalManager.borderBlocks.get(loc);
 				if (portal == null) portal = PortalManager.insideBlocks.get(loc);
+				if (portal == null) portal = PortalManager.behindBlocks.get(loc);
 				if (portal != null)
 				{
 					portal.delete();

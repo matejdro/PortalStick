@@ -42,9 +42,10 @@ public class PortalStickBlockListener extends BlockListener {
 		Location loc = event.getBlock().getLocation();
 			Portal portal = PortalManager.borderBlocks.get(loc);
 			if (portal == null) portal = PortalManager.insideBlocks.get(loc);
+			if (portal == null) portal = PortalManager.behindBlocks.get(loc);
 			if (portal != null)
 			{
-				if (type == Material.WOOL) portal.delete();
+				portal.delete();
 				event.setCancelled(true);
 			}
 		
@@ -93,6 +94,7 @@ public class PortalStickBlockListener extends BlockListener {
 		
 		Portal portal = PortalManager.borderBlocks.get(loc);
 		if (portal == null) portal = PortalManager.insideBlocks.get(loc);
+		if (portal == null) portal = PortalManager.behindBlocks.get(loc);
 		if (portal != null)
 		{
 			event.setCancelled(true);

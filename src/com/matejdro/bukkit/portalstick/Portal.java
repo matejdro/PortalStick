@@ -9,6 +9,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
 import com.matejdro.bukkit.portalstick.util.BlockUtil;
+import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
@@ -16,6 +17,7 @@ public class Portal {
 	private Location teleport;
 	private HashSet<Block> border;
 	private HashSet<Block> inside;
+	private HashSet<Block> behind;
 	private boolean vertical;
 	private User owner;
 	private Boolean orange = false;
@@ -33,7 +35,7 @@ public class Portal {
 		inside = new HashSet<Block>();
 	}
 	
-	public Portal(Location Teleport, HashSet<Block> Border, HashSet<Block> Inside, User Owner, Boolean Orange, Boolean Vertical, BlockFace Teleportface)
+	public Portal(Location Teleport, HashSet<Block> Border, HashSet<Block> Inside, HashSet<Block> Behind, User Owner, Boolean Orange, Boolean Vertical, BlockFace Teleportface)
 	{
 		teleport = Teleport;
 		border = Border;
@@ -42,6 +44,7 @@ public class Portal {
 		owner = Owner;
 		vertical = Vertical;
 		teleportFace = Teleportface;
+		behind = Behind;
 	}
 	
 	public void delete()
@@ -59,6 +62,15 @@ public class Portal {
 				if (oldBlocks.containsKey(b.getLocation()))
 					BlockUtil.setBlockData(b, oldBlocks.get(b.getLocation()));
 				PortalManager.insideBlocks.remove(b.getLocation());
+			}
+			if (Config.FillPortalBack > -1)
+			{
+				for (Block b: behind)
+				{
+					if (oldBlocks.containsKey(b.getLocation()))
+						BlockUtil.setBlockData(b, oldBlocks.get(b.getLocation()));
+					PortalManager.behindBlocks.remove(b.getLocation());
+				}
 			}
 			for (Location l : awayBlocks)
 			{
@@ -168,6 +180,14 @@ public class Portal {
 	    		b.setData(color);
 	    	}
 		}
+		
+		if (Config.CompactPortal)
+		{
+			for (Block b: behind)
+	    	{
+	    		b.setData(color);
+	    	}
+		}
 	}
 	
 	public void create()
@@ -189,7 +209,23 @@ public class Portal {
     	{
 			oldBlocks.put(b.getLocation(), BlockUtil.getBlockData(b));
     	}
-    	
+    	if (Config.FillPortalBack > -1)
+    	{
+    		for (Block b: behind)
+        	{
+        		oldBlocks.put(b.getLocation(), BlockUtil.getBlockData(b));
+        		if (Config.CompactPortal)
+        		{
+        			b.setType(Material.WOOL);
+            		b.setData(color);
+        		}
+        		else
+        		{
+        			b.setTypeId(Config.FillPortalBack);
+        		}
+        		PortalManager.behindBlocks.put(b.getLocation(), this);
+        	}
+    	}
     	if (orange)
     	{
     		if (owner.getBluePortal() == null)
@@ -291,6 +327,10 @@ public class Portal {
 		return inside;
 	}
 	
+	public HashSet<Block> getBehind()
+	{
+		return behind;
+	}
 	
 	public Boolean isOpen()
 	{

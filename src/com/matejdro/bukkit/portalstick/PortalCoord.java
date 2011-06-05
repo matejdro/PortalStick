@@ -9,6 +9,7 @@ import org.bukkit.block.BlockFace;
 public class PortalCoord {
 	public HashSet<Block> border;
 	public HashSet<Block> inside;
+	public HashSet<Block> behind;
 	public Location destLoc;
 	public BlockFace tpFace;
 	public Boolean finished;
@@ -18,6 +19,7 @@ public class PortalCoord {
 	{
 		border = new HashSet<Block>();
 		inside = new HashSet<Block>();
+		behind = new HashSet<Block>();
 		finished = false;
 	}
 }

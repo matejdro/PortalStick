@@ -136,6 +136,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		{
 			Portal portal = PortalManager.borderBlocks.get(event.getClickedBlock().getLocation());
 			if (portal == null) portal = PortalManager.insideBlocks.get(event.getClickedBlock().getLocation());
+			if (portal == null && Config.CompactPortal) portal = PortalManager.behindBlocks.get(event.getClickedBlock().getLocation());
 			if (portal == null) return;
 		
 			
@@ -230,7 +231,8 @@ public class PortalStickPlayerListener extends PlayerListener {
 		
 		}
 		
-
+		GelManager.useGel( player, locTo, vector);		
+		
 		//Teleport		
 		Boolean permission = UserManager.teleportPermissionCache.get(player);
 		if (permission == null)
@@ -240,14 +242,13 @@ public class PortalStickPlayerListener extends PlayerListener {
 		}
 		if (permission) 
 		{
-			Location out = EntityManager.teleport((Entity) player, locTo, vector);
+			Location out = EntityManager.teleport((Entity) player, locTo, vector.setY(player.getVelocity().getY()));
 			if (out != null) 
 			{
 				event.setTo(out);
 				return;
 			}
 		}
-		GelManager.useGel( player, locTo, vector);		
 	}
 		 
 	public void onPlayerDropItem(PlayerDropItemEvent event) {
