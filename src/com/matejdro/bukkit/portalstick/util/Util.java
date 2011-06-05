@@ -6,9 +6,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.CreatureType;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import com.matejdro.bukkit.portalstick.PortalStick;
@@ -110,18 +107,7 @@ public class Util {
                 1
         );
     }
-    
-    public static CreatureType creatureTypeFromEntity(Entity entity) {
-        if ( ! (entity instanceof Creature)) {
-            return null;
-        }
-
-        String name = entity.getClass().getSimpleName();
-        name = name.substring(5); // Remove "Craft"
-
-        return CreatureType.fromName(name);
-    }
-        
+           
     private enum CustomColor {
     	
     	RED("c", 0xC),

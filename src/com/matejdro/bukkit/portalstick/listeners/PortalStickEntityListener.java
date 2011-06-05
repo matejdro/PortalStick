@@ -1,11 +1,8 @@
 package com.matejdro.bukkit.portalstick.listeners;
 
-import java.util.HashMap;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -38,7 +35,6 @@ public class PortalStickEntityListener extends EntityListener {
 	public void onEntityExplode(EntityExplodeEvent event) {
 		
 		Region region = RegionManager.getRegion(event.getLocation());
-		final HashMap<Location, BlockState> explosionRestore = new HashMap<Location, BlockState>();
 		for (Block block : event.blockList().toArray(new Block[0])) {
 			Location loc = block.getLocation();
 
