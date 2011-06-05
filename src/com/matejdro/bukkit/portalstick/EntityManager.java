@@ -1,20 +1,21 @@
 package com.matejdro.bukkit.portalstick;
 
 import net.minecraft.server.EntityFallingSand;
+import net.minecraft.server.WorldServer;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.entity.CraftFallingSand;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Boat;
-import org.bukkit.entity.Creature;
-import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingSand;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.util.Vector;
 
@@ -41,7 +42,7 @@ public class EntityManager implements Runnable {
 			if (portal == null && (Math.abs(vector.getY()) > 1)) portal = PortalManager.awayBlocksY.get(LocTo);
 			if (portal == null && (Math.abs(vector.getZ()) > 0.5)) portal = PortalManager.awayBlocksZ.get(LocTo);
 		}
-		if (portal == null && entity instanceof FallingSand) portal = PortalManager.awayBlocksY.get(LocTo);
+		if (portal == null && (entity instanceof FallingSand || entity instanceof TNTPrimed)) portal = PortalManager.awayBlocksY.get(LocTo);
 		
 		if (portal != null)
 		{
@@ -157,8 +158,6 @@ public class EntityManager implements Runnable {
 			teleport.setPitch(pitch);
 			teleport.setYaw(yaw);
 			
-			Util.info(momentum.toString());
-
 			if (entity instanceof Arrow)
 			{
 				teleport.setY(teleport.getY() + 1);
@@ -167,31 +166,35 @@ public class EntityManager implements Runnable {
 			}
 			else if (entity instanceof FallingSand)
 			{
+				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
+				
 				EntityFallingSand sand = (EntityFallingSand) ((CraftFallingSand) entity).getHandle() ;
+				EntityFallingSand newsand = new EntityFallingSand(world, teleport.getX(), teleport.getY(), teleport.getZ(), sand.a);
 				
 				Material db = teleport.getBlock().getType();
+				
 				if (db == Material.AIR || db == Material.WATER || db == Material.STATIONARY_WATER || db == Material.LAVA || db == Material.STATIONARY_LAVA)
 				{
-					teleport.getBlock().setTypeId(sand.a);	
 					entity.remove();
+					
+					world.addEntity((net.minecraft.server.Entity) newsand);	
+					newsand.getBukkitEntity().setVelocity(outvector);
 				}
 				
 			}
-			else if (entity instanceof Creature)
-			{
-				Creature creature = (Creature) entity;
-				CreatureType type = Util.creatureTypeFromEntity(entity);
-				
-				LivingEntity mob = teleport.getWorld().spawnCreature(teleport, type);
-				mob.setHealth(creature.getHealth());
-				mob.setFireTicks(creature.getFireTicks());
-				mob.setRemainingAir(creature.getRemainingAir());
-				
-				creature.remove();
-			}
 			else
 			{
+				World oldworld = entity.getWorld();
+				
 				entity.teleport(teleport);
+				
+				if (oldworld != teleport.getWorld())
+				{
+					net.minecraft.server.Entity bentity = ((CraftEntity) entity).getHandle();
+					WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
+					world.addEntity(bentity);
+				}
+				
 				entity.setVelocity(outvector);
 			}
 		 

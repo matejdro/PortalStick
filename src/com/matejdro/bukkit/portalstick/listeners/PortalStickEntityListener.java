@@ -1,8 +1,11 @@
 package com.matejdro.bukkit.portalstick.listeners;
 
+import java.util.HashMap;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -35,7 +38,7 @@ public class PortalStickEntityListener extends EntityListener {
 	public void onEntityExplode(EntityExplodeEvent event) {
 		
 		Region region = RegionManager.getRegion(event.getLocation());
-		
+		final HashMap<Location, BlockState> explosionRestore = new HashMap<Location, BlockState>();
 		for (Block block : event.blockList().toArray(new Block[0])) {
 			Location loc = block.getLocation();
 
@@ -46,7 +49,7 @@ public class PortalStickEntityListener extends EntityListener {
 				if (portal != null)
 				{
 					portal.delete();
-					event.setCancelled(true);
+					if (region.getBoolean(RegionSetting.PREVENT_TNT_NEAR_PORTALS)) event.setCancelled(true);
 					return;
 				}
 			}
