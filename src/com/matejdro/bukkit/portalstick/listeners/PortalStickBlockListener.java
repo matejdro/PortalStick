@@ -78,8 +78,9 @@ public class PortalStickBlockListener extends BlockListener {
 					 	Portal destination = portal.getDestination();
 					 	if (destination == null || destination.isTransmitter()) continue;
 					 	
+				 		for (Block b: destination.getInside())
+				 			b.setType(Material.AIR);
 				 		portal.setTransmitter(false);
-					 	((Block)destination.getInside().toArray()[0]).setType(Material.AIR);
 					 }
 			 }
 		}
@@ -214,12 +215,15 @@ public class PortalStickBlockListener extends BlockListener {
 					 	if (event.getNewCurrent() > 0)
 					 	{
 					 		portal.setTransmitter(true);
-					 		((Block)destination.getInside().toArray()[0]).setType(Material.REDSTONE_TORCH_ON);
+					 		for (Block b: destination.getInside())
+					 			b.setType(Material.REDSTONE_TORCH_ON);
+
 					 	}
 					 	else
 					 	{
+					 		for (Block b: destination.getInside())
+					 			b.setType(Material.AIR);
 					 		portal.setTransmitter(false);
-					 		((Block)destination.getInside().toArray()[0]).setType(Material.AIR);
 					 	}
 					 }
 			 }

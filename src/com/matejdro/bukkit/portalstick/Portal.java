@@ -126,7 +126,9 @@ public class Portal {
 						 
 						 		setTransmitter(true);
 						 		if (destination.isOpen())
-						 			((Block)destination.getInside().toArray()[0]).setType(Material.REDSTONE_TORCH_ON);
+							 		for (Block b2: destination.getInside())
+							 			b2.setType(Material.REDSTONE_TORCH_ON);
+
 						 		else
 						 			destination.setPlaceTorch(true);
 						 }

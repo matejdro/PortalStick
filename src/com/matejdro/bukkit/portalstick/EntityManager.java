@@ -6,6 +6,7 @@ import net.minecraft.server.WorldServer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftEntity;
@@ -47,7 +48,23 @@ public class EntityManager implements Runnable {
 		{
 			if (!portal.isOpen() || portal.isDisabled()) return null;
 			if (Math.abs(vector.getY()) > 1 && !portal.isVertical()) return null;
-				 
+			
+			for (Block b : portal.getInside())
+			{
+				if (!portal.isVertical())
+				{
+					if (b.getX() < entity.getLocation().getX() && vector.getX() > 0) return null;
+					else if (b.getX() > entity.getLocation().getX() && vector.getX() < 0) return null;
+					else if (b.getZ() < entity.getLocation().getZ() && vector.getZ() > 0) return null;
+					else if (b.getZ() > entity.getLocation().getZ() && vector.getZ() < 0) return null;
+				}
+				else
+				{
+					if (b.getY() < entity.getLocation().getY() && vector.getY() > 0) return null;
+				}
+				
+			}
+			
 			Location teleport;
 			Portal destination = portal.getDestination();
 				 				 
@@ -193,8 +210,9 @@ public class EntityManager implements Runnable {
 			}
 		 
 				 
-			destination.setDisabled(true);
-			PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new enablePortal(destination), 10L);
+			
+			//destination.setDisabled(true);
+			//PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new enablePortal(destination), 20L);
 		
 			return teleport;
 		}
