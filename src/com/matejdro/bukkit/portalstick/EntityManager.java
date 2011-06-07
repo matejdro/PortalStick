@@ -1,6 +1,10 @@
 package com.matejdro.bukkit.portalstick;
 
+import java.util.HashSet;
+import java.util.List;
+
 import net.minecraft.server.EntityFallingSand;
+import net.minecraft.server.EntityItem;
 import net.minecraft.server.WorldServer;
 
 import org.bukkit.Location;
@@ -11,10 +15,13 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.entity.CraftFallingSand;
+import org.bukkit.craftbukkit.entity.CraftItem;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingSand;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Vehicle;
@@ -25,6 +32,8 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 public class EntityManager implements Runnable {
 	private PortalStick plugin;
+	private HashSet<World> processingWorlds = new HashSet<World>();
+	private HashSet<Entity> processingEntities = new HashSet<Entity>();
 
 	public EntityManager(PortalStick instance)
 	{
@@ -53,10 +62,10 @@ public class EntityManager implements Runnable {
 			{
 				if (!portal.isVertical())
 				{
-					if (b.getX() < entity.getLocation().getX() && vector.getX() > 0) return null;
-					else if (b.getX() > entity.getLocation().getX() && vector.getX() < 0) return null;
-					else if (b.getZ() < entity.getLocation().getZ() && vector.getZ() > 0) return null;
-					else if (b.getZ() > entity.getLocation().getZ() && vector.getZ() < 0) return null;
+					if (b.getX() + 0.5 < entity.getLocation().getX() && vector.getX() > 0) return null;
+					else if (b.getX() - 0.5 > entity.getLocation().getX() && vector.getX() < 0) return null;
+					else if (b.getZ() + 0.5 < entity.getLocation().getZ() && vector.getZ() > 0) return null;
+					else if (b.getZ() - 0.5 > entity.getLocation().getZ() && vector.getZ() < 0) return null;
 				}
 				else
 				{
@@ -193,6 +202,18 @@ public class EntityManager implements Runnable {
 				}
 				
 			}
+			else if (entity instanceof Item)
+			{
+				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
+				
+				net.minecraft.server.EntityItem item = (net.minecraft.server.EntityItem) ((CraftItem) entity).getHandle();
+				EntityItem newitem = new EntityItem(world, teleport.getX(), teleport.getY(), teleport.getZ(), item.itemStack);
+				
+				entity.remove();
+					
+				world.addEntity((net.minecraft.server.Entity) newitem);	
+				newitem.getBukkitEntity().setVelocity(outvector);
+			}
 			else
 			{
 				World oldworld = entity.getWorld();
@@ -223,19 +244,28 @@ public class EntityManager implements Runnable {
 	public void run() {
 		for (World w : plugin.getServer().getWorlds())
 		{
-			if (Config.DisabledWorlds.contains(w.getName())) return;
-			for (Entity e : w.getEntities())
-			{
-				if (e instanceof Player || e instanceof Vehicle) continue;
-				Location LocTo = e.getLocation();
-				LocTo = new Location(LocTo.getWorld(), LocTo.getBlockX(), LocTo.getBlockY(), LocTo.getBlockZ());
+			if (Config.DisabledWorlds.contains(w.getName()) || processingWorlds.contains(w)) return;
+			final List<Entity> entities = w.getEntities();
+			final World world = w;
+			Thread checkworld = new Thread() {
+				public void run() {
+					for (Entity e : entities)
+					{
+						if (e instanceof Player || e instanceof Vehicle) continue;
+						Location LocTo = e.getLocation();
+						LocTo = new Location(LocTo.getWorld(), LocTo.getBlockX(), LocTo.getBlockY(), LocTo.getBlockZ());
 
-				//Util.info(e.toString());
+						//Util.info(e.toString());
 
-				Vector vector = e.getVelocity();
-								
-				teleport(e, LocTo, vector);
-			}
+						Vector vector = e.getVelocity();
+										
+						teleport(e, LocTo, vector);
+					}
+					processingWorlds.remove(world);
+				}
+			};
+			processingWorlds.add(world);
+			checkworld.start();
 		}
 	    		
 	}

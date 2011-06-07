@@ -89,7 +89,7 @@ public class PortalStick extends JavaPlugin {
 		//Start grill checking timer
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, grillManager, 400, 400);
 		
-		//Teleport all entities - uncompleted.
+		//Teleport all entities.
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new EntityManager(this), 2, 2);
 		
 		//Register commands
