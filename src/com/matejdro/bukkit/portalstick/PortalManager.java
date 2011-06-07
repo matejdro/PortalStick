@@ -43,7 +43,7 @@ public class PortalManager {
 					user.revertInventory(player);
 				else {
 					user.saveInventory(player);
-					setPortalInventory(player);
+					setPortalInventory(player, regionTo);
 				}
 			}
 			
@@ -312,14 +312,37 @@ public class PortalManager {
 	
 	 }
 
-	public static void setPortalInventory(Player player)
+	public static void setPortalInventory(Player player, Region region)
 	{
 		PlayerInventory inv = player.getInventory();
-		inv.clear();
-		inv.clear(inv.getSize() + 1);
-		inv.clear(inv.getSize() + 2);
-		inv.clear(inv.getSize() + 3);
-		inv.setItemInHand(new ItemStack(Config.PortalTool, 1));
+		for (int i = 0; i < 40; i++)
+		{
+			
+			ItemStack item = inv.getItem(i);
+			if (item == null || item.getTypeId() == 0) continue;
+			
+			Boolean keep = false;
+			for (Object is : region.getList(RegionSetting.GRILL_INVENTORY_CLEAR_EXCEPTIONS))
+			{
+				ItemStack itemcheck = Util.getItemData((String) is);
+				if (item.getTypeId() == itemcheck.getTypeId())
+				{
+					keep = true;
+					break;
+				}
+			}
+			if (!keep) inv.clear(i);
+		}
+		
+		
+		for (Object is : region.getList(RegionSetting.UNIQUE_INVENTORY_ITEMS))
+		{
+			ItemStack item = Util.getItemData((String) is);
+			if (item.getTypeId() == Config.PortalTool)
+				inv.setItemInHand(item);
+			else
+				inv.addItem(item);
+		}
 	}
 
 }

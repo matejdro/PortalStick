@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
@@ -118,6 +119,27 @@ public class Util {
     {
     	String p = Config.ColorPresets.get(preset);
     	return Integer.parseInt(p.split("-")[1]);
+    }
+    
+    public static ItemStack getItemData(String itemString)
+    {
+    	int num;
+    	int id;
+    	short data;
+    	
+    	String[] split = itemString.split(",");
+    	if (split.length < 2)
+    		num = 1;
+    	else
+    		num = Integer.parseInt(split[1]);
+    	String[] split2 = split[0].split(":");
+    	if (split2.length < 2)
+    		data = 0;
+    	else
+    		data = Short.parseShort(split2[1]);
+
+    	id = Integer.parseInt(split2[0]);
+    	return new ItemStack(id, num, data);
     }
 
            

@@ -176,7 +176,7 @@ public class GrillManager implements Runnable {
 		PortalManager.deletePortals(user);
 		
 		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_INVENTORY) && !user.getUsingTool())
-			PortalManager.setPortalInventory(player);
+			PortalManager.setPortalInventory(player, region);
 		
 		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS)) {
 			UserManager.deleteDroppedItems(player);
