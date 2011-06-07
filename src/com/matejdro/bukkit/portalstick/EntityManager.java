@@ -16,7 +16,6 @@ import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.entity.CraftFallingSand;
 import org.bukkit.craftbukkit.entity.CraftItem;
-import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
@@ -33,7 +32,6 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 public class EntityManager implements Runnable {
 	private PortalStick plugin;
 	private HashSet<World> processingWorlds = new HashSet<World>();
-	private HashSet<Entity> processingEntities = new HashSet<Entity>();
 
 	public EntityManager(PortalStick instance)
 	{
