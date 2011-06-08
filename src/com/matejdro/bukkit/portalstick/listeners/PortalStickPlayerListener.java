@@ -96,6 +96,12 @@ public class PortalStickPlayerListener extends PlayerListener {
 							Util.sendMessage(player, Config.MessageCannotPlacePortal);
 							return;
 					}
+					else if (b.getType() == Material.TRAP_DOOR && (b.getData() & 4) == 0)
+					{
+						Util.sendMessage(player, Config.MessageCannotPlacePortal);
+						return;
+
+					}
 				}
 			}
 			
