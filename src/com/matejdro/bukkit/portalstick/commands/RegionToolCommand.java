@@ -27,7 +27,7 @@ public class RegionToolCommand extends BaseCommand {
 			user.setUsingTool(true);
 			Util.sendMessage(sender, "&aPortal region tool enabled.`n- Left click to set position one`n- Right click to set position two");
 			if (!player.getInventory().contains(Config.RegionTool))
-					player.getInventory().addItem(new ItemStack(Config.RegionTool));
+					player.getInventory().addItem(new ItemStack(Config.RegionTool, 1));
 		}
 		return true;
 	}
