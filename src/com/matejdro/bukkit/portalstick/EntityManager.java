@@ -3,6 +3,7 @@ package com.matejdro.bukkit.portalstick;
 import java.util.HashSet;
 import java.util.List;
 
+import net.minecraft.server.EntityArrow;
 import net.minecraft.server.EntityFallingSand;
 import net.minecraft.server.EntityItem;
 import net.minecraft.server.WorldServer;
@@ -50,7 +51,6 @@ public class EntityManager implements Runnable {
 			if (portal == null && (Math.abs(vector.getZ()) > 0.5)) portal = PortalManager.awayBlocksZ.get(LocTo);
 		}
 		if (portal == null && (entity instanceof FallingSand || entity instanceof TNTPrimed)) portal = PortalManager.awayBlocksY.get(LocTo);
-		
 		if (portal != null)
 		{
 			if (!portal.isOpen() || portal.isDisabled()) return null;
@@ -67,11 +67,11 @@ public class EntityManager implements Runnable {
 				}
 				else
 				{
-					if (b.getY() < entity.getLocation().getY() && vector.getY() > 0) return null;
+					if (b.getY() + 0.5 < entity.getLocation().getY() && vector.getY() > 0) return null;
+					if (b.getY() - 0.5 > entity.getLocation().getY() && vector.getY() < -0.1) return null;
 				}
 				
 			}
-			
 			Location teleport;
 			Portal destination = portal.getDestination();
 				 				 
@@ -178,10 +178,10 @@ public class EntityManager implements Runnable {
 			
 			if (entity instanceof Arrow)
 			{
-				teleport.setY(teleport.getY() + 1);
+				teleport.setY(teleport.getY() + 0.5);
 				entity.remove();
 				teleport.getWorld().spawnArrow(teleport, outvector, (float) (momentum * 1.0f), 12.0f);
-			}
+			}			
 			else if (entity instanceof FallingSand)
 			{
 				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
@@ -230,8 +230,8 @@ public class EntityManager implements Runnable {
 		 
 				 
 			
-			//destination.setDisabled(true);
-			//PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new enablePortal(destination), 20L);
+			destination.setDisabled(true);
+			PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new enablePortal(destination), 10L);
 		
 			return teleport;
 		}
