@@ -21,6 +21,12 @@ public class User {
 	private Boolean usingTool = false;
 	private int colorPreset = 0;
 	private HashSet<Item> droppedItems = new HashSet<Item>();
+	public String name;
+	
+	public User(String Name)
+	{
+		name = Name;
+	}
 	
 	public Portal getBluePortal() {
 		return bluePortal;

@@ -144,6 +144,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 			if (portal == null) portal = PortalManager.insideBlocks.get(event.getClickedBlock().getLocation());
 			if (portal == null && Config.CompactPortal) portal = PortalManager.behindBlocks.get(event.getClickedBlock().getLocation());
 			if (portal == null) return;
+			if (portal.getOwner().name != player.getName()) return;
 		
 			
 			int preset = user.getColorPreset();
@@ -294,7 +295,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 	public void onPlayerJoin(PlayerJoinEvent event)
 	{
 		Player player = event.getPlayer();
-		User user = new User();
+		User user = new User(player.getName());
 		UserManager.createUser(player);
 		Region region = RegionManager.getRegion(player.getLocation());
 		if (!region.Name.equals("global") && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))

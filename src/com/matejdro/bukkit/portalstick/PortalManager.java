@@ -56,19 +56,19 @@ public class PortalManager {
 			p.delete();
 	}
 
-	private static Boolean checkPortal(PortalCoord portal, Portal oldportal)
+	private static Boolean checkPortal(PortalCoord portal)
 	{
 		for (Block b: portal.border)
 		{
 			Region region = RegionManager.getRegion(b.getLocation());
-			if ((!oldportal.getInside().contains(b) && !oldportal.getBorder().contains(b)) && (region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(b.getTypeId()) || (!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(b.getTypeId()))))
+			if ((!borderBlocks.containsKey(b.getLocation()) && !insideBlocks.containsKey(b.getLocation()) && !behindBlocks.containsKey(b.getLocation())) && (region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(b.getTypeId()) || (!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(b.getTypeId()))))
 			{
 				return false;
 			}
 		}
 		for (Block b: portal.inside)
 		{
-			if (b.getTypeId() == 0 && !oldportal.getInside().contains(b) && !oldportal.getBorder().contains(b) )
+			if (b.getTypeId() == 0 && !borderBlocks.containsKey(b) && !insideBlocks.containsKey(b) && !behindBlocks.containsKey(b))
 			{
 				return false;
 			}
@@ -84,33 +84,33 @@ public class PortalManager {
 		if (user.getOrangePortal() != null) user.getOrangePortal().delete();
 	}
 
-	private static PortalCoord generateHorizontalPortal(Block block, BlockFace face, Portal oldportal)
+	private static PortalCoord generateHorizontalPortal(Block block, BlockFace face)
 	{
 		PortalCoord portal = generatePortal(block, face);
-		if (checkPortal(portal, oldportal)) return portal;
+		if (checkPortal(portal)) return portal;
 		
 		block = block.getRelative(0,0,0);
 		portal = generatePortal(block, face);
-		if (checkPortal(portal, oldportal)) return portal;
+		if (checkPortal(portal)) return portal;
 		
 		block = block.getRelative(0,1,0);
 		portal = generatePortal(block, face);
-		if (checkPortal(portal, oldportal)) return portal;
+		if (checkPortal(portal)) return portal;
 		
 		block = block.getRelative(0,-1,0);
 		portal = generatePortal(block, face);
-		if (checkPortal(portal, oldportal)) return portal;
+		if (checkPortal(portal)) return portal;
 		
 		block = block.getRelative(0,-2,0);
 		portal = generatePortal(block, face);
-		if (checkPortal(portal, oldportal)) return portal;
+		if (checkPortal(portal)) return portal;
 		
 		block = block.getRelative(0,2,0);
 		portal = generatePortal(block, face);
-		if (checkPortal(portal, oldportal)) return portal;
+		if (checkPortal(portal)) return portal;
 
 		
-		if (!checkPortal(portal, oldportal)) portal.finished = true;
+		if (!checkPortal(portal)) portal.finished = true;
 			return portal;
 		
 	}
@@ -219,32 +219,25 @@ public class PortalManager {
 		PortalCoord portalc = new PortalCoord();
 		
 		User owner = UserManager.getUser(player);
-		
-		Portal oldportal = orange ? owner.getOrangePortal() : owner.getBluePortal();
-		if (oldportal == null) oldportal = new Portal();
-		    	
+				    	
 		if (face == BlockFace.DOWN || face == BlockFace.UP)
 		{
 			vertical = true;
 			portalc = generatePortal(block, face);
-			if (!checkPortal(portalc, oldportal))
+			if (!checkPortal(portalc))
 			{
 				if (end) Util.sendMessage(player, Config.MessageCannotPlacePortal);
 				return false;
 			}
-			oldportal.delete();
-			portalc = generatePortal(block, face);
 		}
 		else
 		{
-			portalc = generateHorizontalPortal(block, face, oldportal);
+			portalc = generateHorizontalPortal(block, face);
 			if (portalc.finished)
 			{
 				if (end) Util.sendMessage(player, Config.MessageCannotPlacePortal);
 				return false;
 			}
-			oldportal.delete();
-			portalc = generateHorizontalPortal(block, face, oldportal);
 		}
 		
 		portalc.destLoc.setX(portalc.destLoc.getX() + 0.5);

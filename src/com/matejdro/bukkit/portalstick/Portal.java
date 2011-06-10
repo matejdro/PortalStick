@@ -91,12 +91,12 @@ public class Portal {
 			
 			if (orange)
 	    	{
-	    		if (owner.getBluePortal() != null)
+	    		if (owner.getBluePortal() != null && owner.getBluePortal().isOpen())
 	    			owner.getBluePortal().close();
 	    	}
 	    	else
 	    	{
-	    		if (owner.getOrangePortal() != null)
+	    		if (owner.getOrangePortal() != null && owner.getOrangePortal().isOpen())
 	    			owner.getOrangePortal().close();
 	
 	    	}
@@ -202,11 +202,18 @@ public class Portal {
 
     	for (Block b: border)
     	{
+    		if (PortalManager.borderBlocks.containsKey((b.getLocation())))
+    			PortalManager.borderBlocks.get(b.getLocation()).delete();
+    		if (PortalManager.insideBlocks.containsKey((b.getLocation())))
+    			PortalManager.insideBlocks.get(b.getLocation()).delete();
+    		if (PortalManager.behindBlocks.containsKey((b.getLocation())))
+    			PortalManager.behindBlocks.get(b.getLocation()).delete();
+    		
     		oldBlocks.put(b.getLocation(), BlockUtil.getBlockData(b));
     		b.setType(Material.WOOL);
     		b.setData(color);
     		PortalManager.borderBlocks.put(b.getLocation(), this);
-    	}
+       	}
     	for (Block b: inside)
     	{
 			oldBlocks.put(b.getLocation(), BlockUtil.getBlockData(b));
@@ -215,6 +222,13 @@ public class Portal {
     	{
     		for (Block b: behind)
         	{
+        		if (PortalManager.borderBlocks.containsKey((b.getLocation())))
+        			PortalManager.borderBlocks.get(b.getLocation()).delete();
+        		if (PortalManager.insideBlocks.containsKey((b.getLocation())))
+        			PortalManager.insideBlocks.get(b.getLocation()).delete();
+        		if (PortalManager.behindBlocks.containsKey((b.getLocation())))
+        			PortalManager.behindBlocks.get(b.getLocation()).delete();
+
         		oldBlocks.put(b.getLocation(), BlockUtil.getBlockData(b));
         		if (Config.CompactPortal)
         		{

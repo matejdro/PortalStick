@@ -18,7 +18,7 @@ public class UserManager {
 	}
 	
 	public static void createUser(Player player) {
-		users.put(player.getName(), new User());
+		users.put(player.getName(), new User(player.getName()));
 	}
 	
 	public static User getUser(Player player) {
