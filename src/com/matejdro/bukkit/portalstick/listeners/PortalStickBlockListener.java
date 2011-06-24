@@ -118,12 +118,10 @@ public class PortalStickBlockListener extends BlockListener {
 	 	 
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		if (event.getBlock().getType() != Material.SUGAR_CANE_BLOCK) return;
-		 
+		
 		Grill grill = GrillManager.insideBlocks.get(event.getBlock().getLocation());
 		if (grill == null ) return;
 		event.setCancelled(true);
-		return;
-
 	}
 	
 	 public void onBlockFromTo(BlockFromToEvent event) {

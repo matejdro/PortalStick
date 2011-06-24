@@ -62,9 +62,6 @@ public class PortalStick extends JavaPlugin {
 		vehicleListener = new PortalStickVehicleListener();
 		entityListener = new PortalStickEntityListener();
 		worldListener = new PortalStickWorldListener();
-		grillManager = new GrillManager(this);
-		config = new Config(this);
-		permissions = new Permission(this);
 		
 		//Register events
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Low, this);
@@ -83,7 +80,11 @@ public class PortalStick extends JavaPlugin {
 		getServer().getPluginManager().registerEvent(Event.Type.VEHICLE_MOVE, vehicleListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.REDSTONE_CHANGE, blockListener, Event.Priority.Monitor, this);
 		getServer().getPluginManager().registerEvent(Event.Type.CHUNK_UNLOAD, worldListener, Event.Priority.Low, this);
-
+		
+		grillManager = new GrillManager(this);
+		config = new Config(this);
+		permissions = new Permission(this);
+		
 		worldGuard = (WorldGuardPlugin) this.getServer().getPluginManager().getPlugin("WorldGuard");
 
 		//Start grill checking timer
