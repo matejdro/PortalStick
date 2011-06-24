@@ -39,6 +39,9 @@ public class Grill {
 		for (Block b: inside)
 		{
 			b.setType(Material.AIR);
+		}
+		for (Block b: inside)
+		{
 			GrillManager.insideBlocks.remove(b.getLocation());
 		}
 	}

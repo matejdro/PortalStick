@@ -3,7 +3,6 @@ package com.matejdro.bukkit.portalstick;
 import java.util.HashSet;
 import java.util.List;
 
-import net.minecraft.server.EntityArrow;
 import net.minecraft.server.EntityFallingSand;
 import net.minecraft.server.EntityItem;
 import net.minecraft.server.WorldServer;
