@@ -187,6 +187,8 @@ public class GrillManager implements Runnable {
 	@Override
 	public void run() {
 		for (Grill g : grills.toArray(new Grill[0])) {
+			if (!g.getFirstBlock().getWorld().isChunkLoaded(g.getFirstBlock().getChunk())) continue;
+
 			if (!g.create()) {
 				Block b = g.getFirstBlock();
 				g.delete();
