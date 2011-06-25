@@ -214,8 +214,8 @@ public class EntityManager implements Runnable {
 			else
 			{
 				World oldworld = entity.getWorld();
-				
-				entity.teleport(teleport);
+				if (!(entity instanceof Player || entity instanceof Vehicle))
+					entity.teleport(teleport);
 				
 				if (oldworld != teleport.getWorld())
 				{
