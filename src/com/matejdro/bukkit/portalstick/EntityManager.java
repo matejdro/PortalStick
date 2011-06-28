@@ -211,12 +211,17 @@ public class EntityManager implements Runnable {
 				world.addEntity((net.minecraft.server.Entity) newitem);	
 				newitem.getBukkitEntity().setVelocity(outvector);
 			}
-			else
+			else if (entity instanceof Player)
 			{
+				PortalManager.vectors.put(teleport, outvector);
+				entity.setVelocity(entity.getVelocity().zero());
+			} 
+			else
+			{	
 				World oldworld = entity.getWorld();
-				if (!(entity instanceof Player || entity instanceof Vehicle))
-					entity.teleport(teleport);
 				
+				entity.teleport(teleport);
+									
 				if (oldworld != teleport.getWorld())
 				{
 					net.minecraft.server.Entity bentity = ((CraftEntity) entity).getHandle();
@@ -226,9 +231,6 @@ public class EntityManager implements Runnable {
 				
 				entity.setVelocity(outvector);
 			}
-		 
-				 
-			
 			destination.setDisabled(true);
 			PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new enablePortal(destination), 10L);
 		

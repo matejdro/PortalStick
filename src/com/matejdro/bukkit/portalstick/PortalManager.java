@@ -9,6 +9,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Permission;
@@ -26,6 +27,7 @@ public class PortalManager {
 	public static HashMap<Location, Portal> awayBlocksX = new HashMap<Location, Portal>();
 	public static HashMap<Location, Portal> awayBlocksY = new HashMap<Location, Portal>();
 	public static HashMap<Location, Portal> awayBlocksZ = new HashMap<Location, Portal>();
+	public static HashMap<Location, Vector> vectors = new HashMap<Location, Vector>();
 
 	public static void checkPlayerMove(Player player, Region regionFrom, Region regionTo)
 	{
