@@ -32,6 +32,7 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 public class EntityManager implements Runnable {
 	private PortalStick plugin;
 	private HashSet<World> processingWorlds = new HashSet<World>();
+	private static HashSet<Entity> blockedEntities = new HashSet<Entity>();
 
 	public EntityManager(PortalStick instance)
 	{
@@ -40,6 +41,8 @@ public class EntityManager implements Runnable {
 
 	public static Location teleport(Entity entity, Location LocTo, Vector vector)
 	{
+		if (blockedEntities.contains(entity)) return null;
+		
 		Region regionTo = RegionManager.getRegion(LocTo);
 		Portal portal = PortalManager.insideBlocks.get(LocTo);
 		if (portal == null && ((Math.abs(vector.getX()) > 0.5 || (Math.abs(vector.getY()) > 1 || (Math.abs(vector.getZ()) > 0.5))) || entity instanceof Boat)) 
@@ -211,10 +214,25 @@ public class EntityManager implements Runnable {
 				world.addEntity((net.minecraft.server.Entity) newitem);	
 				newitem.getBukkitEntity().setVelocity(outvector);
 			}
-			else if (entity instanceof Player)
+			else if (entity instanceof Player || entity instanceof Vehicle)
 			{
-				PortalManager.vectors.put(teleport, outvector);
-				entity.setVelocity(entity.getVelocity().zero());
+				blockedEntities.add(entity);
+				final Location tploc = teleport;
+				final Vector outVector = outvector;
+				final Entity Entity = entity;
+				PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new Runnable() {
+
+				    public void run() {
+				        Entity.teleport(tploc);
+				        Entity.setVelocity(outVector);
+				        PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new Runnable() {
+
+						    public void run() {
+						    	blockedEntities.remove(Entity);
+						    }
+						}, 1L);
+				    }
+				}, 1L);
 			} 
 			else
 			{	

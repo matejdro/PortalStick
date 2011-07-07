@@ -249,12 +249,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		}
 		if (permission) 
 		{
-			Location out = EntityManager.teleport((Entity) player, locTo, vector.setY(player.getVelocity().getY()));
-			if (out != null) 
-			{
-				event.setTo(out);
-				return;
-			}
+			EntityManager.teleport((Entity) player, locTo, vector.setY(player.getVelocity().getY()));
 		}
 	}
 		 
@@ -275,14 +270,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		if (!Config.RestoreInvOnWorldChange && !event.getFrom().getWorld().getName().equalsIgnoreCase(event.getTo().getWorld().getName()))
 			return;
 		PortalManager.checkPlayerMove(event.getPlayer(), regionFrom, regionTo);
-		
-		Vector vector = PortalManager.vectors.get(event.getTo());
-		if (vector != null)
-		{
-			event.getPlayer().setVelocity(vector);
-			PortalManager.vectors.remove(event.getTo());
-		}			
-	}
+		}
 		 
 	public void onPlayerQuit(PlayerQuitEvent event)
 	{
