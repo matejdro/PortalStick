@@ -13,12 +13,15 @@ public class Grill {
 	private HashSet<Block> border;
 	private HashSet<Block> inside;
 	private Block firstBlock;
+	private Boolean disabled;
+	
 	
 	public Grill(HashSet<Block> Border, HashSet<Block> Inside, Block FirstBlock)
 	{
 		border = Border;
 		inside = Inside;
 		firstBlock = FirstBlock;
+		disabled = false;
 	}
 	
 	public void delete()
@@ -40,6 +43,24 @@ public class Grill {
 		{
 			b.setType(Material.AIR);
 			GrillManager.insideBlocks.remove(b.getLocation());
+		}
+	}
+	
+	public void disable()
+	{
+		for (Block b: inside)
+		{
+			b.setType(Material.AIR);
+			disabled = true;
+		}
+	}
+	
+	public void enable()
+	{
+		for (Block b: inside)
+		{
+			b.setType(Material.SUGAR_CANE_BLOCK);
+			disabled = false;
 		}
 	}
 		
@@ -77,7 +98,13 @@ public class Grill {
 	{
 		return inside;
 	}
+	
 	public Block getFirstBlock() {
 		return firstBlock;
+	}
+	
+	public Boolean isDisabled()
+	{
+		return disabled;
 	}
 }

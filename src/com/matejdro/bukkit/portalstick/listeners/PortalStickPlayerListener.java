@@ -188,7 +188,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		if (regionTo.getBoolean(RegionSetting.ENABLE_GRILLS))
 		{
 				Grill grill = GrillManager.insideBlocks.get(locTo);
-				if (grill != null)
+				if (grill != null && !grill.isDisabled())
 				{
 					GrillManager.emancipate(player);
 				}

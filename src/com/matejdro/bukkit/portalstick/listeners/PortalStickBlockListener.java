@@ -24,6 +24,7 @@ import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
+import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalStickBlockListener extends BlockListener {
 	
@@ -169,22 +170,23 @@ public class PortalStickBlockListener extends BlockListener {
 	 
 	 public void onBlockRedstoneChange(BlockRedstoneEvent event) {
 		 Block block = event.getBlock();
-		 Block dispenserb = null;
-		 
 		 Region region = RegionManager.getRegion(block.getLocation());
+		 
+		 //Infinite Dispensers
+		 Block poweredBlock = null;
 		 if (region.getBoolean(RegionSetting.INFINITE_DISPENSERS) && event.getNewCurrent() > 0)
 		 { 
 			 for (int i = 0; i < 5; i++)
 			 {
 				 if (block.getFace(BlockFace.values()[i]).getType() == Material.DISPENSER) 
 					 {
-					 	dispenserb = block.getFace(BlockFace.values()[i]);
+					 	poweredBlock = block.getFace(BlockFace.values()[i]);
 					 }
 			 }
 			 
-			 if (dispenserb != null )
+			 if (poweredBlock != null )
 			 {
-				 Dispenser dispenser = (Dispenser) dispenserb.getState();
+				 Dispenser dispenser = (Dispenser) poweredBlock.getState();
 				 ItemStack item = dispenser.getInventory().getItem(4);
 				 if (item != null && item.getType() != Material.AIR)
 				 {
@@ -193,6 +195,8 @@ public class PortalStickBlockListener extends BlockListener {
 				 }
 			 }
 		 }
+		 
+		 //Redstone teleportation
 		 if (region.getBoolean(RegionSetting.ENABLE_REDSTONE_TRANSFER))
 		 {			 
 			 Location l = block.getLocation();
@@ -222,9 +226,31 @@ public class PortalStickBlockListener extends BlockListener {
 					 		portal.setTransmitter(false);
 					 	}
 					 }
+			 }	 
+		 }
+		 
+		 //Turning off grills
+		 if (region.getBoolean(RegionSetting.ENABLE_GRILL_REDSTONE_DISABLING)) 
+		 {
+			 
+			 Grill grill = null;
+			 for (int i = 0; i < 5; i++)
+			 {
+				 if (grill == null) 
+					 {
+					 	grill = GrillManager.borderBlocks.get(block.getFace(BlockFace.values()[i]).getLocation());
+					 	if (grill != null) break;
+					 }
 			 }
 			 
-			 
+			 if (grill != null )
+			 {
+				 
+				 if (event.getNewCurrent() > 0)
+					 grill.disable();
+			     else
+			    	 grill.enable();
+			 }
 		 }
 		 
 
