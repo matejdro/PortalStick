@@ -27,7 +27,9 @@ import org.bukkit.entity.Vehicle;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.Config;
+import com.matejdro.bukkit.portalstick.util.Config.Sound;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
+import com.matejdro.bukkit.portalstick.util.Util;
 
 public class EntityManager implements Runnable {
 	private PortalStick plugin;
@@ -252,6 +254,11 @@ public class EntityManager implements Runnable {
 			destination.setDisabled(true);
 			PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new enablePortal(destination), 10L);
 		
+			if (portal.isOrange())
+				Util.PlaySound(Sound.PORTAL_EXIT_ORANGE, entity instanceof Player ? (Player) entity : null, teleport);
+			else
+				Util.PlaySound(Sound.PORTAL_EXIT_BLUE, entity instanceof Player ? (Player) entity : null, teleport);
+
 			return teleport;
 		}
 		return null;

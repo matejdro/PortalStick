@@ -111,7 +111,7 @@ public class GelManager {
 			}
 			player.setVelocity(vector);
 						
-			Util.PlaySound(Sound.GEL_BLUE_LAUNCH, player, player.getLocation());
+			Util.PlaySound(Sound.GEL_BLUE_BOUNCE, player, player.getLocation());
 		return null;
 	}
 	

@@ -40,6 +40,7 @@ public class Config {
 	public static String MessageCannotPlacePortal;
 	
 	public static Boolean useBukkitContribSounds;
+	public static int soundRange;
 	public static String[] soundUrls = new String[Sound.values().length];
 	public static String[] soundNotes = new String[Sound.values().length];
 	
@@ -87,24 +88,25 @@ public class Config {
         
         //Load sound settings
         useBukkitContribSounds = getBoolean("sounds.use-bukkitcontrib-sounds", true);
+        soundRange = getInt("sounds.sound-range", 20);
         
         soundUrls[Sound.PORTAL_CREATE_BLUE.ordinal()] = getString("sounds.create-blue-portal-url", "");
         soundUrls[Sound.PORTAL_CREATE_ORANGE.ordinal()] = getString("sounds.create-orange-portal-url", "");
-        soundUrls[Sound.PORTAL_ENTER_BLUE.ordinal()] = getString("sounds.enter-blue-portal-url", "");
-        soundUrls[Sound.PORTAL_ENTER_ORANGE.ordinal()] = getString("sounds.enter-orange-portal-url", "");
+        soundUrls[Sound.PORTAL_EXIT_BLUE.ordinal()] = getString("sounds.exit-blue-portal-url", "");
+        soundUrls[Sound.PORTAL_EXIT_ORANGE.ordinal()] = getString("sounds.exit-orange-portal-url", "");
         soundUrls[Sound.PORTAL_CANNOT_CREATE.ordinal()] = getString("sounds.cannot-create-portal-url", "");
         soundUrls[Sound.GRILL_EMANCIPATE.ordinal()] = getString("sounds.grill-emancipate-url", "");
         soundUrls[Sound.FAITHPLATE_LAUNCH.ordinal()] = getString("sounds.faith-plate-launch-url", "");
-        soundUrls[Sound.GEL_BLUE_LAUNCH.ordinal()] = getString("sounds.blue-gel-bounce-url", "");
+        soundUrls[Sound.GEL_BLUE_BOUNCE.ordinal()] = getString("sounds.blue-gel-bounce-url", "");
 
         soundNotes[Sound.PORTAL_CREATE_BLUE.ordinal()] = getString("sounds.create-blue-portal-note", "");
         soundNotes[Sound.PORTAL_CREATE_ORANGE.ordinal()] = getString("sounds.create-orange-portal-note", "");
-        soundNotes[Sound.PORTAL_ENTER_BLUE.ordinal()] = getString("sounds.enter-blue-portal-note", "");
-        soundNotes[Sound.PORTAL_ENTER_ORANGE.ordinal()] = getString("sounds.enter-orange-portal-note", "");
+        soundNotes[Sound.PORTAL_EXIT_BLUE.ordinal()] = getString("sounds.exit-blue-portal-note", "");
+        soundNotes[Sound.PORTAL_EXIT_ORANGE.ordinal()] = getString("sounds.exit-orange-portal-note", "");
         soundNotes[Sound.PORTAL_CANNOT_CREATE.ordinal()] = getString("sounds.cannot-create-portal-note", "");
         soundNotes[Sound.GRILL_EMANCIPATE.ordinal()] = getString("sounds.grill-emancipate-note", "");
         soundNotes[Sound.FAITHPLATE_LAUNCH.ordinal()] = getString("sounds.faith-plate-launch-note", "4-5");
-        soundNotes[Sound.GEL_BLUE_LAUNCH.ordinal()] = getString("sounds.blue-gel-bounce-note", "4-5");
+        soundNotes[Sound.GEL_BLUE_BOUNCE.ordinal()] = getString("sounds.blue-gel-bounce-note", "4-5");
 
 		//Load all current users
 		for (Player player : plugin.getServer().getOnlinePlayers())
@@ -234,12 +236,12 @@ public class Config {
 	public static enum Sound {
 		PORTAL_CREATE_BLUE,
 		PORTAL_CREATE_ORANGE,
-		PORTAL_ENTER_BLUE,
-		PORTAL_ENTER_ORANGE,
+		PORTAL_EXIT_BLUE,
+		PORTAL_EXIT_ORANGE,
 		PORTAL_CANNOT_CREATE,
 		GRILL_EMANCIPATE,
 		FAITHPLATE_LAUNCH,
-		GEL_BLUE_LAUNCH
+		GEL_BLUE_BOUNCE
 	}
 	
 }

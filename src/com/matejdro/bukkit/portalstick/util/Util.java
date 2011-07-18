@@ -91,7 +91,7 @@ public class Util {
     	return str;
     }
     
-    public static void PlayNote(final Player player, final int instrument, final int note)
+    public static void PlayNote(final Player player, final byte instrument, final byte note)
     {
     	final Block block = player.getLocation().getBlock().getRelative(0,-5,0);
         final Byte data = block.getData();
@@ -105,7 +105,7 @@ public class Util {
         		PortalStick.instance,
                 new Runnable(){
                     public void run(){
-                        player.playNote(block.getLocation(), (byte) instrument, (byte) note);
+                        player.playNote(block.getLocation(), instrument, note);
                         player.sendBlockChange(block.getLocation(), material, data);
                     }
                 },
@@ -117,23 +117,21 @@ public class Util {
     {
     	if (!RegionManager.getRegion(loc).getBoolean(RegionSetting.ENABLE_SOUNDS)) return;
         Plugin contribPlugin = PortalStick.instance.getServer().getPluginManager().getPlugin("BukkitContrib");
-        if (contribPlugin == null || !Config.useBukkitContribSounds || !((BukkitContrib) contribPlugin).getPlayerFromId(player.getEntityId()).isBukkitContribEnabled()) 
+        if (contribPlugin == null || !Config.useBukkitContribSounds || (player != null && !((BukkitContrib) contribPlugin).getPlayerFromId(player.getEntityId()).isBukkitContribEnabled())) 
         {
-        	if (!Config.soundNotes[sound.ordinal()].trim().equals(""))
+        	if (player != null && !Config.soundNotes[sound.ordinal()].trim().equals(""))
         	{
         		Byte instrument = Byte.parseByte(Config.soundNotes[sound.ordinal()].split("-")[0]);
         		Byte note = Byte.parseByte(Config.soundNotes[sound.ordinal()].split("-")[1]);
+        		PlayNote(player, instrument, note);
         	}
         }
-        else
+        if (contribPlugin != null && Config.useBukkitContribSounds)
         {
         	if (!Config.soundUrls[sound.ordinal()].trim().equals(""))
         	{
-        		BukkitContrib contrib = (BukkitContrib) contribPlugin;
-                
-                ContribPlayer cplayer = contrib.getPlayerFromId(player.getEntityId());
-                
-                contrib.getSoundManager().playCustomSoundEffect(PortalStick.instance, cplayer, Config.soundUrls[sound.ordinal()], false, loc);
+        		BukkitContrib contrib = (BukkitContrib) contribPlugin;                
+                contrib.getSoundManager().playGlobalCustomSoundEffect(PortalStick.instance, Config.soundUrls[sound.ordinal()], false, loc, Config.soundRange);
         	}
         }
         
