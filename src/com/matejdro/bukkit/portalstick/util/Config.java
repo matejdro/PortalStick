@@ -38,8 +38,11 @@ public class Config {
 	public static int FillPortalBack;
 	
 	public static String MessageCannotPlacePortal;
-	public static String MessageRestrictedWorld;
-
+	
+	public static Boolean useBukkitContribSounds;
+	public static String[] soundUrls = new String[Sound.values().length];
+	public static String[] soundNotes = new String[Sound.values().length];
+	
 	public Config (PortalStick instance) {
 		
 		plugin = instance;
@@ -68,45 +71,41 @@ public class Config {
 		mainConfig.load();
 		regionConfig.load();
 		grillConfig.load();
-		
-		//Check main settings
-		if (mainConfig.getProperty("main.disabled-worlds") == null)
-			mainConfig.setProperty("main.disabled-worlds", "");
-		if (mainConfig.getProperty("main.compact-portal") == null)
-			mainConfig.setProperty("main.compact-portal", false);
-		if (mainConfig.getProperty("main.delete-on-quit") == null)
-			mainConfig.setProperty("main.delete-on-quit", false);
-		if (mainConfig.getProperty("main.portal-tool") == null)
-			mainConfig.setProperty("main.portal-tool", 280);
-		if (mainConfig.getProperty("main.region-tool") == null)
-			mainConfig.setProperty("main.region-tool", 268);
-		if (mainConfig.getProperty("main.restore-inventory-on-world-change") == null)
-			mainConfig.setProperty("main.restore-inventory-on-world-change", true);
-		if (mainConfig.getProperty("main.portal-color-presets") == null)
-			mainConfig.setProperty("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
-		if (mainConfig.getProperty("main.fill-portal-back") == null)
-			mainConfig.setProperty("main.fill-portal-back", -1);
-
-		//Check messages
-		if (mainConfig.getProperty("messages.cannot-place-portal") == null)
-			mainConfig.setProperty("messages.cannot-place-portal", "&cCannot place a portal there!");
-		if (mainConfig.getProperty("messages.restricted-world") == null)
-			mainConfig.setProperty("messages.restricted-world", "&cYou cannot do that in this world!");
 
 		//Load messages
-		MessageCannotPlacePortal = mainConfig.getString("messages.cannot-place-portal");
-		MessageRestrictedWorld = mainConfig.getString("messages.restricted-world");
+		MessageCannotPlacePortal = getString("messages.cannot-place-portal", "&cCannot place a portal there!");
         
         //Load main settings
-        DisabledWorlds = new HashSet<String>(mainConfig.getStringList("main.disabled-worlds", null));
-        DeleteOnQuit = mainConfig.getBoolean("main.delete-on-quit", false);
-        PortalTool = mainConfig.getInt("main.portal-tool", 280);
-        CompactPortal = mainConfig.getBoolean("main.compact-portal", false);
-        RegionTool = mainConfig.getInt("main.region-tool", 268);
-        RestoreInvOnWorldChange = mainConfig.getBoolean("main.restore-inventory-on-world-change", true);
-        ColorPresets = mainConfig.getStringList("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
-        FillPortalBack = mainConfig.getInt("main.fill-portal-back", -1);
-		
+        DisabledWorlds = new HashSet<String>(getStringList("main.disabled-worlds", new ArrayList<String>()));
+        DeleteOnQuit = getBoolean("main.delete-on-quit", false);
+        PortalTool = getInt("main.portal-tool", 280);
+        CompactPortal = getBoolean("main.compact-portal", false);
+        RegionTool = getInt("main.region-tool", 268);
+        RestoreInvOnWorldChange = getBoolean("main.restore-inventory-on-world-change", true);
+        ColorPresets = getStringList("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
+        FillPortalBack = getInt("main.fill-portal-back", -1);
+        
+        //Load sound settings
+        useBukkitContribSounds = getBoolean("sounds.use-bukkitcontrib-sounds", true);
+        
+        soundUrls[Sound.PORTAL_CREATE_BLUE.ordinal()] = getString("sounds.create-blue-portal-url", "");
+        soundUrls[Sound.PORTAL_CREATE_ORANGE.ordinal()] = getString("sounds.create-orange-portal-url", "");
+        soundUrls[Sound.PORTAL_ENTER_BLUE.ordinal()] = getString("sounds.enter-blue-portal-url", "");
+        soundUrls[Sound.PORTAL_ENTER_ORANGE.ordinal()] = getString("sounds.enter-orange-portal-url", "");
+        soundUrls[Sound.PORTAL_CANNOT_CREATE.ordinal()] = getString("sounds.cannot-create-portal-url", "");
+        soundUrls[Sound.GRILL_EMANCIPATE.ordinal()] = getString("sounds.grill-emancipate-url", "");
+        soundUrls[Sound.FAITHPLATE_LAUNCH.ordinal()] = getString("sounds.faith-plate-launch-url", "");
+        soundUrls[Sound.GEL_BLUE_LAUNCH.ordinal()] = getString("sounds.blue-gel-bounce-url", "");
+
+        soundNotes[Sound.PORTAL_CREATE_BLUE.ordinal()] = getString("sounds.create-blue-portal-note", "");
+        soundNotes[Sound.PORTAL_CREATE_ORANGE.ordinal()] = getString("sounds.create-orange-portal-note", "");
+        soundNotes[Sound.PORTAL_ENTER_BLUE.ordinal()] = getString("sounds.enter-blue-portal-note", "");
+        soundNotes[Sound.PORTAL_ENTER_ORANGE.ordinal()] = getString("sounds.enter-orange-portal-note", "");
+        soundNotes[Sound.PORTAL_CANNOT_CREATE.ordinal()] = getString("sounds.cannot-create-portal-note", "");
+        soundNotes[Sound.GRILL_EMANCIPATE.ordinal()] = getString("sounds.grill-emancipate-note", "");
+        soundNotes[Sound.FAITHPLATE_LAUNCH.ordinal()] = getString("sounds.faith-plate-launch-note", "4-5");
+        soundNotes[Sound.GEL_BLUE_LAUNCH.ordinal()] = getString("sounds.blue-gel-bounce-note", "4-5");
+
 		//Load all current users
 		for (Player player : plugin.getServer().getOnlinePlayers())
 			UserManager.createUser(player);
@@ -125,6 +124,38 @@ public class Config {
         
         saveAll();
 		
+	}
+	
+	private static int getInt(String path, int def)
+	{
+		if (mainConfig.getProperty(path) == null)
+			mainConfig.setProperty(path, def);
+		
+		return mainConfig.getInt(path, def);
+	}
+	
+	private static String getString(String path, String def)
+	{
+		if (mainConfig.getProperty(path) == null)
+			mainConfig.setProperty(path, def);
+		
+		return mainConfig.getString(path, def);
+	}
+	
+	private static List<String> getStringList(String path, List<String> def)
+	{
+		if (mainConfig.getProperty(path) == null)
+			mainConfig.setProperty(path, def);
+		
+		return mainConfig.getStringList(path, def);
+	}
+	
+	private static Boolean getBoolean(String path, Boolean def)
+	{
+		if (mainConfig.getProperty(path) == null)
+			mainConfig.setProperty(path, def);
+		
+		return mainConfig.getBoolean(path, def);
 	}
 	
 	public static void reLoad() {
@@ -198,6 +229,17 @@ public class Config {
 		if (!mainConfig.save())
 			Util.severe("Error while writing to config.yml");
 			
+	}
+	
+	public static enum Sound {
+		PORTAL_CREATE_BLUE,
+		PORTAL_CREATE_ORANGE,
+		PORTAL_ENTER_BLUE,
+		PORTAL_ENTER_ORANGE,
+		PORTAL_CANNOT_CREATE,
+		GRILL_EMANCIPATE,
+		FAITHPLATE_LAUNCH,
+		GEL_BLUE_LAUNCH
 	}
 	
 }

@@ -178,9 +178,9 @@ public class PortalStickBlockListener extends BlockListener {
 		 { 
 			 for (int i = 0; i < 5; i++)
 			 {
-				 if (block.getFace(BlockFace.values()[i]).getType() == Material.DISPENSER) 
+				 if (block.getRelative(BlockFace.values()[i]).getType() == Material.DISPENSER) 
 					 {
-					 	poweredBlock = block.getFace(BlockFace.values()[i]);
+					 	poweredBlock = block.getRelative(BlockFace.values()[i]);
 					 }
 			 }
 			 
@@ -238,7 +238,7 @@ public class PortalStickBlockListener extends BlockListener {
 			 {
 				 if (grill == null) 
 					 {
-					 	grill = GrillManager.borderBlocks.get(block.getFace(BlockFace.values()[i]).getLocation());
+					 	grill = GrillManager.borderBlocks.get(block.getRelative(BlockFace.values()[i]).getLocation());
 					 	if (grill != null) break;
 					 }
 			 }

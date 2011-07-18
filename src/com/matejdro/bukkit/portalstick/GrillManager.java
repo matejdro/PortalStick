@@ -57,7 +57,6 @@ public class GrillManager implements Runnable {
     	if (!Permission.createGrill(player)) return false;
 		if (Config.DisabledWorlds.contains(player.getLocation().getWorld().getName()))
 		{
-			Util.sendMessage(player, Config.MessageRestrictedWorld);
 			return false;
 		}
 		if (GrillManager.placeRecursiveEmancipationGrill(block)) return true;
@@ -70,7 +69,7 @@ public class GrillManager implements Runnable {
     	String borderID = region.getString(RegionSetting.GRILL_MATERIAL);
     	if (!BlockUtil.compareBlockToString(initial, borderID)) return false;
     	if (!region.getBoolean(RegionSetting.ENABLE_GRILLS)) return false;
-    	
+
     	//Check if initial is already in a grill
     	for (Grill grill : grills)
     		if (grill.getBorder().contains(initial))
@@ -84,7 +83,7 @@ public class GrillManager implements Runnable {
     		startRecurse(initial, borderID, BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH, BlockFace.DOWN, BlockFace.EAST, BlockFace.WEST);
     	if (!complete)
     		return false;
-    	
+
     	//Create grill
     	Grill grill = new Grill(border, inside, initial);
     	grills.add(grill);
@@ -133,11 +132,11 @@ public class GrillManager implements Runnable {
     	    		for (BlockFace face : BlockFace.values()) {
     	    			if (face == iOne || face == iTwo || face == BlockFace.SELF || face == BlockFace.NORTH_EAST || face == BlockFace.NORTH_WEST || face == BlockFace.SOUTH_EAST || face == BlockFace.SOUTH_WEST)
     	    				continue;
-    	    			Block temp = block.getFace(face);
+    	    			Block temp = block.getRelative(face);
     	    			while (temp.getLocation().toVector().isInAABB(min, max)) {
     	    				if (BlockUtil.compareBlockToString(temp, borderID))
     	    					break;
-    	    				temp = temp.getFace(face);
+    	    				temp = temp.getRelative(face);
     	    			}
     	    			if (!BlockUtil.compareBlockToString(temp, borderID)) {
     	    				add = false;
@@ -162,10 +161,10 @@ public class GrillManager implements Runnable {
     	if (BlockUtil.compareBlockToString(block, id) && !border.contains(block)) {
     		border.add(block);
     		max++;
-    		recurse(initial, id, block.getFace(one), one, two, three, four);
-    		recurse(initial, id, block.getFace(two), one, two, three, four);
-    		recurse(initial, id, block.getFace(three), one, two, three, four);
-    		recurse(initial, id, block.getFace(four), one, two, three, four);
+    		recurse(initial, id, block.getRelative(one), one, two, three, four);
+    		recurse(initial, id, block.getRelative(two), one, two, three, four);
+    		recurse(initial, id, block.getRelative(three), one, two, three, four);
+    		recurse(initial, id, block.getRelative(four), one, two, three, four);
     	}
     }
 

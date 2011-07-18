@@ -36,6 +36,7 @@ import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
+import com.matejdro.bukkit.portalstick.util.Config.Sound;
 
 public class PortalStickPlayerListener extends PlayerListener {
 
@@ -66,7 +67,6 @@ public class PortalStickPlayerListener extends PlayerListener {
 			
 			if (Config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))
 			{
-				player.sendMessage(Config.MessageRestrictedWorld);
 				return;
 			}
 			
@@ -81,6 +81,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 						if (p.getInside().contains(b))
 						{
 							Util.sendMessage(player, Config.MessageCannotPlacePortal);
+							Util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, b.getLocation());
 							return;
 						}
 					}
@@ -94,11 +95,13 @@ public class PortalStickPlayerListener extends PlayerListener {
 					if ((b.getType() == Material.IRON_DOOR_BLOCK || b.getType() == Material.WOODEN_DOOR) && ((b.getData() & 4) != 4) )
 					{
 							Util.sendMessage(player, Config.MessageCannotPlacePortal);
+							Util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, b.getLocation());
 							return;
 					}
 					else if (b.getType() == Material.TRAP_DOOR && (b.getData() & 4) == 0)
 					{
 						Util.sendMessage(player, Config.MessageCannotPlacePortal);
+						Util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, b.getLocation());
 						return;
 
 					}
@@ -111,7 +114,8 @@ public class PortalStickPlayerListener extends PlayerListener {
 			if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR ||  tb.contains((byte) event.getClickedBlock().getTypeId()))
 			{
 				Block b = targetBlocks.get(targetBlocks.size() - 1);
-				PortalManager.placePortal(b, event.getPlayer(), orange);
+				Block b2 = targetBlocks.get(targetBlocks.size() - 2);
+				PortalManager.placePortal(b,b.getFace(b2), event.getPlayer(), orange, true);
 			}
 			else
 			{
@@ -198,11 +202,11 @@ public class PortalStickPlayerListener extends PlayerListener {
 		if (regionTo.getBoolean(RegionSetting.ENABLE_AERIAL_FAITH_PLATES))
 		{
 			Block blockIn = locTo.getBlock();
-			Block blockUnder = blockIn.getFace(BlockFace.DOWN);
+			Block blockUnder = blockIn.getRelative(BlockFace.DOWN);
 			Block blockStart = null;
-			Integer horPower = Integer.parseInt(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[0]);
+			Double horPower = Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[0]);
 			String faithBlock = regionTo.getString(RegionSetting.FAITH_PLATE_BLOCK);
-			Vector velocity = new Vector(0, Integer.parseInt(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[1]),0);
+			Vector velocity = new Vector(0, Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[1]),0);
 			
 			if (blockIn.getType() == Material.STONE_PLATE && BlockUtil.compareBlockToString(blockUnder, faithBlock))
 				blockStart = blockUnder;
@@ -232,7 +236,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 						velocity.setZ(-velocity.getZ());
 					}
 					player.setVelocity(velocity);
-					Util.PlayNote(player, 4, 5);
+					Util.PlaySound(Sound.FAITHPLATE_LAUNCH, player, blockStart.getLocation());
 				}
 			}
 		

@@ -9,5 +9,10 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="X:/Games Files/Minecraft/BukkitTest/lib/Permissions.jar"/>
 	<classpathentry kind="lib" path="X:/Games Files/Minecraft/BukkitTest/lib/WorldGuard.jar"/>
+	<classpathentry kind="lib" path="X:/Games Files/Minecraft/BukkitTest/lib/BukkitContrib.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://afforess.com/BukkitContrib/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

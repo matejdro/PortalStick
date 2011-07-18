@@ -15,7 +15,7 @@ public enum RegionSetting {
 	GRILLS_CLEAR_ITEM_DROPS("grills-clear-item-drops", true, true),
 	GRILL_INVENTORY_CLEAR_EXCEPTIONS("grill-inventory-clear-exceptions", Arrays.asList(new String[]{"313"})),
 	GRILL_MATERIAL("emancipation-grill-material", "48", true),
-	ENABLE_GRILL_REDSTONE_DISABLING("enable-disabling-grll-with-redstone", true, true),
+	ENABLE_GRILL_REDSTONE_DISABLING("enable-disabling-grill-with-redstone", true, true),
 	TRANSPARENT_BLOCKS("transparent-blocks", Arrays.asList(new Integer[]{0,8,9,10,11,20,64,71,96,65})),
 	PORTAL_BLOCKS("portallable-blocks", Arrays.asList(new Integer[]{1})),
 	ALL_BLOCKS_PORTAL("all-blocks-allow-portals", false, true),

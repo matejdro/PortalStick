@@ -8,10 +8,14 @@ import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
+import org.bukkitcontrib.BukkitContrib;
+import org.bukkitcontrib.player.ContribPlayer;
 
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.RegionManager;
+import com.matejdro.bukkit.portalstick.util.Config.Sound;
 
 public class Util {
 	
@@ -108,6 +112,33 @@ public class Util {
                 1
         );
     }
+    
+    public static void PlaySound(Sound sound, Player player, Location loc)
+    {
+    	if (!RegionManager.getRegion(loc).getBoolean(RegionSetting.ENABLE_SOUNDS)) return;
+        Plugin contribPlugin = PortalStick.instance.getServer().getPluginManager().getPlugin("BukkitContrib");
+        if (contribPlugin == null || !Config.useBukkitContribSounds || !((BukkitContrib) contribPlugin).getPlayerFromId(player.getEntityId()).isBukkitContribEnabled()) 
+        {
+        	if (!Config.soundNotes[sound.ordinal()].trim().equals(""))
+        	{
+        		Byte instrument = Byte.parseByte(Config.soundNotes[sound.ordinal()].split("-")[0]);
+        		Byte note = Byte.parseByte(Config.soundNotes[sound.ordinal()].split("-")[1]);
+        	}
+        }
+        else
+        {
+        	if (!Config.soundUrls[sound.ordinal()].trim().equals(""))
+        	{
+        		BukkitContrib contrib = (BukkitContrib) contribPlugin;
+                
+                ContribPlayer cplayer = contrib.getPlayerFromId(player.getEntityId());
+                
+                contrib.getSoundManager().playCustomSoundEffect(PortalStick.instance, cplayer, Config.soundUrls[sound.ordinal()], false, loc);
+        	}
+        }
+        
+    }
+       
     
     public static int getLeftPortalColor(int preset)
     {

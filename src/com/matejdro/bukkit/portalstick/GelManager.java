@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.BlockUtil;
+import com.matejdro.bukkit.portalstick.util.Config.Sound;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
@@ -110,7 +111,7 @@ public class GelManager {
 			}
 			player.setVelocity(vector);
 						
-			Util.PlayNote((Player) player, 4, 5);
+			Util.PlaySound(Sound.GEL_BLUE_LAUNCH, player, player.getLocation());
 		return null;
 	}
 	

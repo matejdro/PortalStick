@@ -12,6 +12,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.Config;
+import com.matejdro.bukkit.portalstick.util.Config.Sound;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
@@ -70,13 +71,12 @@ public class PortalManager {
 		}
 		for (Block b: portal.inside)
 		{
-			if (b.getTypeId() == 0 && !borderBlocks.containsKey(b) && !insideBlocks.containsKey(b) && !behindBlocks.containsKey(b))
+			Region region = RegionManager.getRegion(b.getLocation());
+			if ((!borderBlocks.containsKey(b.getLocation()) && !insideBlocks.containsKey(b.getLocation()) && !behindBlocks.containsKey(b.getLocation())) && (region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(b.getTypeId()) || (!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(b.getTypeId()))))
 			{
 				return false;
 			}
 		}
-		Region region = RegionManager.getRegion(portal.destLoc);
-		if (!portal.vertical && !region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(portal.destLoc.getBlock().getTypeId()) && !region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(portal.destLoc.getBlock().getRelative(BlockFace.UP).getTypeId())) return false;
 		return true;
 	}
 
@@ -229,6 +229,7 @@ public class PortalManager {
 			if (!checkPortal(portalc))
 			{
 				if (end) Util.sendMessage(player, Config.MessageCannotPlacePortal);
+				Util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, block.getLocation());
 				return false;
 			}
 		}
@@ -238,6 +239,7 @@ public class PortalManager {
 			if (portalc.finished)
 			{
 				if (end) Util.sendMessage(player, Config.MessageCannotPlacePortal);
+				Util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, block.getLocation());
 				return false;
 			}
 		}
@@ -248,16 +250,19 @@ public class PortalManager {
 		
 		Portal portal = new Portal(portalc.destLoc, portalc.border, portalc.inside, portalc.behind, owner, orange, vertical, portalc.tpFace);
 		
+		
 		if (orange)
 		{
 			if (owner.getOrangePortal() != null) owner.getOrangePortal().delete();
 			owner.setOrangePortal(portal);
+			Util.PlaySound(Sound.PORTAL_CREATE_ORANGE, player, block.getLocation());
 			
 		}
 		else
 		{
 			if (owner.getBluePortal() != null) owner.getBluePortal().delete();
 			owner.setBluePortal(portal);
+			Util.PlaySound(Sound.PORTAL_CREATE_BLUE, player, block.getLocation());
 		}
 		
 		portals.add(portal);
