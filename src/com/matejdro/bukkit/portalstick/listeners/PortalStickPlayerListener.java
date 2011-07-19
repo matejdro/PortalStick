@@ -115,7 +115,11 @@ public class PortalStickPlayerListener extends PlayerListener {
 			{
 				Block b = targetBlocks.get(targetBlocks.size() - 1);
 				Block b2 = targetBlocks.get(targetBlocks.size() - 2);
-				PortalManager.placePortal(b,b.getFace(b2), event.getPlayer(), orange, true);
+				BlockFace face = b.getFace(b2);
+				if (face == null)
+					PortalManager.placePortal(b, event.getPlayer(), orange);
+				else
+					PortalManager.placePortal(b, face, event.getPlayer(), orange, true);
 			}
 			else
 			{

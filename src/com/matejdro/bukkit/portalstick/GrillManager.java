@@ -100,6 +100,7 @@ public class GrillManager implements Runnable {
     	complete = false;
     	recurse(initial, id, initial, one, two, three, four);
     	generateInsideBlocks(id, initial, iOne, iTwo);
+
     	if (inside.size() == 0)
     		complete = false;
     }
@@ -128,14 +129,15 @@ public class GrillManager implements Runnable {
     				if (border.contains(block) || inside.contains(block))
     	    			continue;
     	    		boolean add = true;
-    	    	
-    	    		for (BlockFace face : BlockFace.values()) {
-    	    			if (face == iOne || face == iTwo || face == BlockFace.SELF || face == BlockFace.NORTH_EAST || face == BlockFace.NORTH_WEST || face == BlockFace.SOUTH_EAST || face == BlockFace.SOUTH_WEST)
+    	    		for (BlockFace face : new BlockFace[]{BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST}) {
+    	    			if (face == iOne || face == iTwo)
     	    				continue;
     	    			Block temp = block.getRelative(face);
     	    			while (temp.getLocation().toVector().isInAABB(min, max)) {
+    	    				
     	    				if (BlockUtil.compareBlockToString(temp, borderID))
     	    					break;
+    	    					
     	    				temp = temp.getRelative(face);
     	    			}
     	    			if (!BlockUtil.compareBlockToString(temp, borderID)) {
@@ -146,7 +148,8 @@ public class GrillManager implements Runnable {
     	    		
     	    		if (add)
     	    			inside.add(block);
-    	    		
+    	        	
+
     			}
     		}
     	}
