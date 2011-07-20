@@ -69,6 +69,8 @@ public class PortalStick extends JavaPlugin {
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PHYSICS, blockListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_FROMTO, blockListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PISTON_EXTEND, blockListener, Event.Priority.Low, this);
+		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PISTON_RETRACT, blockListener, Event.Priority.Low, this);
 		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Monitor, this);
 		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_MOVE, playerListener, Event.Priority.Low, this);	
 		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Monitor, this);

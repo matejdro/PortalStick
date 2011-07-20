@@ -41,6 +41,7 @@ public enum RegionSetting {
 	ENABLE_SOUNDS("enable-sounds", true, true),
 	PREVENT_TNT_NEAR_PORTALS("prevent-tnt-near-portals", false, true),
 	ENABLE_REDSTONE_TRANSFER("enable-transferring-redstone-current", true, true),
+	ENABLE_PISTON_BLOCK_TELEPORT("enable-teleporting-blocks-moved-by-pistons", true, true),
 	LOCATION("location", "world:0,0,0:0,0,0");
 	
 	private String yaml;

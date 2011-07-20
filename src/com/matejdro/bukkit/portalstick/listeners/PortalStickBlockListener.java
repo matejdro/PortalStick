@@ -10,9 +10,12 @@ import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.PistonBaseMaterial;
 
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
@@ -256,6 +259,88 @@ public class PortalStickBlockListener extends BlockListener {
 
 		 
 			 
+	 }
+	 
+	 public void onBlockPistonExtend(BlockPistonExtendEvent event) 
+	 {
+		 if (event.isCancelled()) return;
+		 Region region = RegionManager.getRegion(event.getBlock().getLocation());
+
+		 for (Block b : event.getBlocks())
+		 {
+			 Portal portal = PortalManager.insideBlocks.get(b.getRelative(event.getDirection()).getLocation());
+			 if (portal != null && region.getBoolean(RegionSetting.ENABLE_PISTON_BLOCK_TELEPORT))
+			 {
+				 Portal destP = portal.getDestination();
+				 final Block destB = destP.getTeleportLocation().getBlock();
+				 
+				 if (!portal.isOpen() || !destP.isOpen())
+				 {
+					 event.setCancelled(true);
+					 return;
+				 }
+				 
+				 if (destB.isLiquid() || destB.getType() == Material.AIR)
+				 {
+					 final Block endBlock = b.getRelative(event.getDirection());
+					 
+					 PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new Runnable() {
+
+						    public void run() {
+						    	destB.setType(endBlock.getType());
+							 	 destB.setData(endBlock.getData(), false);
+							 	 
+							 	endBlock.setType(Material.AIR);
+						    }
+						}, 2L);
+					 
+					 
+				 }
+				 else
+				 {
+					 event.setCancelled(true);
+				 }
+			 }
+			 else if (PortalManager.borderBlocks.containsKey(b.getLocation()) || GrillManager.borderBlocks.containsKey(b.getLocation()) || GrillManager.insideBlocks.containsKey(b.getLocation()))
+			 {
+				 event.setCancelled(true);
+			 }
+		 }
+	 }
+	 
+	 public void onBlockPistonRetract(BlockPistonRetractEvent event) 
+	 {
+		 if (event.isCancelled() || !event.isSticky()) return;
+		 Region region = RegionManager.getRegion(event.getBlock().getLocation());
+
+		 Portal portal = PortalManager.insideBlocks.get(event.getRetractLocation());
+		 
+		 if (portal != null && region.getBoolean(RegionSetting.ENABLE_PISTON_BLOCK_TELEPORT))
+		 {
+			 Portal destP = portal.getDestination();
+			 final Block sourceB = destP.getTeleportLocation().getBlock();
+			 
+			 if (!sourceB.isLiquid() && sourceB.getType() != Material.AIR)
+			 {
+				 final Block endBlock = event.getRetractLocation().getBlock().getRelative(event.getDirection().getOppositeFace());
+				 PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new Runnable() {
+
+					    public void run() {
+					    	endBlock.setType(sourceB.getType());
+					    	endBlock.setData(sourceB.getData());
+							 
+							 sourceB.setType(Material.AIR);
+
+					    }
+					}, 1L);
+				 
+				 
+			 }
+		 }
+		 else if (PortalManager.borderBlocks.containsKey(event.getRetractLocation()) || GrillManager.borderBlocks.containsKey(event.getRetractLocation()) || GrillManager.insideBlocks.containsKey(event.getRetractLocation()))
+				 {
+					 event.setCancelled(true);
+				 }
 	 }
 	 
 	 public class RemoveLiquid implements Runnable
