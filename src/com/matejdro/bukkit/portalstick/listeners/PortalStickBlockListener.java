@@ -1,5 +1,7 @@
 package com.matejdro.bukkit.portalstick.listeners;
 
+import java.util.HashSet;
+
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -15,7 +17,6 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.PistonBaseMaterial;
 
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
@@ -27,12 +28,12 @@ import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalStickBlockListener extends BlockListener {
 	
 	private PortalStick plugin;
-		
+	private HashSet<Block> blockedPistonBlocks = new HashSet<Block>();	
+	
 	public PortalStickBlockListener(PortalStick instance)
 	{
 		plugin = instance;
@@ -268,6 +269,12 @@ public class PortalStickBlockListener extends BlockListener {
 
 		 for (Block b : event.getBlocks())
 		 {
+			 if (blockedPistonBlocks.contains(b))
+			 {
+				 event.setCancelled(true);
+				 return;
+			 }
+			 
 			 Portal portal = PortalManager.insideBlocks.get(b.getRelative(event.getDirection()).getLocation());
 			 if (portal != null && region.getBoolean(RegionSetting.ENABLE_PISTON_BLOCK_TELEPORT))
 			 {
@@ -284,6 +291,8 @@ public class PortalStickBlockListener extends BlockListener {
 				 {
 					 final Block endBlock = b.getRelative(event.getDirection());
 					 
+					 blockedPistonBlocks.add(endBlock);
+					 
 					 PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new Runnable() {
 
 						    public void run() {
@@ -291,6 +300,7 @@ public class PortalStickBlockListener extends BlockListener {
 							 	 destB.setData(endBlock.getData(), false);
 							 	 
 							 	endBlock.setType(Material.AIR);
+							 	blockedPistonBlocks.remove(endBlock);
 						    }
 						}, 2L);
 					 
@@ -311,6 +321,13 @@ public class PortalStickBlockListener extends BlockListener {
 	 public void onBlockPistonRetract(BlockPistonRetractEvent event) 
 	 {
 		 if (event.isCancelled() || !event.isSticky()) return;
+		 
+		 if (blockedPistonBlocks.contains(event.getRetractLocation().getBlock()))
+		 {
+			 event.setCancelled(true);
+			 return;
+		 }
+		 
 		 Region region = RegionManager.getRegion(event.getBlock().getLocation());
 
 		 Portal portal = PortalManager.insideBlocks.get(event.getRetractLocation());
@@ -323,6 +340,7 @@ public class PortalStickBlockListener extends BlockListener {
 			 if (!sourceB.isLiquid() && sourceB.getType() != Material.AIR)
 			 {
 				 final Block endBlock = event.getRetractLocation().getBlock().getRelative(event.getDirection().getOppositeFace());
+				 blockedPistonBlocks.add(endBlock);
 				 PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new Runnable() {
 
 					    public void run() {
@@ -330,6 +348,7 @@ public class PortalStickBlockListener extends BlockListener {
 					    	endBlock.setData(sourceB.getData());
 							 
 							 sourceB.setType(Material.AIR);
+							 blockedPistonBlocks.remove(endBlock);
 
 					    }
 					}, 1L);
