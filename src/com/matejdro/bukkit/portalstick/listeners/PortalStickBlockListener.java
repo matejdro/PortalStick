@@ -18,6 +18,8 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.inventory.ItemStack;
 
+import com.matejdro.bukkit.portalstick.GlassBridge;
+import com.matejdro.bukkit.portalstick.GlassBridgeManager;
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
 import com.matejdro.bukkit.portalstick.Portal;
@@ -54,6 +56,12 @@ public class PortalStickBlockListener extends BlockListener {
 		
 		Grill grill = GrillManager.insideBlocks.get(event.getBlock().getLocation());
 		if (grill != null )
+		{
+				event.setCancelled(true);
+		}
+		
+		GlassBridge bridge = GlassBridgeManager.bridgeBlocks.get(event.getBlock());
+		if (bridge != null )
 		{
 				event.setCancelled(true);
 		}

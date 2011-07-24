@@ -144,14 +144,14 @@ public class PortalManager {
 	    	{
 	    		portal.destLoc = block.getRelative(0,-1,0).getLocation();
 				portal.behind.add(block.getRelative(0,1,0));
-	    		portal.tpFace = BlockFace.DOWN;
+	    		portal.tpFace = BlockFace.UP;
 	    	}
 	    	else
 	    	{
 	    		portal.destLoc = block.getRelative(0,2,0).getLocation();
 				portal.behind.add(block.getRelative(0,-1,0));
 
-	    		portal.tpFace = BlockFace.UP;
+	    		portal.tpFace = BlockFace.DOWN;
 	    	}
 	    portal.vertical = true;		
 		}
