@@ -59,7 +59,11 @@ public class GrillManager implements Runnable {
 		{
 			return false;
 		}
-		if (GrillManager.placeRecursiveEmancipationGrill(block)) return true;
+		if (GrillManager.placeRecursiveEmancipationGrill(block)) 
+		{
+			Config.saveAll();
+			return true;
+		}
 		return false;
     }
     
@@ -88,7 +92,6 @@ public class GrillManager implements Runnable {
     	Grill grill = new Grill(border, inside, initial);
     	grills.add(grill);
     	grill.create();
-    	Config.saveAll();
     	return true;
     }
     

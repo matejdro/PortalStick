@@ -2,28 +2,34 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.HashSet;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
-public class GlassBridge {
+public class Bridge {
 	private HashSet<Block> bridgeBlocks = new HashSet<Block>();
 	private HashSet<Portal> involvedPortals = new HashSet<Portal>();
+	private HashSet<Block> bridgeMachineBlocks;
 	private Block startBlock;
+	private Block creationBlock;
 	private BlockFace facingSide;
 
-	public GlassBridge(Block startingBlock, BlockFace face)
+	public Bridge(Block CreationBlock, Block startingBlock, BlockFace face, HashSet<Block> machineBlocks)
 	{
 		startBlock = startingBlock;
 		facingSide = face;
+		bridgeMachineBlocks = machineBlocks;
+		creationBlock = CreationBlock;
 	}
 	
 	public void activate()
 	{
+		//deactivate first for cleanup
 		deactivate();
 		
 		BlockFace face = facingSide;
-		Block nextBlock = startBlock.getRelative(face);
+		Block nextBlock = startBlock;
 		while (true)
 		{			
 			Portal portal = PortalManager.insideBlocks.get(nextBlock.getLocation());
@@ -35,14 +41,16 @@ public class GlassBridge {
 				face = portal.getDestination().getTeleportFace().getOppositeFace();
 				
 				involvedPortals.add(portal);
-				GlassBridgeManager.involvedPortals.put(portal, this);
+				BridgeManager.involvedPortals.put(portal, this);
 				continue;
 			}
 			else if (!nextBlock.isLiquid() && nextBlock.getType() != Material.AIR) break;
 			
+			if (!nextBlock.getWorld().isChunkLoaded(nextBlock.getChunk())) return;
+			
 			nextBlock.setType(Material.GLASS);
 			bridgeBlocks.add(nextBlock);
-			GlassBridgeManager.bridgeBlocks.put(nextBlock, this);
+			BridgeManager.bridgeBlocks.put(nextBlock, this);
 			
 			nextBlock = nextBlock.getRelative(face);
 		}
@@ -54,11 +62,19 @@ public class GlassBridge {
 			b.setType(Material.AIR);
 		
 		for (Block b: bridgeBlocks)
-			GlassBridgeManager.bridgeBlocks.remove(b);
+			BridgeManager.bridgeBlocks.remove(b);
 		bridgeBlocks.clear();
 		for (Portal p: involvedPortals)
-			GlassBridgeManager.involvedPortals.remove(p);
+			BridgeManager.involvedPortals.remove(p);
 		involvedPortals.clear();
+	}
+	
+	public void delete()
+	{
+		deactivate();
+		BridgeManager.bridges.remove(startBlock);
+		for (Block b: bridgeMachineBlocks)
+			BridgeManager.bridgeMachineBlocks.remove(b);
 	}
 	
 	public Boolean isBlockNextToBridge(Block check)
@@ -72,6 +88,12 @@ public class GlassBridge {
 		}
 		
 		return false;
+	}
+	
+	public String getStringLocation()
+	{
+		Location loc = creationBlock.getLocation();
+		return loc.getWorld().getName() + "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
 	}
 }
 

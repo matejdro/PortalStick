@@ -50,6 +50,11 @@ public class Permission {
 	public static boolean deleteGrill(Player player) {
 		return hasPermission(player, "portalstick.deletegrill", false);
 	}
+	public static boolean createBridge(Player player) {
+		return hasPermission(player, "portalstick.createbridge", false);
+	}public static boolean deleteBridge(Player player) {
+		return hasPermission(player, "portalstick.deletebridge", false);
+	}
 	public static boolean teleport(Player player) {
 		return hasPermission(player, "portalstick.teleport", true);
 	}

@@ -11,6 +11,8 @@ import java.util.Map.Entry;
 import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 
+import com.matejdro.bukkit.portalstick.Bridge;
+import com.matejdro.bukkit.portalstick.BridgeManager;
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
 import com.matejdro.bukkit.portalstick.PortalManager;
@@ -26,6 +28,7 @@ public class Config {
 	private static Configuration mainConfig;
 	private static Configuration regionConfig;
 	private static Configuration grillConfig;
+	private static Configuration bridgeConfig;
 	
 	public static HashSet<String> DisabledWorlds;
 	public static boolean DeleteOnQuit;
@@ -50,9 +53,9 @@ public class Config {
 		mainConfig = plugin.getConfiguration();
 		regionConfig = getConfigFile("regions.yml");
 		grillConfig = getConfigFile("grills.yml");
+		bridgeConfig = getConfigFile("bridges.yml");
 		
 		load();
-
 	}
 	
 	public static void deleteGrill(String grill) {
@@ -67,12 +70,20 @@ public class Config {
 		saveAll();
 	}
 	
+	public static void deleteBridge(String bridge) {
+		List<String> list = bridgeConfig.getStringList("bridges", null);
+		list.remove(bridge);
+		bridgeConfig.setProperty("bridges", list);
+		saveAll();
+	}
+
+	
 	public static void load() {
 		
 		mainConfig.load();
 		regionConfig.load();
 		grillConfig.load();
-
+		bridgeConfig.load();
 		//Load messages
 		MessageCannotPlacePortal = getString("messages.cannot-place-portal", "&cCannot place a portal there!");
         
@@ -123,6 +134,10 @@ public class Config {
         for (String grill : grillConfig.getStringList("grills", null))
         	GrillManager.loadGrill(grill);
         Util.info(GrillManager.grills.size() + " grill(s) loaded");
+        //Load bridges
+        for (String bridge : bridgeConfig.getStringList("bridges", null))
+        	BridgeManager.loadBridge(bridge);
+        Util.info(BridgeManager.bridges.size() + " bridge(s) loaded");
         
         saveAll();
 		
@@ -167,6 +182,7 @@ public class Config {
 	
 	public static void unLoad() {
 		
+		BridgeManager.deleteAll();
 		PortalManager.deleteAll();
 		GrillManager.deleteAll();
 		for (Map.Entry<String, User> entry : UserManager.getUserList().entrySet()) {
@@ -226,6 +242,15 @@ public class Config {
 		grillConfig.setProperty("grills", list);
 		if (!grillConfig.save())
 			Util.severe("Error while writing to grills.yml");
+		
+		//Save bridges
+		bridgeConfig.removeProperty("bridges");
+		list = new ArrayList<String>();
+		for (Bridge bridge : BridgeManager.bridges)
+			list.add(bridge.getStringLocation());
+		bridgeConfig.setProperty("bridges", list);
+		if (!bridgeConfig.save())
+			Util.severe("Error while writing to bridges.yml");
 		
 		//Save main
 		if (!mainConfig.save())

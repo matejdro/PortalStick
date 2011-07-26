@@ -17,9 +17,10 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.PistonBaseMaterial;
 
-import com.matejdro.bukkit.portalstick.GlassBridge;
-import com.matejdro.bukkit.portalstick.GlassBridgeManager;
+import com.matejdro.bukkit.portalstick.Bridge;
+import com.matejdro.bukkit.portalstick.BridgeManager;
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
 import com.matejdro.bukkit.portalstick.Portal;
@@ -60,11 +61,24 @@ public class PortalStickBlockListener extends BlockListener {
 				event.setCancelled(true);
 		}
 		
-		GlassBridge bridge = GlassBridgeManager.bridgeBlocks.get(event.getBlock());
+		//Prevend destroying bridge
+		Bridge bridge = BridgeManager.bridgeBlocks.get(event.getBlock());
 		if (bridge != null )
 		{
 				event.setCancelled(true);
 		}
+		//Delete bridge
+		bridge = BridgeManager.bridgeMachineBlocks.get(event.getBlock());
+		if (bridge != null )
+		{
+				if (Permission.deleteBridge(event.getPlayer()))
+					bridge.delete();
+				else
+					event.setCancelled(true);
+		}
+		
+		//Update bridge if destroyed block made space
+		 BridgeManager.updateBridge(event.getBlock());
 		
 		
 		if (BlockUtil.compareBlockToString(event.getBlock(), region.getString(RegionSetting.GRILL_MATERIAL)))
@@ -265,7 +279,27 @@ public class PortalStickBlockListener extends BlockListener {
 			 }
 		 }
 		 
-
+		 //Turning off bridges
+		 if (region.getBoolean(RegionSetting.ENABLE_BRIDGE_REDSTONE_DISABLING) && block.getType() != Material.REDSTONE_TORCH_ON && block.getType() != Material.REDSTONE_TORCH_OFF) 
+		 {
+			 Bridge bridge = null;
+			 for (int i = 0; i < 5; i++)
+			 {
+				 if (bridge == null) 
+					 {
+					 	bridge = BridgeManager.bridgeMachineBlocks.get(block.getRelative(BlockFace.values()[i]));
+					 	if (bridge != null) break;
+					 }
+			 }
+			 
+			 if (bridge != null )
+			 {
+				 if (event.getNewCurrent() > 0)
+					 bridge.deactivate();
+			     else
+			    	 bridge.activate();
+			 }
+		 }
 		 
 			 
 	 }
@@ -368,6 +402,9 @@ public class PortalStickBlockListener extends BlockListener {
 				 {
 					 event.setCancelled(true);
 				 }
+		 
+		 //Update bridge if piston made space
+		 BridgeManager.updateBridge(event.getRetractLocation().getBlock());
 	 }
 	 
 	 public class RemoveLiquid implements Runnable

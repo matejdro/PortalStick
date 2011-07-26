@@ -22,6 +22,7 @@ import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.EntityManager;
 import com.matejdro.bukkit.portalstick.GelManager;
+import com.matejdro.bukkit.portalstick.BridgeManager;
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
 import com.matejdro.bukkit.portalstick.Portal;
@@ -133,7 +134,6 @@ public class PortalStickPlayerListener extends PlayerListener {
 			switch (event.getAction()) {
 				case RIGHT_CLICK_BLOCK:
 					user.setPointTwo(event.getClickedBlock().getLocation());
-					Util.sendMessage(player, "&aRegion point two set`nType /portal setregion to save the region");
 					break;
 				case LEFT_CLICK_BLOCK:
 					user.setPointOne(event.getClickedBlock().getLocation());
@@ -143,7 +143,19 @@ public class PortalStickPlayerListener extends PlayerListener {
 		}
 		//Flint and steel
 		else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && player.getItemInHand().getType() == Material.FLINT_AND_STEEL) {
-			GrillManager.createGrill(player, event.getClickedBlock());
+		{
+			if (GrillManager.createGrill(player, event.getClickedBlock())) 
+			{
+				event.setCancelled(true);
+				return;
+			}
+			if (BridgeManager.placeGlassBridge(player, event.getClickedBlock())) 
+			{
+				event.setCancelled(true);
+				return;
+			}
+		}
+			
 		}
 		//Color changing
 		else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && player.getItemInHand().getTypeId() == 0 && event.getClickedBlock().getType() == Material.WOOL)

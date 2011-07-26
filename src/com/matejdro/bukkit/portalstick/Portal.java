@@ -144,7 +144,7 @@ public class Portal {
 		}
 		
 		open = true;
-		GlassBridgeManager.reorientBridge(this);
+		BridgeManager.reorientBridge(this);
 	}
 	
 	public void close()
@@ -161,7 +161,7 @@ public class Portal {
     		open = false;
     	}
 		
-		GlassBridgeManager.reorientBridge(this);
+		BridgeManager.reorientBridge(this);
 	}
 	
 	public void recreate()
