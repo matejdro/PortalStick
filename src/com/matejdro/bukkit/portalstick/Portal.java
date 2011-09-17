@@ -144,7 +144,7 @@ public class Portal {
 		}
 		
 		open = true;
-		BridgeManager.reorientBridge(this);
+		FunnelBridgeManager.reorientBridge(this);
 	}
 	
 	public void close()
@@ -161,7 +161,7 @@ public class Portal {
     		open = false;
     	}
 		
-		BridgeManager.reorientBridge(this);
+		FunnelBridgeManager.reorientBridge(this);
 	}
 	
 	public void recreate()

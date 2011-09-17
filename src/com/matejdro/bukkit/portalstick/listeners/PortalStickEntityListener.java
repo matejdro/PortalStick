@@ -22,18 +22,23 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 public class PortalStickEntityListener extends EntityListener {
 	
 	public void onEntityDamage(EntityDamageEvent event) {
-		
-		if (!(event.getEntity() instanceof Player)) return;
-		Player player = (Player)event.getEntity();
-		if (!Permission.damageBoots(player)) return;
-		Region region = RegionManager.getRegion(player.getLocation());
-		if (event.getCause() == DamageCause.FALL && region.getBoolean(RegionSetting.ENABLE_FALL_DAMAGE_BOOTS) && region.getInt(RegionSetting.FALL_DAMAGE_BOOTS) == player.getInventory().getBoots().getTypeId())
-			event.setCancelled(true);
-		
+		if (event.isCancelled()) return;
+
+		if (event.getEntity() instanceof Player)
+		{
+			Player player = (Player)event.getEntity();
+			if (!Permission.damageBoots(player)) return;
+			Region region = RegionManager.getRegion(player.getLocation());
+			if (event.getCause() == DamageCause.FALL && region.getBoolean(RegionSetting.ENABLE_FALL_DAMAGE_BOOTS) && region.getInt(RegionSetting.FALL_DAMAGE_BOOTS) == player.getInventory().getBoots().getTypeId())
+				event.setCancelled(true);
+		}
 	}
 	
+	
+
 	public void onEntityExplode(EntityExplodeEvent event) {
-		
+		if (event.isCancelled()) return;
+
 		Region region = RegionManager.getRegion(event.getLocation());
 		for (Block block : event.blockList().toArray(new Block[0])) {
 			Location loc = block.getLocation();
@@ -63,5 +68,4 @@ public class PortalStickEntityListener extends EntityListener {
 			}
 		}
 	}
-	
-}
+	}

@@ -32,13 +32,14 @@ public class Permission {
 	}
 	
 	private static boolean hasPermission(Player player, String node, boolean def) {
-		switch (handler) {
-			case PERMISSIONS:
-				return permissionPlugin.has(player, node);
-			case OP:
-				return def ? true : player.isOp();
-		}
-		return def;
+		return true;
+//		switch (handler) {
+//			case PERMISSIONS:
+//				return permissionPlugin.has(player, node);
+//			case OP:
+//				return def ? true : player.isOp();
+//		}
+//		return def;
 	}
 	
 	public static boolean placePortal(Player player) {

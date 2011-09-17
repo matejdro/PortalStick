@@ -17,10 +17,10 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.PistonBaseMaterial;
 
 import com.matejdro.bukkit.portalstick.Bridge;
-import com.matejdro.bukkit.portalstick.BridgeManager;
+import com.matejdro.bukkit.portalstick.Funnel;
+import com.matejdro.bukkit.portalstick.FunnelBridgeManager;
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
 import com.matejdro.bukkit.portalstick.Portal;
@@ -31,6 +31,7 @@ import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
+import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalStickBlockListener extends BlockListener {
 	
@@ -62,23 +63,25 @@ public class PortalStickBlockListener extends BlockListener {
 		}
 		
 		//Prevend destroying bridge
-		Bridge bridge = BridgeManager.bridgeBlocks.get(event.getBlock());
+		Bridge bridge = FunnelBridgeManager.bridgeBlocks.get(event.getBlock());
 		if (bridge != null )
 		{
 				event.setCancelled(true);
+				return;
 		}
 		//Delete bridge
-		bridge = BridgeManager.bridgeMachineBlocks.get(event.getBlock());
+		bridge = FunnelBridgeManager.bridgeMachineBlocks.get(event.getBlock());
 		if (bridge != null )
 		{
 				if (Permission.deleteBridge(event.getPlayer()))
 					bridge.delete();
 				else
 					event.setCancelled(true);
+				return;
 		}
 		
 		//Update bridge if destroyed block made space
-		 BridgeManager.updateBridge(event.getBlock());
+		 FunnelBridgeManager.updateBridge(event.getBlock());
 		
 		
 		if (BlockUtil.compareBlockToString(event.getBlock(), region.getString(RegionSetting.GRILL_MATERIAL)))
@@ -132,9 +135,16 @@ public class PortalStickBlockListener extends BlockListener {
 		Material block = event.getBlock().getType();
 		Location loc = event.getBlockPlaced().getLocation();
 		
+		//Prevent obstructing funnel
+		Bridge bridge = FunnelBridgeManager.bridgeBlocks.get(event.getBlock());
+		if (bridge != null )
+		{
+				event.setCancelled(true);
+		}
+
+		
 		if (block == Material.RAILS || block == Material.POWERED_RAIL || block == Material.DETECTOR_RAIL) return;
 		 
-		
 		Portal portal = PortalManager.insideBlocks.get(loc);
 		if (portal != null)
 		{
@@ -153,44 +163,82 @@ public class PortalStickBlockListener extends BlockListener {
 	
 	 public void onBlockFromTo(BlockFromToEvent event) {
 		 Region region = RegionManager.getRegion(event.getBlock().getLocation());
-			if (!region.getBoolean(RegionSetting.TELEPORT_LIQUIDS))
-				return;
-				Portal portal = PortalManager.insideBlocks.get(event.getBlock().getLocation());
-				if (portal != null && portal.isOpen() && portal.getOwner() != null)
-				{
-					Portal destination;
-					if (portal.isOrange())
-						destination = portal.getOwner().getBluePortal();
-					else
-						destination = portal.getOwner().getOrangePortal();
-					
-					Material blockt = Material.AIR;
-					switch (event.getBlock().getType())
+		 
+		 //Liquid teleporting
+			if (region.getBoolean(RegionSetting.TELEPORT_LIQUIDS))
+			{
+				
+			
+					Portal portal = PortalManager.insideBlocks.get(event.getBlock().getLocation());
+					if (portal != null && portal.isOpen() && portal.getOwner() != null)
 					{
-						case WATER:
-						case STATIONARY_WATER:
-							blockt = Material.WATER;
-							break;
-						case LAVA:
-						case STATIONARY_LAVA:
-							blockt = Material.LAVA;
-							break;
-					}
-					
-					if (destination != null)
-					{
-						final Block destb = destination.getTeleportLocation().getBlock();
-						final Block source = event.getBlock();
-						if (destb.getType() == Material.AIR)
+						Portal destination;
+						if (portal.isOrange())
+							destination = portal.getOwner().getBluePortal();
+						else
+							destination = portal.getOwner().getOrangePortal();
+						
+						Material blockt = Material.AIR;
+						switch (event.getBlock().getType())
 						{
-							destb.setType(blockt);
-							plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemoveLiquid(plugin, source, destb, destination), 10L);
-
+							case WATER:
+							case STATIONARY_WATER:
+								blockt = Material.WATER;
+								break;
+							case LAVA:
+							case STATIONARY_LAVA:
+								blockt = Material.LAVA;
+								break;
 						}
 						
-
-						event.setCancelled(true);
+						if (destination != null)
+						{
+							final Block destb = destination.getTeleportLocation().getBlock();
+							final Block source = event.getBlock();
+							if (destb.getType() == Material.AIR)
+							{
+								destb.setType(blockt);
+								plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemoveLiquid(plugin, source, destb, destination), 10L);
+	
+							}
+							
+							event.setCancelled(true);
+						}
 					}
+			}
+			
+				//Funnel
+				if (FunnelBridgeManager.bridgeBlocks.containsKey(event.getBlock()) && FunnelBridgeManager.bridgeBlocks.containsKey(event.getToBlock())) 
+				{
+					if (!(FunnelBridgeManager.bridgeBlocks.get(event.getBlock()) instanceof Funnel && FunnelBridgeManager.bridgeBlocks.get(event.getToBlock()) instanceof Funnel))
+						{
+							event.setCancelled(true);
+							return;
+						}
+					
+					Funnel funnel1 = (Funnel) FunnelBridgeManager.bridgeBlocks.get(event.getBlock());
+					Funnel funnel2 = (Funnel) FunnelBridgeManager.bridgeBlocks.get(event.getToBlock());
+					if (funnel1 != funnel2) 
+					{
+						event.setCancelled(true);
+						return;
+					}
+					
+					int numfrom = funnel1.getCounter(event.getBlock());
+					int numto = funnel1.getCounter(event.getToBlock());
+					
+					if (numfrom < numto || numfrom < 0 || numto < 0)
+					{
+						event.setCancelled(true);
+						return;
+					}
+					
+				
+				}
+				else if (FunnelBridgeManager.bridgeBlocks.containsKey(event.getBlock()) || FunnelBridgeManager.bridgeBlocks.containsKey(event.getToBlock()))
+				{
+					event.setCancelled(true);
+					return;
 				}
 			}
 	 
@@ -279,25 +327,38 @@ public class PortalStickBlockListener extends BlockListener {
 			 }
 		 }
 		 
-		 //Turning off bridges
+		 //Turning off bridges or reversing funnels
 		 if (region.getBoolean(RegionSetting.ENABLE_BRIDGE_REDSTONE_DISABLING) && block.getType() != Material.REDSTONE_TORCH_ON && block.getType() != Material.REDSTONE_TORCH_OFF) 
 		 {
 			 Bridge bridge = null;
+			 Boolean cblock = false;
 			 for (int i = 0; i < 5; i++)
 			 {
 				 if (bridge == null) 
 					 {
-					 	bridge = BridgeManager.bridgeMachineBlocks.get(block.getRelative(BlockFace.values()[i]));
-					 	if (bridge != null) break;
+					 	bridge = FunnelBridgeManager.bridgeMachineBlocks.get(block.getRelative(BlockFace.values()[i]));
+					 	if (bridge != null) 
+					 	{
+					 		cblock = block.getRelative(BlockFace.values()[i]) == bridge.getCreationBlock();
+					 		break;
+					 	}
 					 }
 			 }
 			 
-			 if (bridge != null )
+			 if (bridge != null)
 			 {
-				 if (event.getNewCurrent() > 0)
-					 bridge.deactivate();
-			     else
-			    	 bridge.activate();
+				 if (bridge instanceof Funnel && cblock)
+				 {
+					((Funnel) bridge).setReverse(event.getNewCurrent() > 0); 
+				 }
+				 else
+				 {
+					 if (event.getNewCurrent() > 0)
+						 bridge.deactivate();
+				     else
+				    	 bridge.activate(); 
+				 }
+				 
 			 }
 		 }
 		 
@@ -404,7 +465,7 @@ public class PortalStickBlockListener extends BlockListener {
 				 }
 		 
 		 //Update bridge if piston made space
-		 BridgeManager.updateBridge(event.getRetractLocation().getBlock());
+		 FunnelBridgeManager.updateBridge(event.getRetractLocation().getBlock());
 	 }
 	 
 	 public class RemoveLiquid implements Runnable

@@ -9,8 +9,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkitcontrib.BukkitContrib;
-import org.bukkitcontrib.player.ContribPlayer;
+import org.getspout.spout.PlayerManager;
+import org.getspout.spout.Spout;
+import org.getspout.spoutapi.SpoutManager;
 
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
@@ -116,8 +117,8 @@ public class Util {
     public static void PlaySound(Sound sound, Player player, Location loc)
     {
     	if (!RegionManager.getRegion(loc).getBoolean(RegionSetting.ENABLE_SOUNDS)) return;
-        Plugin contribPlugin = PortalStick.instance.getServer().getPluginManager().getPlugin("BukkitContrib");
-        if (contribPlugin == null || !Config.useBukkitContribSounds || (player != null && !((BukkitContrib) contribPlugin).getPlayerFromId(player.getEntityId()).isBukkitContribEnabled())) 
+        Plugin spoutPlugin = PortalStick.instance.getServer().getPluginManager().getPlugin("Spout");
+        if (spoutPlugin == null || !Config.useBukkitContribSounds)
         {
         	if (player != null && !Config.soundNotes[sound.ordinal()].trim().equals(""))
         	{
@@ -126,12 +127,11 @@ public class Util {
         		PlayNote(player, instrument, note);
         	}
         }
-        if (contribPlugin != null && Config.useBukkitContribSounds)
+        if (spoutPlugin != null && Config.useBukkitContribSounds)
         {
         	if (!Config.soundUrls[sound.ordinal()].trim().equals(""))
         	{
-        		BukkitContrib contrib = (BukkitContrib) contribPlugin;                
-                contrib.getSoundManager().playGlobalCustomSoundEffect(PortalStick.instance, Config.soundUrls[sound.ordinal()], false, loc, Config.soundRange);
+                SpoutManager.getSoundManager().playGlobalCustomSoundEffect(PortalStick.instance, Config.soundUrls[sound.ordinal()], false, loc, Config.soundRange);
         	}
         }
         

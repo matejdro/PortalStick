@@ -21,8 +21,9 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.EntityManager;
+import com.matejdro.bukkit.portalstick.Funnel;
+import com.matejdro.bukkit.portalstick.FunnelBridgeManager;
 import com.matejdro.bukkit.portalstick.GelManager;
-import com.matejdro.bukkit.portalstick.BridgeManager;
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
 import com.matejdro.bukkit.portalstick.Portal;
@@ -34,10 +35,10 @@ import com.matejdro.bukkit.portalstick.User;
 import com.matejdro.bukkit.portalstick.UserManager;
 import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Config;
+import com.matejdro.bukkit.portalstick.util.Config.Sound;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
-import com.matejdro.bukkit.portalstick.util.Config.Sound;
 
 public class PortalStickPlayerListener extends PlayerListener {
 
@@ -149,7 +150,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 				event.setCancelled(true);
 				return;
 			}
-			if (BridgeManager.placeGlassBridge(player, event.getClickedBlock())) 
+			if (FunnelBridgeManager.placeGlassBridge(player, event.getClickedBlock())) 
 			{
 				event.setCancelled(true);
 				return;
@@ -187,7 +188,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 	public void onPlayerMove(PlayerMoveEvent event)
 	{
 		Player player = event.getPlayer();
-		
+				
 		if (player.isInsideVehicle()) return;
 
 		Location locTo = event.getTo();
@@ -271,6 +272,9 @@ public class PortalStickPlayerListener extends PlayerListener {
 		{
 			EntityManager.teleport((Entity) player, locTo, vector.setY(player.getVelocity().getY()));
 		}
+		
+		//Funnel
+		FunnelBridgeManager.EntityMoveCheck(player);
 	}
 		 
 	public void onPlayerDropItem(PlayerDropItemEvent event) {

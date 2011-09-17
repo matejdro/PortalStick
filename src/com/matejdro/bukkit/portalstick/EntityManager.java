@@ -80,6 +80,7 @@ public class EntityManager implements Runnable {
 			Portal destination = portal.getDestination();
 				 				 
 			teleport = destination.getTeleportLocation().clone();
+			if (destination.getTeleportFace() == BlockFace.DOWN) teleport = teleport.add(0, 1, 0);
 								 
 			float yaw = entity.getLocation().getYaw();
 			float pitch = entity.getLocation().getPitch();
@@ -207,7 +208,7 @@ public class EntityManager implements Runnable {
 			else if (entity instanceof Item)
 			{
 				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
-				
+								
 				net.minecraft.server.EntityItem item = (net.minecraft.server.EntityItem) ((CraftItem) entity).getHandle();
 				EntityItem newitem = new EntityItem(world, teleport.getX(), teleport.getY(), teleport.getZ(), item.itemStack);
 				
@@ -284,6 +285,7 @@ public class EntityManager implements Runnable {
 						Vector vector = e.getVelocity();
 										
 						teleport(e, LocTo, vector);
+						FunnelBridgeManager.EntityMoveCheck(e);
 					}
 					processingWorlds.remove(world);
 				}

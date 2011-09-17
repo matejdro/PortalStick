@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.config.Configuration;
 
 import com.matejdro.bukkit.portalstick.Bridge;
-import com.matejdro.bukkit.portalstick.BridgeManager;
+import com.matejdro.bukkit.portalstick.FunnelBridgeManager;
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
 import com.matejdro.bukkit.portalstick.PortalManager;
@@ -136,8 +136,8 @@ public class Config {
         Util.info(GrillManager.grills.size() + " grill(s) loaded");
         //Load bridges
         for (String bridge : bridgeConfig.getStringList("bridges", null))
-        	BridgeManager.loadBridge(bridge);
-        Util.info(BridgeManager.bridges.size() + " bridge(s) loaded");
+        	FunnelBridgeManager.loadBridge(bridge);
+        Util.info(FunnelBridgeManager.bridges.size() + " bridge(s) loaded");
         
         saveAll();
 		
@@ -182,7 +182,7 @@ public class Config {
 	
 	public static void unLoad() {
 		
-		BridgeManager.deleteAll();
+		FunnelBridgeManager.deleteAll();
 		PortalManager.deleteAll();
 		GrillManager.deleteAll();
 		for (Map.Entry<String, User> entry : UserManager.getUserList().entrySet()) {
@@ -246,7 +246,7 @@ public class Config {
 		//Save bridges
 		bridgeConfig.removeProperty("bridges");
 		list = new ArrayList<String>();
-		for (Bridge bridge : BridgeManager.bridges)
+		for (Bridge bridge : FunnelBridgeManager.bridges)
 			list.add(bridge.getStringLocation());
 		bridgeConfig.setProperty("bridges", list);
 		if (!bridgeConfig.save())
