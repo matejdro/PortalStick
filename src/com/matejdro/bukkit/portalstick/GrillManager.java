@@ -15,7 +15,6 @@ import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class GrillManager implements Runnable {
 	

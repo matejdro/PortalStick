@@ -31,7 +31,6 @@ import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalStickBlockListener extends BlockListener {
 	
@@ -165,10 +164,8 @@ public class PortalStickBlockListener extends BlockListener {
 		 Region region = RegionManager.getRegion(event.getBlock().getLocation());
 		 
 		 //Liquid teleporting
-			if (region.getBoolean(RegionSetting.TELEPORT_LIQUIDS))
+			if (region.getBoolean(RegionSetting.TELEPORT_LIQUIDS) && !FunnelBridgeManager.bridgeBlocks.containsKey(event.getBlock()))
 			{
-				
-			
 					Portal portal = PortalManager.insideBlocks.get(event.getBlock().getLocation());
 					if (portal != null && portal.isOpen() && portal.getOwner() != null)
 					{

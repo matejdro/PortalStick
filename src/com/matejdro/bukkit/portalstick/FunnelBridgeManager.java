@@ -25,6 +25,7 @@ public class FunnelBridgeManager {
 	public static HashMap<Block, Bridge> bridgeMachineBlocks = new HashMap<Block, Bridge>();
 	public static HashSet<Entity> inFunnel = new HashSet<Entity>();
 	public static HashMap<Entity, List<Block>> glassBlocks = new HashMap<Entity, List<Block>>();
+	public static HashMap<Block, Entity> glassBlockOwners = new HashMap<Block, Entity>();
 
 	public static Boolean placeGlassBridge(Player player, Block firstIron)
 	{
@@ -264,28 +265,41 @@ public class FunnelBridgeManager {
 				if (pblock.getRelative(face).getType() == Material.AIR) 
 				{
 						Block block = pblock.getRelative(face);
-						block.setType(Material.GLASS);
+						BlockUtil.setBlockThreadSafe(block, Material.GLASS);
 						glassBlocks.get(entity).add(block);
+						glassBlockOwners.put(block, entity);
 				}
+				else if (pblock.getRelative(face).getType() == Material.GLASS)
+				{
+					glassBlockOwners.put(pblock.getRelative(face), entity);
+				}
+								
 				if (pblock.getRelative(face, 2).getType() == Material.AIR) 
 				{
-					Block block = pblock.getRelative(face, 2);
-					block.setType(Material.GLASS);
-					glassBlocks.get(entity).add(block);
+						Block block = pblock.getRelative(face, 2);
+						BlockUtil.setBlockThreadSafe(block, Material.GLASS);
+						glassBlocks.get(entity).add(block);
+						glassBlockOwners.put(block, entity);
 				}
+				else if (pblock.getRelative(face, 2).getType() == Material.GLASS)
+				{
+					glassBlockOwners.put(pblock.getRelative(face, 2), entity);
+				}
+				for (Block block : glassBlocks.get(entity).toArray(new Block[0]))
+				{
+					if (block.getLocation().distanceSquared(entity.getLocation()) > 4) 
+					{
+						if (glassBlockOwners.get(block) == entity)
+						{
+							BlockUtil.setBlockThreadSafe(block, Material.AIR);
+							glassBlocks.get(entity).remove(block);
+						}
+						if (block.getType() == Material.AIR) glassBlocks.get(entity).remove(block);
+						
+					}
+				}
+				
 
-				if (pblock.getRelative(face.getOppositeFace()).getType() == Material.GLASS) 
-				{
-					Block block = pblock.getRelative(face.getOppositeFace());
-					block.setType(Material.AIR);
-					glassBlocks.get(entity).remove(block);
-				}
-				if (pblock.getRelative(face.getOppositeFace(), 2).getType() == Material.GLASS) 
-				{
-					Block block = pblock.getRelative(face.getOppositeFace(), 2);
-					block.setType(Material.AIR);
-					glassBlocks.get(entity).remove(block);
-				}
 			}
 			
 		}

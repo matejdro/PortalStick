@@ -1,10 +1,12 @@
 package com.matejdro.bukkit.portalstick.util;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
-public class BlockUtil {
+import com.matejdro.bukkit.portalstick.PortalStick;
 
+public class BlockUtil {
 	public static boolean compareBlockToString(Block block, String blockData) {
 		String[] blockArr = blockData.split(":");
 		if (blockArr.length > 1)
@@ -31,6 +33,16 @@ public class BlockUtil {
 			if (compareBlockToString(block.getRelative(face), material))
 				return face;
 		return null;
+	}
+	
+	public static void setBlockThreadSafe(final Block block, final Material material)
+	{
+		PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new Runnable() {
+
+		    public void run() {
+		       block.setType(material);
+		    }
+		}, 1L);
 	}
 
 }

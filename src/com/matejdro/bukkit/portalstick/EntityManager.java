@@ -194,7 +194,7 @@ public class EntityManager implements Runnable {
 				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
 				
 				EntityFallingSand sand = (EntityFallingSand) ((CraftFallingSand) entity).getHandle() ;
-				EntityFallingSand newsand = new EntityFallingSand(world, teleport.getX(), teleport.getY(), teleport.getZ(), sand.a);
+				EntityFallingSand newsand = new EntityFallingSand(world, teleport.getX(), teleport.getY(), teleport.getZ(), sand.a, 0);
 				
 				Material db = teleport.getBlock().getType();
 				

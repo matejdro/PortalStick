@@ -21,7 +21,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.EntityManager;
-import com.matejdro.bukkit.portalstick.Funnel;
 import com.matejdro.bukkit.portalstick.FunnelBridgeManager;
 import com.matejdro.bukkit.portalstick.GelManager;
 import com.matejdro.bukkit.portalstick.Grill;
