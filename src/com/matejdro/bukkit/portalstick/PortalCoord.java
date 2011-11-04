@@ -10,6 +10,7 @@ public class PortalCoord {
 	public HashSet<Block> border;
 	public HashSet<Block> inside;
 	public HashSet<Block> behind;
+	public Block block;
 	public Location destLoc;
 	public BlockFace tpFace;
 	public Boolean finished;

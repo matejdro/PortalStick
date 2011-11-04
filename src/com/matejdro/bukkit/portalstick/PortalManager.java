@@ -120,6 +120,7 @@ public class PortalManager {
 	private static PortalCoord generatePortal(Block block, BlockFace face)
 	{
 		PortalCoord portal = new PortalCoord();
+		portal.block = block;
 		if (face == BlockFace.DOWN || face == BlockFace.UP)
 		{
 			if (!Config.CompactPortal)
@@ -248,7 +249,7 @@ public class PortalManager {
 		portalc.destLoc.setZ(portalc.destLoc.getZ() + 0.5);
 	
 		
-		Portal portal = new Portal(portalc.destLoc, portalc.border, portalc.inside, portalc.behind, owner, orange, vertical, portalc.tpFace);
+		Portal portal = new Portal(portalc.destLoc, portalc.block, portalc.border, portalc.inside, portalc.behind, owner, orange, vertical, portalc.tpFace);
 		
 		
 		if (orange)

@@ -228,7 +228,7 @@ public class FunnelBridgeManager {
 			glassBlocks.put(entity, new ArrayList<Block>());
 	}
 	
-	private static void EntityExitsFunnel(Entity entity)
+	public static void EntityExitsFunnel(Entity entity)
 	{
 		List<Block> list = glassBlocks.get(entity);
 		if (list != null) 
@@ -289,6 +289,7 @@ public class FunnelBridgeManager {
 				{
 					if (block.getLocation().distanceSquared(entity.getLocation()) > 4) 
 					{
+						Util.info(String.valueOf(glassBlockOwners.get(block) == entity));
 						if (glassBlockOwners.get(block) == entity)
 						{
 							BlockUtil.setBlockThreadSafe(block, Material.AIR);

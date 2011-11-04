@@ -2,6 +2,7 @@ name: PortalStick
 main: com.matejdro.bukkit.portalstick.PortalStick
 version: 2.3.2
 author: matejdro and oliverw92
+depend: [Spout]
 commands:
   portalstick:
     description: Aperture Science Portal Stick

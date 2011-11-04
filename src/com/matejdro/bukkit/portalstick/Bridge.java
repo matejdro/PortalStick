@@ -8,6 +8,8 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
+import com.matejdro.bukkit.portalstick.util.Util;
+
 public class Bridge {
 	protected LinkedHashMap<Block, Integer> bridgeBlocks = new LinkedHashMap<Block, Integer>();
 	protected HashSet<Portal> involvedPortals = new HashSet<Portal>();
@@ -75,7 +77,7 @@ public class Bridge {
 	public void delete()
 	{
 		deactivate();
-		FunnelBridgeManager.bridges.remove(this);
+		Util.info(String.valueOf(FunnelBridgeManager.bridges.remove(this)));
 		for (Block b: bridgeMachineBlocks)
 			FunnelBridgeManager.bridgeMachineBlocks.remove(b);
 	}

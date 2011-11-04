@@ -19,6 +19,7 @@ public class Portal {
 	private HashSet<Block> inside;
 	private HashSet<Block> behind;
 	private boolean vertical;
+	private Block centerBlock;
 	private User owner;
 	private Boolean orange = false;
 	private Boolean open = false;
@@ -35,7 +36,7 @@ public class Portal {
 		inside = new HashSet<Block>();
 	}
 	
-	public Portal(Location Teleport, HashSet<Block> Border, HashSet<Block> Inside, HashSet<Block> Behind, User Owner, Boolean Orange, Boolean Vertical, BlockFace Teleportface)
+	public Portal(Location Teleport, Block CenterBlock, HashSet<Block> Border, HashSet<Block> Inside, HashSet<Block> Behind, User Owner, Boolean Orange, Boolean Vertical, BlockFace Teleportface)
 	{
 		teleport = Teleport;
 		border = Border;
@@ -45,6 +46,7 @@ public class Portal {
 		vertical = Vertical;
 		teleportFace = Teleportface;
 		behind = Behind;
+		centerBlock = CenterBlock;
 	}
 	
 	public void delete()
@@ -401,6 +403,10 @@ public class Portal {
 		else
 			return(owner.getOrangePortal());
 
+	}
+	public Block getCenterBlock()
+	{
+		return centerBlock;
 	}
 
 }

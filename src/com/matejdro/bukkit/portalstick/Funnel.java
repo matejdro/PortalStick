@@ -127,6 +127,23 @@ if (counter < 0) counter = 8;
 		}
 	}
 	
+	@Override
+	public void deactivate()
+	{
+		for (Block b : bridgeBlocks.keySet())
+			b.setType(Material.AIR);
+		
+		for (Block b: bridgeBlocks.keySet())
+			FunnelBridgeManager.bridgeBlocks.remove(b);
+		bridgeBlocks.clear();
+		for (Portal p: involvedPortals)
+			FunnelBridgeManager.involvedPortals.remove(p);
+		for (Entity e : FunnelBridgeManager.glassBlocks.keySet())
+			FunnelBridgeManager.EntityExitsFunnel(e);
+		
+		involvedPortals.clear();
+	}
+	
 	
 
 }
