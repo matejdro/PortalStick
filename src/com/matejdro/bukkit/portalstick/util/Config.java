@@ -1,6 +1,8 @@
 package com.matejdro.bukkit.portalstick.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -8,8 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.util.config.Configuration;
 
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
@@ -23,9 +27,13 @@ import com.matejdro.bukkit.portalstick.UserManager;
 public class Config {
 	
 	public static PortalStick plugin;
-	private static Configuration mainConfig;
-	private static Configuration regionConfig;
-	private static Configuration grillConfig;
+	private static FileConfiguration mainConfig;
+	private static FileConfiguration regionConfig;
+	private static FileConfiguration grillConfig;
+	
+	private static File mainConfigFile;
+	private static File regionConfigFile;
+	private static File grillConfigFile;
 	
 	public static HashSet<String> DisabledWorlds;
 	public static boolean DeleteOnQuit;
@@ -43,68 +51,81 @@ public class Config {
 	public Config (PortalStick instance) {
 		
 		plugin = instance;
-		mainConfig = plugin.getConfiguration();
-		regionConfig = getConfigFile("regions.yml");
-		grillConfig = getConfigFile("grills.yml");
+		
+		mainConfigFile = getConfigFile("config.yml");
+		regionConfigFile = getConfigFile("regions.yml");
+		grillConfigFile = getConfigFile("grills.yml");
+		
+		mainConfig = getConfig(mainConfigFile);
+		regionConfig = getConfig(regionConfigFile);
+		grillConfig = getConfig(grillConfigFile);
 		
 		load();
 
 	}
 	
 	public static void deleteGrill(String grill) {
-		List<String> list = grillConfig.getStringList("grills", null);
+		List<String> list = (List<String>) grillConfig.getList("grills", null);
 		list.remove(grill);
-		grillConfig.setProperty("grills", list);
+		grillConfig.set("grills", list);
 		saveAll();
 	}
 	
 	public static void deleteRegion(String name) {
-		regionConfig.removeProperty("regions." + name);
+		regionConfig.set("regions." + name, null);
 		saveAll();
 	}
 	
 	public static void load() {
 		
-		mainConfig.load();
-		regionConfig.load();
-		grillConfig.load();
+		try {
+			mainConfig.load(mainConfigFile);
+			regionConfig.load(regionConfigFile);
+
+			grillConfig.load(grillConfigFile);
+		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
+		} catch (InvalidConfigurationException e) {
+			Util.severe("Unable to load config!");
+			e.printStackTrace();
+		}
 		
 		//Check main settings
-		if (mainConfig.getProperty("main.disabled-worlds") == null)
-			mainConfig.setProperty("main.disabled-worlds", "");
-		if (mainConfig.getProperty("main.compact-portal") == null)
-			mainConfig.setProperty("main.compact-portal", false);
-		if (mainConfig.getProperty("main.delete-on-quit") == null)
-			mainConfig.setProperty("main.delete-on-quit", false);
-		if (mainConfig.getProperty("main.portal-tool") == null)
-			mainConfig.setProperty("main.portal-tool", 280);
-		if (mainConfig.getProperty("main.region-tool") == null)
-			mainConfig.setProperty("main.region-tool", 268);
-		if (mainConfig.getProperty("main.restore-inventory-on-world-change") == null)
-			mainConfig.setProperty("main.restore-inventory-on-world-change", true);
-		if (mainConfig.getProperty("main.portal-color-presets") == null)
-			mainConfig.setProperty("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
-		if (mainConfig.getProperty("main.fill-portal-back") == null)
-			mainConfig.setProperty("main.fill-portal-back", -1);
+		if (mainConfig.get("main.disabled-worlds") == null)
+			mainConfig.set("main.disabled-worlds", "");
+		if (mainConfig.get("main.compact-portal") == null)
+			mainConfig.set("main.compact-portal", false);
+		if (mainConfig.get("main.delete-on-quit") == null)
+			mainConfig.set("main.delete-on-quit", false);
+		if (mainConfig.get("main.portal-tool") == null)
+			mainConfig.set("main.portal-tool", 280);
+		if (mainConfig.get("main.region-tool") == null)
+			mainConfig.set("main.region-tool", 268);
+		if (mainConfig.get("main.restore-inventory-on-world-change") == null)
+			mainConfig.set("main.restore-inventory-on-world-change", true);
+		if (mainConfig.get("main.portal-color-presets") == null)
+			mainConfig.set("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
+		if (mainConfig.get("main.fill-portal-back") == null)
+			mainConfig.set("main.fill-portal-back", -1);
 
 		//Check messages
-		if (mainConfig.getProperty("messages.cannot-place-portal") == null)
-			mainConfig.setProperty("messages.cannot-place-portal", "&cCannot place a portal there!");
-		if (mainConfig.getProperty("messages.restricted-world") == null)
-			mainConfig.setProperty("messages.restricted-world", "&cYou cannot do that in this world!");
+		if (mainConfig.get("messages.cannot-place-portal") == null)
+			mainConfig.set("messages.cannot-place-portal", "&cCannot place a portal there!");
+		if (mainConfig.get("messages.restricted-world") == null)
+			mainConfig.set("messages.restricted-world", "&cYou cannot do that in this world!");
 
 		//Load messages
 		MessageCannotPlacePortal = mainConfig.getString("messages.cannot-place-portal");
 		MessageRestrictedWorld = mainConfig.getString("messages.restricted-world");
         
         //Load main settings
-        DisabledWorlds = new HashSet<String>(mainConfig.getStringList("main.disabled-worlds", null));
+        DisabledWorlds = new HashSet<String>( (List<String>) mainConfig.getList("main.disabled-worlds", null));
         DeleteOnQuit = mainConfig.getBoolean("main.delete-on-quit", false);
         PortalTool = mainConfig.getInt("main.portal-tool", 280);
         CompactPortal = mainConfig.getBoolean("main.compact-portal", false);
         RegionTool = mainConfig.getInt("main.region-tool", 268);
         RestoreInvOnWorldChange = mainConfig.getBoolean("main.restore-inventory-on-world-change", true);
-        ColorPresets = mainConfig.getStringList("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
+        ColorPresets = (List<String>) mainConfig.getList("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
         FillPortalBack = mainConfig.getInt("main.fill-portal-back", -1);
 		
 		//Load all current users
@@ -112,14 +133,14 @@ public class Config {
 			UserManager.createUser(player);
 		
         //Load all regions
-        if (regionConfig.getKeys("regions") != null)
-        	for (String regionName : regionConfig.getKeys("regions"))
+        if (regionConfig.getConfigurationSection("regions") != null)
+        	for (String regionName : regionConfig.getConfigurationSection("regions").getKeys(false))
         		RegionManager.loadRegion(regionName);
         RegionManager.loadRegion("global");
         Util.info(RegionManager.getRegionMap().size() + " region(s) loaded");
         
         //Load grills
-        for (String grill : grillConfig.getStringList("grills", null))
+        for (String grill : (List<String>) grillConfig.getList("grills", null))
         	GrillManager.loadGrill(grill);
         Util.info(GrillManager.grills.size() + " grill(s) loaded");
         
@@ -150,28 +171,34 @@ public class Config {
 	
 	public static void loadRegionSettings(Region region) {
 		for (RegionSetting setting : RegionSetting.values()) {
-			Object prop = regionConfig.getProperty("regions." + region.Name + "." + setting.getYaml());
+			Object prop = regionConfig.get("regions." + region.Name + "." + setting.getYaml());
     		if (prop == null)
     			region.settings.put(setting, setting.getDefault());
     		else
     			region.settings.put(setting, prop);
-    		regionConfig.setProperty("regions." + region.Name + "." + setting.getYaml(), region.settings.get(setting));
+    		regionConfig.set("regions." + region.Name + "." + setting.getYaml(), region.settings.get(setting));
     	}
 		region.updateLocation();
 	}
 	
-	private static Configuration getConfigFile(String filename) {
-		Configuration configfile = null;
+	private static File getConfigFile(String filename)
+	{
 		File file = new File(plugin.getDataFolder(), filename);
+		return file;
+	}
+	private static FileConfiguration getConfig(File file) {
+		FileConfiguration config = null;
 		try {
-			configfile = new Configuration(file);
-			configfile.load();
-			configfile.removeProperty("setup");
-			configfile.save();
+			config = new YamlConfiguration();
+			config.load(file);
+			config.set("setup", null);
+			config.save(file);
+			
+			return config;
 		} catch (Exception e) {
-			Util.severe("Unable to load YAML file " + filename);
+			Util.severe("Unable to load YAML file " + file.getAbsolutePath());
 		}
-		return configfile;
+		return null;
 	}
 	
 	public static void saveAll() {
@@ -180,23 +207,41 @@ public class Config {
 		for (Map.Entry<String, Region> entry : RegionManager.getRegionMap().entrySet()) {
 			Region region = entry.getValue();
 			for (Entry<RegionSetting, Object> setting : region.settings.entrySet())
-				regionConfig.setProperty("regions." + region.Name + "." + setting.getKey().getYaml(), setting.getValue());
+				regionConfig.set("regions." + region.Name + "." + setting.getKey().getYaml(), setting.getValue());
 		}
-		if (!regionConfig.save())
+		try
+		{
+			regionConfig.save(regionConfigFile);
+		}
+		catch (Exception ex)
+		{
 			Util.severe("Error while writing to regions.yml");
+		}
 		
 		//Save grills
-		grillConfig.removeProperty("grills");
+		grillConfig.set("grills", null);
 		List<String> list = new ArrayList<String>();
 		for (Grill grill : GrillManager.getGrillList())
 			list.add(grill.getStringLocation());
-		grillConfig.setProperty("grills", list);
-		if (!grillConfig.save())
+		grillConfig.set("grills", list);
+		try
+		{
+			grillConfig.save(grillConfigFile);
+		}
+		catch (Exception ex)
+		{
 			Util.severe("Error while writing to grills.yml");
+		}
 		
 		//Save main
-		if (!mainConfig.save())
+		try
+		{
+			mainConfig.save(mainConfigFile);
+		}
+		catch (Exception ex)
+		{
 			Util.severe("Error while writing to config.yml");
+		}
 			
 	}
 	
