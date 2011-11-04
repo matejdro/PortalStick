@@ -41,6 +41,8 @@ public class EntityManager implements Runnable {
 
 	public static Location teleport(Entity entity, Location LocTo, Vector vector)
 	{
+		if (entity == null || entity.isDead()) return null;
+		
 		if (blockedEntities.contains(entity)) return null;
 		
 		Region regionTo = RegionManager.getRegion(LocTo);
