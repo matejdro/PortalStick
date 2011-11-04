@@ -173,10 +173,13 @@ public class EntityManager implements Runnable {
 	        		outvector = outvector.setY(-momentum);
 	        		break;
 	        }
-			 				
+			
+			if (!(entity instanceof Player) && momentum < 0.5 && (portal.getTeleportFace() == BlockFace.UP || portal.getTeleportFace() == BlockFace.DOWN) && (destination.getTeleportFace() == BlockFace.UP || destination.getTeleportFace() == BlockFace.DOWN))
+			 	return null;
+			
 			entity.setFallDistance(0);	
 			entity.setVelocity(entity.getVelocity().zero());
-				 
+			
 			teleport.setPitch(pitch);
 			teleport.setYaw(yaw);
 			
