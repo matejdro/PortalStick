@@ -130,14 +130,14 @@ public class GrillManager implements Runnable {
     	    			continue;
     	    		boolean add = true;
     	    	
-    	    		for (BlockFace face : BlockFace.values()) {
-    	    			if (face == iOne || face == iTwo || face == BlockFace.SELF || face == BlockFace.NORTH_EAST || face == BlockFace.NORTH_WEST || face == BlockFace.SOUTH_EAST || face == BlockFace.SOUTH_WEST)
+    	    		for (BlockFace face : new BlockFace[]{BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST}) {
+    	    			if (face == iOne || face == iTwo)
     	    				continue;
-    	    			Block temp = block.getFace(face);
+    	    			Block temp = block.getRelative(face);
     	    			while (temp.getLocation().toVector().isInAABB(min, max)) {
     	    				if (BlockUtil.compareBlockToString(temp, borderID))
     	    					break;
-    	    				temp = temp.getFace(face);
+    	    				temp = temp.getRelative(face);
     	    			}
     	    			if (!BlockUtil.compareBlockToString(temp, borderID)) {
     	    				add = false;
@@ -162,10 +162,10 @@ public class GrillManager implements Runnable {
     	if (BlockUtil.compareBlockToString(block, id) && !border.contains(block)) {
     		border.add(block);
     		max++;
-    		recurse(initial, id, block.getFace(one), one, two, three, four);
-    		recurse(initial, id, block.getFace(two), one, two, three, four);
-    		recurse(initial, id, block.getFace(three), one, two, three, four);
-    		recurse(initial, id, block.getFace(four), one, two, three, four);
+    		recurse(initial, id, block.getRelative(one), one, two, three, four);
+    		recurse(initial, id, block.getRelative(two), one, two, three, four);
+    		recurse(initial, id, block.getRelative(three), one, two, three, four);
+    		recurse(initial, id, block.getRelative(four), one, two, three, four);
     	}
     }
 

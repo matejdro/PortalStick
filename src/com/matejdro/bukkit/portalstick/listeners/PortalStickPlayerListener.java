@@ -111,7 +111,13 @@ public class PortalStickPlayerListener extends PlayerListener {
 			if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR ||  tb.contains((byte) event.getClickedBlock().getTypeId()))
 			{
 				Block b = targetBlocks.get(targetBlocks.size() - 1);
-				PortalManager.placePortal(b, event.getPlayer(), orange);
+		        Block b2 = targetBlocks.get(targetBlocks.size() - 2);
+				BlockFace face = b.getFace(b2);
+		        if (face == null)
+		         PortalManager.placePortal(b, event.getPlayer(), orange);
+		       else
+		         PortalManager.placePortal(b, face, event.getPlayer(), orange, true); 
+
 			}
 			else
 			{
@@ -198,7 +204,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		if (regionTo.getBoolean(RegionSetting.ENABLE_AERIAL_FAITH_PLATES))
 		{
 			Block blockIn = locTo.getBlock();
-			Block blockUnder = blockIn.getFace(BlockFace.DOWN);
+			Block blockUnder = blockIn.getRelative(BlockFace.DOWN);
 			Block blockStart = null;
 			Integer horPower = Integer.parseInt(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[0]);
 			String faithBlock = regionTo.getString(RegionSetting.FAITH_PLATE_BLOCK);

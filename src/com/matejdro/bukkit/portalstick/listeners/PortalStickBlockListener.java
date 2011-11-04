@@ -176,9 +176,9 @@ public class PortalStickBlockListener extends BlockListener {
 		 { 
 			 for (int i = 0; i < 5; i++)
 			 {
-				 if (block.getFace(BlockFace.values()[i]).getType() == Material.DISPENSER) 
+				 if (block.getRelative(BlockFace.values()[i]).getType() == Material.DISPENSER) 
 					 {
-					 	dispenserb = block.getFace(BlockFace.values()[i]);
+					 	dispenserb = block.getRelative(BlockFace.values()[i]);
 					 }
 			 }
 			 

@@ -28,7 +28,7 @@ public class BlockUtil {
 	
 	public static BlockFace getFaceOfMaterial(Block block, BlockFace[] faces, String material) {
 		for (BlockFace face : faces)
-			if (compareBlockToString(block.getFace(face), material))
+			if (compareBlockToString(block.getRelative(face), material))
 				return face;
 		return null;
 	}

@@ -189,7 +189,7 @@ public class EntityManager implements Runnable {
 				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
 				
 				EntityFallingSand sand = (EntityFallingSand) ((CraftFallingSand) entity).getHandle() ;
-				EntityFallingSand newsand = new EntityFallingSand(world, teleport.getX(), teleport.getY(), teleport.getZ(), sand.a);
+				EntityFallingSand newsand = new EntityFallingSand(world, teleport.getX(), teleport.getY(), teleport.getZ(), sand.a, 0);
 				
 				Material db = teleport.getBlock().getType();
 				
@@ -269,6 +269,8 @@ public class EntityManager implements Runnable {
 					for (Entity e : entities)
 					{
 						if (e instanceof Player || e instanceof Vehicle) continue;
+						if (e.isDead()) continue;
+						
 						Location LocTo = e.getLocation();
 						LocTo = new Location(LocTo.getWorld(), LocTo.getBlockX(), LocTo.getBlockY(), LocTo.getBlockZ());
 
