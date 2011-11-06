@@ -66,7 +66,6 @@ public class PortalStickPlayerListener extends PlayerListener {
 			
 			if (Config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))
 			{
-				player.sendMessage(Config.MessageRestrictedWorld);
 				return;
 			}
 			

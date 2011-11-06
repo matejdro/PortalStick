@@ -57,7 +57,6 @@ public class GrillManager implements Runnable {
     	if (!Permission.createGrill(player)) return false;
 		if (Config.DisabledWorlds.contains(player.getLocation().getWorld().getName()))
 		{
-			Util.sendMessage(player, Config.MessageRestrictedWorld);
 			return false;
 		}
 		if (GrillManager.placeRecursiveEmancipationGrill(block)) return true;

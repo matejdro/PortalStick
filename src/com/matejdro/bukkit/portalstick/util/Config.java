@@ -46,7 +46,6 @@ public class Config {
 	public static int FillPortalBack;
 	
 	public static String MessageCannotPlacePortal;
-	public static String MessageRestrictedWorld;
 
 	public Config (PortalStick instance) {
 		
@@ -90,42 +89,17 @@ public class Config {
 			e.printStackTrace();
 		}
 		
-		//Check main settings
-		if (mainConfig.get("main.disabled-worlds") == null)
-			mainConfig.set("main.disabled-worlds", "");
-		if (mainConfig.get("main.compact-portal") == null)
-			mainConfig.set("main.compact-portal", false);
-		if (mainConfig.get("main.delete-on-quit") == null)
-			mainConfig.set("main.delete-on-quit", false);
-		if (mainConfig.get("main.portal-tool") == null)
-			mainConfig.set("main.portal-tool", 280);
-		if (mainConfig.get("main.region-tool") == null)
-			mainConfig.set("main.region-tool", 268);
-		if (mainConfig.get("main.restore-inventory-on-world-change") == null)
-			mainConfig.set("main.restore-inventory-on-world-change", true);
-		if (mainConfig.get("main.portal-color-presets") == null)
-			mainConfig.set("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
-		if (mainConfig.get("main.fill-portal-back") == null)
-			mainConfig.set("main.fill-portal-back", -1);
-
-		//Check messages
-		if (mainConfig.get("messages.cannot-place-portal") == null)
-			mainConfig.set("messages.cannot-place-portal", "&cCannot place a portal there!");
-		if (mainConfig.get("messages.restricted-world") == null)
-			mainConfig.set("messages.restricted-world", "&cYou cannot do that in this world!");
-
 		//Load messages
-		MessageCannotPlacePortal = mainConfig.getString("messages.cannot-place-portal");
-		MessageRestrictedWorld = mainConfig.getString("messages.restricted-world");
+		MessageCannotPlacePortal = mainConfig.getString("messages.cannot-place-portal", "&cCannot place a portal there!");
         
         //Load main settings
-        DisabledWorlds = new HashSet<String>( (List<String>) mainConfig.getList("main.disabled-worlds", null));
-        DeleteOnQuit = mainConfig.getBoolean("main.delete-on-quit", false);
-        PortalTool = mainConfig.getInt("main.portal-tool", 280);
-        CompactPortal = mainConfig.getBoolean("main.compact-portal", false);
-        RegionTool = mainConfig.getInt("main.region-tool", 268);
-        RestoreInvOnWorldChange = mainConfig.getBoolean("main.restore-inventory-on-world-change", true);
-        ColorPresets = (List<String>) mainConfig.getList("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
+        DisabledWorlds = new HashSet<String>(getStringList("main.disabled-worlds", new ArrayList<String>()));
+        DeleteOnQuit = getBoolean("main.delete-on-quit", false);
+        PortalTool = getInt("main.portal-tool", 280);
+        CompactPortal = getBoolean("main.compact-portal", false);
+        RegionTool = getInt("main.region-tool", 268);
+        RestoreInvOnWorldChange = getBoolean("main.restore-inventory-on-world-change", true);
+        ColorPresets =  getStringList("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
         FillPortalBack = mainConfig.getInt("main.fill-portal-back", -1);
 		
 		//Load all current users
@@ -140,12 +114,44 @@ public class Config {
         Util.info(RegionManager.getRegionMap().size() + " region(s) loaded");
         
         //Load grills
-        for (String grill : (List<String>) grillConfig.getList("grills", null))
+        for (String grill : ((List<String>) grillConfig.getList("grills", new ArrayList<String>())).toArray(new String[0]))
         	GrillManager.loadGrill(grill);
         Util.info(GrillManager.grills.size() + " grill(s) loaded");
         
         saveAll();
 		
+	}
+	
+	private static int getInt(String path, int def)
+	{
+		if (mainConfig.get(path) == null)
+			mainConfig.set(path, def);
+	
+		return mainConfig.getInt(path, def);
+	}
+
+	private static String getString(String path, String def)
+	{
+		if (mainConfig.get(path) == null)
+			mainConfig.set(path, def);
+
+		return mainConfig.getString(path, def);
+	}
+
+	private static List<String> getStringList(String path, List<String> def)
+	{
+		if (mainConfig.get(path) == null)
+			mainConfig.set(path, def);
+
+	return (List<String>) mainConfig.getList(path, def);
+	}
+
+	private static Boolean getBoolean(String path, Boolean def)
+	{
+		if (mainConfig.get(path) == null)
+			mainConfig.set(path, def);
+
+		return mainConfig.getBoolean(path, def);
 	}
 	
 	public static void reLoad() {
@@ -183,6 +189,8 @@ public class Config {
 	
 	private static File getConfigFile(String filename)
 	{
+		if (!plugin.getDataFolder().exists()) plugin.getDataFolder().mkdir();
+		
 		File file = new File(plugin.getDataFolder(), filename);
 		return file;
 	}
@@ -190,8 +198,11 @@ public class Config {
 		FileConfiguration config = null;
 		try {
 			config = new YamlConfiguration();
-			config.load(file);
-			config.set("setup", null);
+			if (file.exists())
+			{
+				config.load(file);
+				config.set("setup", null);
+			}
 			config.save(file);
 			
 			return config;
