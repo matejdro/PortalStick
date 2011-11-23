@@ -77,7 +77,6 @@ public class GrillManager implements Runnable {
     	for (Grill grill : grills)
     		if (grill.getBorder().contains(initial))
     			return false;
-    	
     	//Attempt to get complete border
     	startRecurse(initial, borderID, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.DOWN, BlockFace.UP);
     	if (!complete)
@@ -139,7 +138,6 @@ public class GrillManager implements Runnable {
     	    				
     	    				if (BlockUtil.compareBlockToString(temp, borderID))
     	    					break;
-    	    					
     	    				temp = temp.getRelative(face);
     	    			}
     	    			if (!BlockUtil.compareBlockToString(temp, borderID)) {

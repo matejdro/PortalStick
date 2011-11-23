@@ -1,6 +1,8 @@
 package com.matejdro.bukkit.portalstick.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -8,8 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.util.config.Configuration;
 
 import com.matejdro.bukkit.portalstick.Bridge;
 import com.matejdro.bukkit.portalstick.FunnelBridgeManager;
@@ -25,10 +29,15 @@ import com.matejdro.bukkit.portalstick.UserManager;
 public class Config {
 	
 	public static PortalStick plugin;
-	private static Configuration mainConfig;
-	private static Configuration regionConfig;
-	private static Configuration grillConfig;
-	private static Configuration bridgeConfig;
+	private static FileConfiguration mainConfig;
+	private static FileConfiguration regionConfig;
+	private static FileConfiguration grillConfig;
+	private static FileConfiguration bridgeConfig;
+	
+	private static File mainConfigFile;
+	private static File regionConfigFile;
+	private static File grillConfigFile;
+	private static File bridgeConfigFile;
 	
 	public static HashSet<String> DisabledWorlds;
 	public static boolean DeleteOnQuit;
@@ -46,44 +55,59 @@ public class Config {
 	public static int soundRange;
 	public static String[] soundUrls = new String[Sound.values().length];
 	public static String[] soundNotes = new String[Sound.values().length];
-	
 	public Config (PortalStick instance) {
 		
 		plugin = instance;
-		mainConfig = plugin.getConfiguration();
-		regionConfig = getConfigFile("regions.yml");
-		grillConfig = getConfigFile("grills.yml");
-		bridgeConfig = getConfigFile("bridges.yml");
+		
+		mainConfigFile = getConfigFile("config.yml");
+		regionConfigFile = getConfigFile("regions.yml");
+		grillConfigFile = getConfigFile("grills.yml");
+		bridgeConfigFile = getConfigFile("bridges.yml");
+		
+		
+		mainConfig = getConfig(mainConfigFile);
+		regionConfig = getConfig(regionConfigFile);
+		grillConfig = getConfig(grillConfigFile);
+		bridgeConfig = getConfig(bridgeConfigFile);
 		
 		load();
 	}
 	
 	public static void deleteGrill(String grill) {
-		List<String> list = grillConfig.getStringList("grills", null);
+		List<String> list = (List<String>) grillConfig.getList("grills", null);
 		list.remove(grill);
-		grillConfig.setProperty("grills", list);
+		grillConfig.set("grills", list);
 		saveAll();
 	}
 	
 	public static void deleteRegion(String name) {
-		regionConfig.removeProperty("regions." + name);
+		regionConfig.set("regions." + name, null);
 		saveAll();
 	}
 	
 	public static void deleteBridge(String bridge) {
-		List<String> list = bridgeConfig.getStringList("bridges", null);
+		List<String> list = (List<String>) bridgeConfig.getList("bridges", null);
 		list.remove(bridge);
-		bridgeConfig.setProperty("bridges", list);
+		bridgeConfig.set("bridges", list);
 		saveAll();
 	}
 
 	
 	public static void load() {
 		
-		mainConfig.load();
-		regionConfig.load();
-		grillConfig.load();
-		bridgeConfig.load();
+		try {
+			mainConfig.load(mainConfigFile);
+			regionConfig.load(regionConfigFile);
+			grillConfig.load(grillConfigFile);
+			bridgeConfig.load(bridgeConfigFile);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InvalidConfigurationException e) {
+			e.printStackTrace();
+		}
+		
 		//Load messages
 		MessageCannotPlacePortal = getString("messages.cannot-place-portal", "&cCannot place a portal there!");
         
@@ -124,18 +148,18 @@ public class Config {
 			UserManager.createUser(player);
 		
         //Load all regions
-        if (regionConfig.getKeys("regions") != null)
-        	for (String regionName : regionConfig.getKeys("regions"))
+        if (regionConfig.getConfigurationSection("regions") != null)
+        	for (String regionName : regionConfig.getConfigurationSection("regions").getKeys(false))
         		RegionManager.loadRegion(regionName);
         RegionManager.loadRegion("global");
         Util.info(RegionManager.getRegionMap().size() + " region(s) loaded");
         
         //Load grills
-        for (String grill : grillConfig.getStringList("grills", null))
+        for (String grill : ((List<String>) grillConfig.getList("grills", new ArrayList<String>())).toArray(new String[0]))
         	GrillManager.loadGrill(grill);
         Util.info(GrillManager.grills.size() + " grill(s) loaded");
         //Load bridges
-        for (String bridge : bridgeConfig.getStringList("bridges", null))
+        for (String bridge : (List<String>) bridgeConfig.getList("bridges", null))
         	FunnelBridgeManager.loadBridge(bridge);
         Util.info(FunnelBridgeManager.bridges.size() + " bridge(s) loaded");
         
@@ -145,33 +169,34 @@ public class Config {
 	
 	private static int getInt(String path, int def)
 	{
-		if (mainConfig.getProperty(path) == null)
-			mainConfig.setProperty(path, def);
-		
+
+		if (mainConfig.get(path) == null)
+			mainConfig.set(path, def);
+	
 		return mainConfig.getInt(path, def);
 	}
-	
+
 	private static String getString(String path, String def)
 	{
-		if (mainConfig.getProperty(path) == null)
-			mainConfig.setProperty(path, def);
-		
+		if (mainConfig.get(path) == null)
+			mainConfig.set(path, def);
+
 		return mainConfig.getString(path, def);
 	}
-	
+
 	private static List<String> getStringList(String path, List<String> def)
 	{
-		if (mainConfig.getProperty(path) == null)
-			mainConfig.setProperty(path, def);
-		
-		return mainConfig.getStringList(path, def);
+		if (mainConfig.get(path) == null)
+			mainConfig.set(path, def);
+
+	return (List<String>) mainConfig.getList(path, def);
 	}
-	
+
 	private static Boolean getBoolean(String path, Boolean def)
 	{
-		if (mainConfig.getProperty(path) == null)
-			mainConfig.setProperty(path, def);
-		
+		if (mainConfig.get(path) == null)
+			mainConfig.set(path, def);
+
 		return mainConfig.getBoolean(path, def);
 	}
 	
@@ -199,28 +224,39 @@ public class Config {
 	
 	public static void loadRegionSettings(Region region) {
 		for (RegionSetting setting : RegionSetting.values()) {
-			Object prop = regionConfig.getProperty("regions." + region.Name + "." + setting.getYaml());
+			Object prop = regionConfig.get("regions." + region.Name + "." + setting.getYaml());
     		if (prop == null)
     			region.settings.put(setting, setting.getDefault());
     		else
     			region.settings.put(setting, prop);
-    		regionConfig.setProperty("regions." + region.Name + "." + setting.getYaml(), region.settings.get(setting));
+    		regionConfig.set("regions." + region.Name + "." + setting.getYaml(), region.settings.get(setting));
     	}
 		region.updateLocation();
 	}
 	
-	private static Configuration getConfigFile(String filename) {
-		Configuration configfile = null;
+	private static File getConfigFile(String filename)
+	{
+		if (!plugin.getDataFolder().exists()) plugin.getDataFolder().mkdir();
+		
 		File file = new File(plugin.getDataFolder(), filename);
+		return file;
+	}
+	private static FileConfiguration getConfig(File file) {
+		FileConfiguration config = null;
 		try {
-			configfile = new Configuration(file);
-			configfile.load();
-			configfile.removeProperty("setup");
-			configfile.save();
+			config = new YamlConfiguration();
+			if (file.exists())
+			{
+				config.load(file);
+				config.set("setup", null);
+			}
+			config.save(file);
+			
+			return config;
 		} catch (Exception e) {
-			Util.severe("Unable to load YAML file " + filename);
+			Util.severe("Unable to load YAML file " + file.getAbsolutePath());
 		}
-		return configfile;
+		return null;
 	}
 	
 	public static void saveAll() {
@@ -229,32 +265,56 @@ public class Config {
 		for (Map.Entry<String, Region> entry : RegionManager.getRegionMap().entrySet()) {
 			Region region = entry.getValue();
 			for (Entry<RegionSetting, Object> setting : region.settings.entrySet())
-				regionConfig.setProperty("regions." + region.Name + "." + setting.getKey().getYaml(), setting.getValue());
+				regionConfig.set("regions." + region.Name + "." + setting.getKey().getYaml(), setting.getValue());
 		}
-		if (!regionConfig.save())
+		try
+		{
+			regionConfig.save(regionConfigFile);
+		}
+		catch (Exception ex)
+		{
 			Util.severe("Error while writing to regions.yml");
+		}
 		
 		//Save grills
-		grillConfig.removeProperty("grills");
+		grillConfig.set("grills", null);
 		List<String> list = new ArrayList<String>();
 		for (Grill grill : GrillManager.getGrillList())
 			list.add(grill.getStringLocation());
-		grillConfig.setProperty("grills", list);
-		if (!grillConfig.save())
+		grillConfig.set("grills", list);
+		try
+		{
+			grillConfig.save(grillConfigFile);
+		}
+		catch (Exception ex)
+		{
 			Util.severe("Error while writing to grills.yml");
+		}
 		
 		//Save bridges
-		bridgeConfig.removeProperty("bridges");
+		bridgeConfig.set("bridges", null);
 		list = new ArrayList<String>();
 		for (Bridge bridge : FunnelBridgeManager.bridges)
 			list.add(bridge.getStringLocation());
-		bridgeConfig.setProperty("bridges", list);
-		if (!bridgeConfig.save())
+		bridgeConfig.set("bridges", list);
+		try
+		{
+			bridgeConfig.save(bridgeConfigFile);
+		}
+		catch (Exception ex)
+		{
 			Util.severe("Error while writing to bridges.yml");
+				}
 		
 		//Save main
-		if (!mainConfig.save())
+		try
+		{
+			mainConfig.save(mainConfigFile);
+		}
+		catch (Exception ex)
+		{
 			Util.severe("Error while writing to config.yml");
+		}
 			
 	}
 	

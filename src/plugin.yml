@@ -1,6 +1,6 @@
 name: PortalStick
 main: com.matejdro.bukkit.portalstick.PortalStick
-version: 2.3.2
+version: 2.3.5
 author: matejdro and oliverw92
 depend: [Spout]
 commands:

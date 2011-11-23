@@ -43,6 +43,8 @@ public class EntityManager implements Runnable {
 
 	public static Location teleport(Entity entity, Location LocTo, Vector vector)
 	{
+		if (entity == null || entity.isDead()) return null;
+		
 		if (blockedEntities.contains(entity)) return null;
 
 		if (entity.isDead()) return null;
@@ -176,10 +178,13 @@ public class EntityManager implements Runnable {
 	        		outvector = outvector.setY(-momentum);
 	        		break;
 	        }
-			 				
+			
+			if (!(entity instanceof Player) && momentum < 0.5 && (portal.getTeleportFace() == BlockFace.UP || portal.getTeleportFace() == BlockFace.DOWN) && (destination.getTeleportFace() == BlockFace.UP || destination.getTeleportFace() == BlockFace.DOWN))
+			 	return null;
+			
 			entity.setFallDistance(0);	
 			entity.setVelocity(entity.getVelocity().zero());
-				 
+			
 			teleport.setPitch(pitch);
 			teleport.setYaw(yaw);
 			
@@ -279,6 +284,8 @@ public class EntityManager implements Runnable {
 					for (Entity e : entities)
 					{
 						if (e instanceof Player || e instanceof Vehicle) continue;
+						if (e.isDead()) continue;
+						
 						Location LocTo = e.getLocation();
 						LocTo = new Location(LocTo.getWorld(), LocTo.getBlockX(), LocTo.getBlockY(), LocTo.getBlockZ());
 
