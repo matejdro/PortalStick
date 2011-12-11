@@ -1,14 +1,16 @@
 package com.matejdro.bukkit.portalstick;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
+import com.matejdro.bukkit.portalstick.util.Util;
 
-public class Region {
+public class Region extends User {
 	
 	public HashMap<RegionSetting, Object> settings = new HashMap<RegionSetting, Object>();
 	
@@ -17,7 +19,12 @@ public class Region {
 	public Vector Max = new Vector();
 	public String World;
 	
+	public HashSet<Portal> portals = new HashSet<Portal>();
+	public Portal bluePortalDest;
+	public Portal orangePortalDest;
+	
 	public Region(String name) {
+		super("region_" + name);
 		Name = name;
 	}
 	
@@ -42,6 +49,80 @@ public class Region {
 		settings.remove(RegionSetting.LOCATION);
 		settings.put(RegionSetting.LOCATION, one.getWorld().getName() + ":" + one.toVector().toString() + ":" + two.toVector().toString());
 		updateLocation();
+	}
+	
+	public void regionPortalOpened(Boolean orange)
+	{
+		for (Portal p : portals)
+		{
+			if (orange)
+			{
+    			Util.info(String.valueOf(p.getDestination() == getBluePortal()));
+				if (p.getDestination() == getBluePortal() && getBluePortal() != null) 
+				{
+					getBluePortal().open();
+					if (orangePortalDest == null || !orangePortalDest.isOpen()) orangePortalDest = p;
+					break;
+				}
+			}
+			else
+			{
+				if (p.getDestination() == getOrangePortal() && getOrangePortal() != null) 
+				{
+					getOrangePortal().open();
+					if (bluePortalDest == null || !bluePortalDest.isOpen()) bluePortalDest = p;
+					break;
+				}
+			}
+		}			
+	}
+	
+	public void regionPortalClosed(Boolean orange)
+	{
+		for (Portal p : portals)
+		{
+			if (orange)
+			{
+				if (p.isOpen() && p.getDestination() == getBluePortal() && getBluePortal() != null) 
+				{
+					if (orangePortalDest == null || !orangePortalDest.isOpen()) orangePortalDest = p;
+					break;
+				}
+			}
+			if (p.isOpen() && p.getDestination() == getOrangePortal() && getOrangePortal() != null) 
+			{
+				if (bluePortalDest == null || !bluePortalDest.isOpen()) bluePortalDest = p;
+				break;
+			}
+		}
+		
+		if (orange)
+		{
+			if (getOrangePortal() != null) getOrangePortal().close();
+			orangePortalDest = null;
+		}
+		else
+		{
+			if (getBluePortal() != null) getBluePortal().close();
+			bluePortalDest = null;
+		}
+
+	}
+	
+	public void regionPortalDeleted(Portal portal)
+	{
+		for (Portal p : portals)
+		{
+			if (p.getDestination() == portal) p.close();
+		}
+	}
+	
+	public void regionPortalCreated(Boolean orange)
+	{
+		for (Portal p : portals)
+		{
+			if (p.isOrange() != orange && p.getDestination() == null) p.open();
+		}
 	}
 	
 	public boolean contains(Vector vector) {

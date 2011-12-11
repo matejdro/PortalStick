@@ -45,5 +45,5 @@ public class RegionManager {
 	public static HashMap<String, Region> getRegionMap() {
 		return regions;
 	}
-
+	
 }

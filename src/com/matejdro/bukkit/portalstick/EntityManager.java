@@ -3,18 +3,15 @@ package com.matejdro.bukkit.portalstick;
 import java.util.HashSet;
 import java.util.List;
 
-import net.minecraft.server.EntityFallingSand;
 import net.minecraft.server.EntityItem;
 import net.minecraft.server.WorldServer;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftEntity;
-import org.bukkit.craftbukkit.entity.CraftFallingSand;
 import org.bukkit.craftbukkit.entity.CraftItem;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Boat;
@@ -194,24 +191,24 @@ public class EntityManager implements Runnable {
 				entity.remove();
 				teleport.getWorld().spawnArrow(teleport, outvector, (float) (momentum * 1.0f), 12.0f);
 			}			
-			else if (entity instanceof FallingSand)
-			{
-				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
-				
-				EntityFallingSand sand = (EntityFallingSand) ((CraftFallingSand) entity).getHandle() ;
-				EntityFallingSand newsand = new EntityFallingSand(world, teleport.getX(), teleport.getY(), teleport.getZ(), sand.a, 0);
-				
-				Material db = teleport.getBlock().getType();
-				
-				if (db == Material.AIR || db == Material.WATER || db == Material.STATIONARY_WATER || db == Material.LAVA || db == Material.STATIONARY_LAVA)
-				{
-					entity.remove();
-					
-					world.addEntity((net.minecraft.server.Entity) newsand);	
-					newsand.getBukkitEntity().setVelocity(outvector);
-				}
-				
-			}
+//			else if (entity instanceof FallingSand)
+//			{
+//				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
+//				
+//				EntityFallingSand sand = (EntityFallingSand) ((CraftFallingSand) entity).getHandle() ;
+//				EntityFallingSand newsand = new EntityFallingSand(world, teleport.getX(), teleport.getY(), teleport.getZ(), sand.a, 0);
+//				
+//				Material db = teleport.getBlock().getType();
+//				
+//				if (db == Material.AIR || db == Material.WATER || db == Material.STATIONARY_WATER || db == Material.LAVA || db == Material.STATIONARY_LAVA)
+//				{
+//					entity.remove();
+//					
+//					world.addEntity((net.minecraft.server.Entity) newsand);	
+//					newsand.getBukkitEntity().setVelocity(outvector);
+//				}
+//				
+//			}
 			else if (entity instanceof Item)
 			{
 				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();

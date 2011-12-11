@@ -1,14 +1,18 @@
 package com.matejdro.bukkit.portalstick;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.material.Wool;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.Config;
@@ -267,6 +271,7 @@ public class PortalManager {
 		}
 		
 		portals.add(portal);
+		region.portals.add(portal);
 		portal.create();
 		
 		return true;
@@ -344,6 +349,187 @@ public class PortalManager {
 			else
 				inv.addItem(item);
 		}
+	}
+	
+	public static void tryPlacingAutomatedPortal(Block b)
+	{
+		//Check if wool is correct
+		Wool wool = (Wool) Material.WOOL.getNewData(b.getData());
+		if (wool.getColor() != DyeColor.BLACK && wool.getColor() != DyeColor.BLUE && wool.getColor() != DyeColor.ORANGE) return;
+		
+		//Check for first iron bar
+		Block firstIronBar = null;
+		for (int i = 0; i < 6; i++)
+		 {
+			 if (b.getRelative(BlockFace.values()[i], 2).getType() == Material.IRON_FENCE)
+			 {
+				firstIronBar = b.getRelative(BlockFace.values()[i], 2);
+				break;
+			 }
+			 else if (b.getRelative(BlockFace.values()[i]).getType() == Material.IRON_FENCE)
+			 {
+				firstIronBar = b.getRelative(BlockFace.values()[i]);
+				break;
+			 }
+		 }
+		if (firstIronBar == null) return;
+		
+		//Find other iron bars at same side of portal generator
+		ArrayList<Block> ironBars = new ArrayList<Block>();
+		ironBars.add(firstIronBar);
+		for (int i = 0; i < 6; i++)
+		 {
+			BlockFace face = BlockFace.values()[i];
+			 if (firstIronBar.getRelative(face).getType() == Material.IRON_FENCE)
+			 {
+				 int counter = 1;
+				 while (firstIronBar.getRelative(face, counter).getType() == Material.IRON_FENCE)
+				 {
+					 firstIronBar = firstIronBar.getRelative(face, counter);
+					 counter++;
+				 }
+				 
+				 counter = 1;
+				 while (firstIronBar.getRelative(face, counter).getType() == Material.IRON_FENCE)
+				 {
+					 ironBars.add(firstIronBar.getRelative(face, counter));
+					 counter++;
+				 }
+				 
+				 counter = 1;
+				 while (firstIronBar.getRelative(face.getOppositeFace(), counter).getType() == Material.IRON_FENCE)
+				 {
+					 ironBars.add(firstIronBar.getRelative(face.getOppositeFace(), counter));
+					 counter++;
+				 }
+
+				 
+				 break;
+			 }
+		 }
+
+		//Find, in which direction is other side of portal generator
+		int size = Config.CompactPortal ? 2 : 4; // How far is another side of portal generator
+		BlockFace otherSide = null;
+		for (int i = 0; i < 6; i++)
+		 {
+			BlockFace face = BlockFace.values()[i];
+			if (firstIronBar.getRelative(face, size).getType() == Material.IRON_FENCE)
+			{
+				otherSide = face;
+				break;
+			}
+		 }
+		if (otherSide == null) return;
+		
+		//Search for iron bars on other side of portal generator
+		for (Block ironBar : ironBars.toArray(new Block[0]))
+		{
+			if (ironBar.getRelative(otherSide, size).getType() == Material.IRON_FENCE)
+				//ironBar.setType(Material.WOOD);
+				ironBars.add(ironBar.getRelative(otherSide, size));
+		}
+				
+		BlockFace portalFace = null;
+		Portal oldPortal = null;
+		//Find, where portal surface is
+		for (int i = 0; i < 6; i++)
+		{
+			BlockFace face2 = BlockFace.values()[i];
+			if (face2 == otherSide || face2.getOppositeFace() == otherSide) continue;
+			Block firstPortalBlock = firstIronBar.getRelative(otherSide).getRelative(face2);
+			if (firstPortalBlock.getType() == Material.STONE)
+			{
+				portalFace = face2;
+				break;
+			}
+			else if (borderBlocks.containsKey(firstPortalBlock.getLocation()) || insideBlocks.containsKey(firstPortalBlock.getLocation()))
+			{
+				oldPortal = PortalManager.borderBlocks.get(firstPortalBlock.getLocation());
+				if (oldPortal == null) oldPortal = PortalManager.insideBlocks.get(firstPortalBlock.getLocation());
+				portalFace = face2;
+				break;
+
+			}
+		}
+		
+		if (portalFace == null) return;
+				
+		//Is portal generator right size?
+		if ((!Config.CompactPortal &&
+		(((portalFace == BlockFace.UP || portalFace == BlockFace.DOWN) && ironBars.size() != 6 ) ||
+		(portalFace != BlockFace.UP && portalFace != BlockFace.DOWN && ironBars.size() != 8 ))) ||
+		(Config.CompactPortal && 
+		(((portalFace == BlockFace.UP || portalFace == BlockFace.DOWN) && ironBars.size() != 2 ) ||
+		(portalFace != BlockFace.UP && portalFace != BlockFace.DOWN && ironBars.size() != 4 ))))
+			return;
+		if (wool.getColor() == DyeColor.BLACK)
+		{
+			if (oldPortal != null) oldPortal.delete();
+			return;
+		}
+			
+				
+		//Check if portal is big enough and start making a portal
+		PortalCoord portalc = new PortalCoord();
+		for (int i = 0; i < ironBars.size() / 2; i++)
+		{
+			portalc.border.add(ironBars.get(i).getRelative(portalFace).getRelative(otherSide, 1));
+			portalc.border.add(ironBars.get(i).getRelative(portalFace).getRelative(otherSide, 3));
+			
+			if (i == 0 || i == (ironBars.size() / 2) - 1)
+				portalc.border.add(ironBars.get(i).getRelative(portalFace).getRelative(otherSide, 2));
+			else
+				portalc.inside.add(ironBars.get(i).getRelative(portalFace).getRelative(otherSide, 2));
+		}
+		
+		portalc.vertical = portalFace == BlockFace.UP || portalFace == BlockFace.DOWN;
+		portalc.block = portalc.inside.toArray(new Block[0])[0];
+		
+		if (portalc.border.size() == 0 || portalc.inside.size() == 0) return;
+		for (Block tb : portalc.border)
+			if (!(tb.getType() == Material.STONE || PortalManager.borderBlocks.containsKey(tb.getLocation()) || insideBlocks.containsKey(tb.getLocation()))) return;
+		for (Block tb : portalc.inside)
+			if (!(tb.getType() == Material.STONE || PortalManager.borderBlocks.containsKey(tb.getLocation()) || insideBlocks.containsKey(tb.getLocation()))) return;
+				
+		
+		if (portalc.vertical) portalc.destLoc = portalc.inside.toArray(new Block[0])[0].getRelative(portalFace.getOppositeFace()).getLocation();
+		else
+		{
+			//Find lowest block inside horizontal portal
+			int y = 200;
+			Block lBlock = null;
+			for (Block lb : portalc.inside)
+				if (lBlock == null || lBlock.getY() < y) lBlock = lb;
+					
+			portalc.destLoc = lBlock.getRelative(portalFace.getOppositeFace()).getLocation();
+		}
+		portalc.destLoc.setX(portalc.destLoc.getX() + 0.5);
+		portalc.destLoc.setZ(portalc.destLoc.getZ() + 0.5);
+		
+		portalc.tpFace = portalFace;
+		
+		if (oldPortal != null) oldPortal.delete();
+		
+		Boolean orange = wool.getColor() == DyeColor.ORANGE;
+		Region region = RegionManager.getRegion(b.getLocation());
+		
+		Portal portal = new Portal(portalc.destLoc, portalc.block, portalc.border, portalc.inside, portalc.behind, region, orange, portalc.vertical, portalc.tpFace);
+		
+		if (orange)
+		{
+			if (region.getOrangePortal() != null) region.getOrangePortal().delete();
+			region.setOrangePortal(portal);
+		}
+		else
+		{
+			if (region.getBluePortal() != null) region.getBluePortal().delete();
+			region.setBluePortal(portal);
+		}
+		portals.add(portal);
+		region.portals.add(portal);
+
+		portal.create();
 	}
 
 }

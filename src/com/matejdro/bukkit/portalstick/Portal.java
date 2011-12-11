@@ -51,7 +51,6 @@ public class Portal {
 	
 	public void delete()
 	{
-		
 		if (orange != null && owner != null) {
 			for (Block b: border)
 			{
@@ -82,6 +81,7 @@ public class Portal {
 				PortalManager.awayBlocksZ.remove(l);
 			}
 			
+			
 			if (orange)
 			{
 				owner.setOrangePortal(null);
@@ -91,21 +91,25 @@ public class Portal {
 				owner.setBluePortal(null);
 			}
 			
-			if (orange)
+			PortalManager.portals.remove(this);
+			RegionManager.getRegion(centerBlock.getLocation()).portals.remove(this);
+						
+	    	if (getDestination() != null && getDestination().isOpen())
 	    	{
-	    		if (owner.getBluePortal() != null && owner.getBluePortal().isOpen())
-	    			owner.getBluePortal().close();
+	    		if (getDestination().isRegionPortal())
+	    		{
+					RegionManager.getRegion(getDestination().getCenterBlock().getLocation()).regionPortalClosed(orange);
+	    		}
+	    		else
+	    		{
+	    			getDestination().close();
+	    		}
 	    	}
-	    	else
-	    	{
-	    		if (owner.getOrangePortal() != null && owner.getOrangePortal().isOpen())
-	    			owner.getOrangePortal().close();
-	
-	    	}
-		}
-				
-		PortalManager.portals.remove(this);
-		open = false;
+	    		    	
+    		if (isRegionPortal())
+    			RegionManager.getRegion(centerBlock.getLocation()).regionPortalDeleted(this);
+	    		
+		}				
 	}
 	
 	public void open()
@@ -246,30 +250,28 @@ public class Portal {
         		PortalManager.behindBlocks.put(b.getLocation(), this);
         	}
     	}
-    	if (orange)
-    	{
-    		if (owner.getBluePortal() == null)
-    			close();
-    		else
-    		{
-    			open();
-    			owner.getBluePortal().open();
-    		}
-    			
-    		
-    	}
-    	else
-    	{
-    		if (owner.getOrangePortal() == null)
-    			close();
-    		else
-    		{
-    			open();
-    			owner.getOrangePortal().open();
-    		}
-
-    	}
     	
+    		if (getDestination() == null)
+    			close();
+    		else
+    		{
+    			open();
+	    		if (getDestination().isRegionPortal())
+	    		{
+					RegionManager.getRegion(getCenterBlock().getLocation()).regionPortalOpened(orange);
+	    		}
+	    		else
+	    		{
+	    			getDestination().open();
+	    		}
+
+    		}
+    		
+    		if (isRegionPortal())
+    		{
+    			RegionManager.getRegion(centerBlock.getLocation()).regionPortalCreated(orange);
+    		}
+    			    	
     	for (Block b : inside)
     	{
     		PortalManager.insideBlocks.put(b.getLocation(), this);
@@ -320,11 +322,6 @@ public class Portal {
         		}
     		    		
     	}
-    		
-    	
-    
-    		
-    	
 	}
 	
 	public Location getTeleportLocation()
@@ -398,15 +395,34 @@ public class Portal {
 	}
 	public Portal getDestination()
 	{
+		Region region = RegionManager.getRegion(centerBlock.getLocation());
+		
 		if (isOrange())
-			return(owner.getBluePortal());
+		{
+			if (owner.getBluePortal() != null) 
+				return owner.getBluePortal();
+			else if (!isRegionPortal())
+				return region.getBluePortal();
+			else
+				return region.bluePortalDest;
+		}
 		else
-			return(owner.getOrangePortal());
+		{
+			if (owner.getOrangePortal() != null) 
+				return owner.getOrangePortal();
+			else if (!isRegionPortal())
+				return region.getOrangePortal();
+			else
+				return region.orangePortalDest;
 
+		}
 	}
 	public Block getCenterBlock()
 	{
 		return centerBlock;
 	}
-
+	public Boolean isRegionPortal()
+	{
+		return owner.name.startsWith("region_");
+	}
 }

@@ -31,6 +31,7 @@ import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
+import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalStickBlockListener extends BlockListener {
 	
@@ -55,13 +56,15 @@ public class PortalStickBlockListener extends BlockListener {
 				event.setCancelled(true);
 			}
 		
+		if (event.isCancelled()) return;	
+			
 		Grill grill = GrillManager.insideBlocks.get(event.getBlock().getLocation());
 		if (grill != null )
 		{
 				event.setCancelled(true);
 		}
 		
-		//Prevend destroying bridge
+		//Prevent destroying bridge
 		Bridge bridge = FunnelBridgeManager.bridgeBlocks.get(event.getBlock());
 		if (bridge != null )
 		{
@@ -116,6 +119,7 @@ public class PortalStickBlockListener extends BlockListener {
 	}
 	
 	public void onBlockBurn(BlockBurnEvent event) {
+		if (event.isCancelled()) return;	
 		if (event.getBlock().getType() != Material.WOOL) return;
 		
 		Location loc = event.getBlock().getLocation();
@@ -131,6 +135,7 @@ public class PortalStickBlockListener extends BlockListener {
 	}	
 	
 	public void onBlockPlace(BlockPlaceEvent event) {
+		if (event.isCancelled()) return;	
 		Material block = event.getBlock().getType();
 		Location loc = event.getBlockPlaced().getLocation();
 		
@@ -153,6 +158,7 @@ public class PortalStickBlockListener extends BlockListener {
 	}
 	 	 
 	public void onBlockPhysics(BlockPhysicsEvent event) {
+		if (event.isCancelled()) return;	
 		if (event.getBlock().getType() != Material.SUGAR_CANE_BLOCK) return;
 		
 		Grill grill = GrillManager.insideBlocks.get(event.getBlock().getLocation());
@@ -161,6 +167,7 @@ public class PortalStickBlockListener extends BlockListener {
 	}
 	
 	 public void onBlockFromTo(BlockFromToEvent event) {
+			if (event.isCancelled()) return;	
 		 Region region = RegionManager.getRegion(event.getBlock().getLocation());
 		 
 		 //Liquid teleporting
@@ -358,6 +365,20 @@ public class PortalStickBlockListener extends BlockListener {
 				 
 			 }
 		 }
+		 
+		 //Portal Generators
+		 if (event.getOldCurrent()  == 0 && event.getNewCurrent() > 0)
+		 {
+			 for (int i = 0; i < 5; i++)
+			 {
+				 if (block.getRelative(BlockFace.values()[i]).getType() == Material.WOOL)
+				 {
+					 PortalManager.tryPlacingAutomatedPortal(block.getRelative(BlockFace.values()[i]));
+				 }
+			 }
+		 }
+		 
+
 		 
 			 
 	 }
