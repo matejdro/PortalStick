@@ -3,7 +3,7 @@ package com.matejdro.bukkit.portalstick;
 import java.util.HashSet;
 import java.util.List;
 
-import net.minecraft.server.EntityFallingSand;
+import net.minecraft.server.EntityFallingBlock;
 import net.minecraft.server.EntityItem;
 import net.minecraft.server.WorldServer;
 
@@ -193,8 +193,8 @@ public class EntityManager implements Runnable {
 			{
 				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
 				
-				EntityFallingSand sand = (EntityFallingSand) ((CraftFallingSand) entity).getHandle() ;
-				EntityFallingSand newsand = new EntityFallingSand(world, teleport.getX(), teleport.getY(), teleport.getZ(), sand.a, 0);
+				EntityFallingBlock sand = (EntityFallingBlock) ((CraftFallingSand) entity).getHandle() ;
+				EntityFallingBlock newsand = new EntityFallingBlock(world, teleport.getX(), teleport.getY(), teleport.getZ(), sand.a, 0);
 				
 				Material db = teleport.getBlock().getType();
 				
