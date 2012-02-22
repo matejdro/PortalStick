@@ -52,7 +52,7 @@ public class PortalStick extends JavaPlugin {
 	public void onDisable() {
 		Config.saveAll();
 		Config.unLoad();
-		Util.info("PortalStick unloaded");
+		Util.info(this + " unloaded");
 	}
 
 	public void onEnable() {
@@ -109,7 +109,7 @@ public class PortalStick extends JavaPlugin {
 		commands.add(new RegionInfoCommand());
 		commands.add(new TestCommand());
 		
-		Util.info("PortalStick enabled");
+		Util.info(this + " enabled");
 
 	}
 	

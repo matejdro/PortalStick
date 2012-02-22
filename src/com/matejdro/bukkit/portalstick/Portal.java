@@ -91,6 +91,8 @@ public class Portal {
 				owner.setBluePortal(null);
 			}
 			
+			open = false;
+			
 			PortalManager.portals.remove(this);
 			RegionManager.getRegion(centerBlock.getLocation()).portals.remove(this);
 						

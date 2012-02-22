@@ -77,7 +77,6 @@ public class Bridge {
 	public void delete()
 	{
 		deactivate();
-		Util.info(String.valueOf(FunnelBridgeManager.bridges.remove(this)));
 		for (Block b: bridgeMachineBlocks)
 			FunnelBridgeManager.bridgeMachineBlocks.remove(b);
 	}

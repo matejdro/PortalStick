@@ -289,7 +289,6 @@ public class FunnelBridgeManager {
 				{
 					if (block.getLocation().distanceSquared(entity.getLocation()) > 4) 
 					{
-						Util.info(String.valueOf(glassBlockOwners.get(block) == entity));
 						if (glassBlockOwners.get(block) == entity)
 						{
 							BlockUtil.setBlockThreadSafe(block, Material.AIR);

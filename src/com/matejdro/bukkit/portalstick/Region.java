@@ -57,7 +57,6 @@ public class Region extends User {
 		{
 			if (orange)
 			{
-    			Util.info(String.valueOf(p.getDestination() == getBluePortal()));
 				if (p.getDestination() == getBluePortal() && getBluePortal() != null) 
 				{
 					getBluePortal().open();
@@ -85,14 +84,19 @@ public class Region extends User {
 			{
 				if (p.isOpen() && p.getDestination() == getBluePortal() && getBluePortal() != null) 
 				{
+					Util.info("test12");
 					if (orangePortalDest == null || !orangePortalDest.isOpen()) orangePortalDest = p;
 					break;
 				}
 			}
-			if (p.isOpen() && p.getDestination() == getOrangePortal() && getOrangePortal() != null) 
+			else
 			{
-				if (bluePortalDest == null || !bluePortalDest.isOpen()) bluePortalDest = p;
-				break;
+				if (p.isOpen() && p.getDestination() == getOrangePortal() && getOrangePortal() != null) 
+				{
+					Util.info("test13");
+					if (bluePortalDest == null || !bluePortalDest.isOpen()) bluePortalDest = p;
+					break;
+				}
 			}
 		}
 		

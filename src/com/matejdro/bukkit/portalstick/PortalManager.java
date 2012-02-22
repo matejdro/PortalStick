@@ -376,27 +376,21 @@ public class PortalManager {
 		
 		//Find other iron bars at same side of portal generator
 		ArrayList<Block> ironBars = new ArrayList<Block>();
-		ironBars.add(firstIronBar);
+		
 		for (int i = 0; i < 6; i++)
 		 {
 			BlockFace face = BlockFace.values()[i];
 			 if (firstIronBar.getRelative(face).getType() == Material.IRON_FENCE)
 			 {
+				 while (firstIronBar.getRelative(face).getType() == Material.IRON_FENCE)
+				 {
+					 firstIronBar = firstIronBar.getRelative(face);
+				 }
+				 
+				//firstIronBar.setType(Material.WOOD);
+				 ironBars.add(firstIronBar);
+				 
 				 int counter = 1;
-				 while (firstIronBar.getRelative(face, counter).getType() == Material.IRON_FENCE)
-				 {
-					 firstIronBar = firstIronBar.getRelative(face, counter);
-					 counter++;
-				 }
-				 
-				 counter = 1;
-				 while (firstIronBar.getRelative(face, counter).getType() == Material.IRON_FENCE)
-				 {
-					 ironBars.add(firstIronBar.getRelative(face, counter));
-					 counter++;
-				 }
-				 
-				 counter = 1;
 				 while (firstIronBar.getRelative(face.getOppositeFace(), counter).getType() == Material.IRON_FENCE)
 				 {
 					 ironBars.add(firstIronBar.getRelative(face.getOppositeFace(), counter));
