@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.matejdro.bukkit.portalstick.commands.BaseCommand;
@@ -20,7 +19,6 @@ import com.matejdro.bukkit.portalstick.commands.RegionListCommand;
 import com.matejdro.bukkit.portalstick.commands.RegionToolCommand;
 import com.matejdro.bukkit.portalstick.commands.ReloadCommand;
 import com.matejdro.bukkit.portalstick.commands.SetRegionCommand;
-import com.matejdro.bukkit.portalstick.commands.TestCommand;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickBlockListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickEntityListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickPlayerListener;
@@ -94,7 +92,6 @@ public class PortalStick extends JavaPlugin {
 		commands.add(new DeleteRegionCommand());
 		commands.add(new FlagCommand());
 		commands.add(new RegionInfoCommand());
-		commands.add(new TestCommand());
 		
 		Util.info(this + " enabled");
 
