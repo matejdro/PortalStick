@@ -3,21 +3,24 @@ package com.matejdro.bukkit.portalstick;
 import java.util.HashSet;
 import java.util.List;
 
+import net.minecraft.server.EntityFallingBlock;
 import net.minecraft.server.EntityItem;
+import net.minecraft.server.Item;
 import net.minecraft.server.WorldServer;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftEntity;
+import org.bukkit.craftbukkit.entity.CraftFallingSand;
 import org.bukkit.craftbukkit.entity.CraftItem;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingSand;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Vehicle;
@@ -209,6 +212,25 @@ public class EntityManager implements Runnable {
 //				}
 //				
 //			}
+			else if (entity instanceof FallingSand)
+			{
+				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
+				
+				EntityFallingBlock sand = (EntityFallingBlock) ((CraftFallingSand) entity).getHandle() ;
+				EntityFallingBlock newsand = new EntityFallingBlock(world, teleport.getX(), teleport.getY(), teleport.getZ(), sand.id, sand.data);
+				
+				
+				Material db = teleport.getBlock().getType();
+				
+				if (db == Material.AIR || db == Material.WATER || db == Material.STATIONARY_WATER || db == Material.LAVA || db == Material.STATIONARY_LAVA)
+				{
+					entity.remove();
+					
+					world.addEntity((net.minecraft.server.Entity) newsand);	
+					newsand.getBukkitEntity().setVelocity(outvector);
+				}
+				
+			}
 			else if (entity instanceof Item)
 			{
 				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();

@@ -74,7 +74,7 @@ public class Config {
 	}
 	
 	public static void deleteGrill(String grill) {
-		List<String> list = (List<String>) grillConfig.getList("grills", null);
+		List<String> list =  grillConfig.getStringList("grills");
 		list.remove(grill);
 		grillConfig.set("grills", list);
 		saveAll();
@@ -155,7 +155,7 @@ public class Config {
         Util.info(RegionManager.getRegionMap().size() + " region(s) loaded");
         
         //Load grills
-        for (String grill : ((List<String>) grillConfig.getList("grills", new ArrayList<String>())).toArray(new String[0]))
+        for (String grill : (grillConfig.getStringList("grills")).toArray(new String[0]))
         	GrillManager.loadGrill(grill);
         Util.info(GrillManager.grills.size() + " grill(s) loaded");
         //Load bridges
@@ -189,7 +189,7 @@ public class Config {
 		if (mainConfig.get(path) == null)
 			mainConfig.set(path, def);
 
-	return (List<String>) mainConfig.getList(path, def);
+	return mainConfig.getStringList(path);
 	}
 
 	private static Boolean getBoolean(String path, Boolean def)

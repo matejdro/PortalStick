@@ -4,10 +4,11 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityListener;
 
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.GrillManager;
@@ -19,8 +20,9 @@ import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
-public class PortalStickEntityListener extends EntityListener {
+public class PortalStickEntityListener implements Listener {
 	
+	@EventHandler()
 	public void onEntityDamage(EntityDamageEvent event) {
 		if (event.isCancelled()) return;
 
@@ -34,8 +36,7 @@ public class PortalStickEntityListener extends EntityListener {
 		}
 	}
 	
-	
-
+	@EventHandler()
 	public void onEntityExplode(EntityExplodeEvent event) {
 		if (event.isCancelled()) return;
 
