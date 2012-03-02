@@ -5,10 +5,11 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Dispenser;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockFromToEvent;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
@@ -25,7 +26,7 @@ import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
-public class PortalStickBlockListener extends BlockListener {
+public class PortalStickBlockListener implements Listener {
 	
 	private PortalStick plugin;
 		
@@ -34,6 +35,7 @@ public class PortalStickBlockListener extends BlockListener {
 		plugin = instance;
 	}
 
+	@EventHandler()
 	public void onBlockBreak(BlockBreakEvent event) {
 		Region region = RegionManager.getRegion(event.getBlock().getLocation());
 		Material type = event.getBlock().getType();
@@ -86,6 +88,7 @@ public class PortalStickBlockListener extends BlockListener {
 
 	}
 	
+	@EventHandler()
 	public void onBlockBurn(BlockBurnEvent event) {
 		if (event.getBlock().getType() != Material.WOOL) return;
 		
@@ -101,6 +104,7 @@ public class PortalStickBlockListener extends BlockListener {
 		}		
 	}	
 	
+	@EventHandler()
 	public void onBlockPlace(BlockPlaceEvent event) {
 		Material block = event.getBlock().getType();
 		Location loc = event.getBlockPlaced().getLocation();
@@ -116,6 +120,7 @@ public class PortalStickBlockListener extends BlockListener {
 		}
 	}
 	 	 
+	@EventHandler()
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		if (event.getBlock().getType() != Material.SUGAR_CANE_BLOCK) return;
 		
@@ -124,7 +129,8 @@ public class PortalStickBlockListener extends BlockListener {
 		event.setCancelled(true);
 	}
 	
-	 public void onBlockFromTo(BlockFromToEvent event) {
+	@EventHandler()
+	public void onBlockFromTo(BlockFromToEvent event) {
 		 Region region = RegionManager.getRegion(event.getBlock().getLocation());
 			if (!region.getBoolean(RegionSetting.TELEPORT_LIQUIDS))
 				return;
@@ -167,7 +173,8 @@ public class PortalStickBlockListener extends BlockListener {
 				}
 			}
 	 
-	 public void onBlockRedstoneChange(BlockRedstoneEvent event) {
+	@EventHandler()
+	public void onBlockRedstoneChange(BlockRedstoneEvent event) {
 		 Block block = event.getBlock();
 		 Block dispenserb = null;
 		 

@@ -10,11 +10,12 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -37,8 +38,9 @@ import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
-public class PortalStickPlayerListener extends PlayerListener {
+public class PortalStickPlayerListener implements Listener {
 
+	@EventHandler()
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{		
 		Player player = event.getPlayer();
@@ -167,6 +169,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 
 	}
  	    
+	@EventHandler()
 	public void onPlayerMove(PlayerMoveEvent event)
 	{
 		Player player = event.getPlayer();
@@ -256,6 +259,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		}
 	}
 		 
+	@EventHandler()
 	public void onPlayerDropItem(PlayerDropItemEvent event) {
 		if (event.isCancelled()) return;
 		
@@ -267,6 +271,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		
 	}
 	
+	@EventHandler()
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
 		Region regionFrom = RegionManager.getRegion(event.getFrom());
 		Region regionTo = RegionManager.getRegion(event.getTo());
@@ -275,6 +280,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		PortalManager.checkPlayerMove(event.getPlayer(), regionFrom, regionTo);
 		}
 		 
+	@EventHandler()
 	public void onPlayerQuit(PlayerQuitEvent event)
 	{
 		Player player = event.getPlayer();
@@ -290,6 +296,7 @@ public class PortalStickPlayerListener extends PlayerListener {
 		UserManager.deleteDroppedItems(player);
 	}
 		
+	@EventHandler()
 	public void onPlayerJoin(PlayerJoinEvent event)
 	{
 		Player player = event.getPlayer();

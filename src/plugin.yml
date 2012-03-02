@@ -1,6 +1,6 @@
 name: PortalStick
 main: com.matejdro.bukkit.portalstick.PortalStick
-version: 2.3.6
+version: 2.3.7
 author: matejdro and oliverw92
 commands:
   portalstick:
