@@ -8,3 +8,29 @@ commands:
     description: Aperture Science Portal Stick
     aliases: portal
     usage: /<command> help
+permissions:
+  portalstick.*:
+    description: Gives access to all portalstick commands
+    children:
+      portalstick.placeportal: true
+      portalstick.creategrill: true
+      portalstick.deletegrill: true
+      portalstick.teleport: true
+      portalstick.admin.regions: true
+      portalstick.admin.deleteall: true
+      portalstick.damageboots: true
+
+  portalstick.placeportal:
+    description: Permission to place portal
+  portalstick.creategrill:
+    description: Permission to create Material Emancipation Grill
+  portalstick.deletegrill:
+    description: Permission to delete Material Emancipation Grill
+  portalstick.teleport:
+    description: Permission to use portals
+  portalstick.damageboots:
+    description: Permission to use anti-damage boots
+  portalstick.admin.regions:
+    description: Permission to create-modify-delete regions
+  portalstick.admin.deleteall:
+    description: Permission for "/portal deleteall" command
