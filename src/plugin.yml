@@ -7,3 +7,31 @@ commands:
     description: Aperture Science Portal Stick
     aliases: portal
     usage: /<command> help
+permissions:
+  portalstick.placeportal:
+    description: Place portals
+    default: true
+  portalstick.creategrill:
+    description: Create grills
+    default: op
+  portalstick.deletegrill:
+    description: Delete grills
+    default: op
+  portalstick.createbridge:
+    description: Create bridges
+    default: op
+  portalstick.deletebridge:
+    description: Delete bridges
+    default: true
+  portalstick.teleport:
+    description: Use portals
+    default: true
+  portalstick.admin.regions:
+    description: Administrate regions
+    default: op
+  portalstick.admin.deleteall:
+    description: Delete all
+    default: op
+  portalstick.damageboots:
+    description: Damage boots
+    default: true
