@@ -86,7 +86,7 @@ public class Config {
 	}
 	
 	public static void deleteBridge(String bridge) {
-		List<String> list = (List<String>) bridgeConfig.getList("bridges", null);
+		List<String> list = bridgeConfig.getStringList("bridges");
 		list.remove(bridge);
 		bridgeConfig.set("bridges", list);
 		saveAll();
@@ -159,7 +159,7 @@ public class Config {
         	GrillManager.loadGrill(grill);
         Util.info(GrillManager.grills.size() + " grill(s) loaded");
         //Load bridges
-        for (String bridge : (List<String>) bridgeConfig.getList("bridges", null))
+        for (String bridge : bridgeConfig.getStringList("bridges"))
         	FunnelBridgeManager.loadBridge(bridge);
         Util.info(FunnelBridgeManager.bridges.size() + " bridge(s) loaded");
         
