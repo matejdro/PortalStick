@@ -11,11 +11,18 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
 public class GelManager {
-	public static Location useGel(Player player, Location LocTo, Vector vector)
+	private final PortalStick plugin;
+	
+	GelManager(PortalStick plugin)
+	{
+		this.plugin = plugin;
+	}
+	
+	public Location useGel(Player player, Location locTo, Vector vector)
 	{
 		Vector fallingspeed = player.getVelocity();
-		Region region = RegionManager.getRegion(LocTo);
-		Block block = LocTo.getBlock();
+		Region region = plugin.regionManager.getRegion(locTo);
+		Block block = locTo.getBlock();
 		
 		if (region.getBoolean(RegionSetting.ENABLE_RED_GEL_BLOCKS) && BlockUtil.compareBlockToString(block.getRelative(0,-1,0), region.getString(RegionSetting.RED_GEL_BLOCK))) return redGel(player, vector, region);
 
@@ -60,7 +67,7 @@ public class GelManager {
 
 	}
 	
-	public static Location BlueGel(Player player, Vector vector, Region region, int direction)
+	public Location BlueGel(Player player, Vector vector, Region region, int direction)
 	{
 		
 //		((Player) player).sendMessage(String.valueOf(vector.getX()));
@@ -115,7 +122,7 @@ public class GelManager {
 		return null;
 	}
 	
-	public static Location redGel(Player player, Vector vector, Region region)
+	public Location redGel(Player player, Vector vector, Region region)
 	{
 		if (player.isSneaking())
 		{

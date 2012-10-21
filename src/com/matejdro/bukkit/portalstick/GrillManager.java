@@ -18,21 +18,21 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 public class GrillManager implements Runnable {
 	
-	public static List<Grill> grills = new ArrayList<Grill>();
-	public static HashMap<Location, Grill> insideBlocks = new HashMap<Location, Grill>();
-	public static HashMap<Location, Grill> borderBlocks = new HashMap<Location, Grill>();
-	public static PortalStick plugin; 
+	public final List<Grill> grills = new ArrayList<Grill>();
+	public final HashMap<Location, Grill> insideBlocks = new HashMap<Location, Grill>();
+	public final HashMap<Location, Grill> borderBlocks = new HashMap<Location, Grill>();
+	private final PortalStick plugin; 
 	
-	private static HashSet<Block> border;
-	private static HashSet<Block> inside;
-	private static boolean complete;
-	private static int max = 0;
+	private HashSet<Block> border;
+	private HashSet<Block> inside;
+	private boolean complete;
+	private int max = 0;
 	
 	public GrillManager(PortalStick instance) {
 		plugin = instance;
 	}
 
-	public static void loadGrill(String blockloc) {
+	public void loadGrill(String blockloc) {
 		String[] locarr = blockloc.split(",");
 		String world = locarr[0];
 		Block b = plugin.getServer().getWorld(world).getBlockAt((int)Double.parseDouble(locarr[1]), (int)Double.parseDouble(locarr[2]), (int)Double.parseDouble(locarr[3]));
@@ -40,35 +40,31 @@ public class GrillManager implements Runnable {
 			Config.deleteGrill(blockloc);
 	}
 	
-	public static void deleteAll() {
+	public void deleteAll() {
 		for (Grill g : grills.toArray(new Grill[0]))
 			g.deleteInside();
-		grills = new ArrayList<Grill>();
+		grills.clear();
 		insideBlocks.clear();
 		borderBlocks.clear();
 	}
     
-    public static List<Grill> getGrillList() {
-    	return grills;
+    public boolean createGrill(Player player, Block block) {
+    	boolean ret;
+    	if(!Permission.createGrill(player) || Config.DisabledWorlds.contains(player.getLocation().getWorld().getName()))
+    	  ret = false;
+    	else if(placeRecursiveEmancipationGrill(block))
+    	{
+    	  Config.saveAll();
+    	  ret = true;
+    	}
+    	else
+    	  ret = false;
+    	return ret;
     }
     
-    public static boolean createGrill(Player player, Block block) {
-    	if (!Permission.createGrill(player)) return false;
-		if (Config.DisabledWorlds.contains(player.getLocation().getWorld().getName()))
-		{
-			return false;
-		}
-		if (GrillManager.placeRecursiveEmancipationGrill(block)) 
-		{
-			Config.saveAll();
-			return true;
-		}
-		return false;
-    }
-    
-    public static boolean placeRecursiveEmancipationGrill(Block initial) {
+    public boolean placeRecursiveEmancipationGrill(Block initial) {
     	
-    	Region region = RegionManager.getRegion(initial.getLocation());
+    	Region region = plugin.regionManager.getRegion(initial.getLocation());
     	String borderID = region.getString(RegionSetting.GRILL_MATERIAL);
     	if (!BlockUtil.compareBlockToString(initial, borderID)) return false;
     	if (!region.getBoolean(RegionSetting.ENABLE_GRILLS)) return false;
@@ -87,14 +83,14 @@ public class GrillManager implements Runnable {
     		return false;
 
     	//Create grill
-    	Grill grill = new Grill(border, inside, initial);
+    	Grill grill = new Grill(plugin, border, inside, initial);
     	grills.add(grill);
     	grill.create();
     	return true;
     }
     
     
-    private static void startRecurse(Block initial, String id, BlockFace one, BlockFace two, BlockFace three, BlockFace four, BlockFace iOne, BlockFace iTwo) {
+    private void startRecurse(Block initial, String id, BlockFace one, BlockFace two, BlockFace three, BlockFace four, BlockFace iOne, BlockFace iTwo) {
     	border = new HashSet<Block>();
     	inside = new HashSet<Block>();
     	max = 0;
@@ -106,7 +102,7 @@ public class GrillManager implements Runnable {
     		complete = false;
     }
     
-    private static void generateInsideBlocks(String borderID, Block initial, BlockFace iOne, BlockFace iTwo) {
+    private void generateInsideBlocks(String borderID, Block initial, BlockFace iOne, BlockFace iTwo) {
     	
     	//Work out maximums and minimums
     	Vector max = border.toArray(new Block[0])[0].getLocation().toVector();
@@ -155,7 +151,7 @@ public class GrillManager implements Runnable {
     	}
     }
     
-    private static void recurse(Block initial, String id, Block block, BlockFace one, BlockFace two, BlockFace three, BlockFace four) {
+    private void recurse(Block initial, String id, Block block, BlockFace one, BlockFace two, BlockFace three, BlockFace four) {
     	if (max >= 100) return;
     	if (block == initial && border.size() > 2) {
     		complete = true;
@@ -171,17 +167,17 @@ public class GrillManager implements Runnable {
     	}
     }
 
-	public static void emancipate(Player player) {
+	public void emancipate(Player player) {
 		
-		User user = UserManager.getUser(player);
-		Region region = RegionManager.getRegion(player.getLocation());
-		PortalManager.deletePortals(user);
+		User user = plugin.userManager.getUser(player);
+		Region region = plugin.regionManager.getRegion(player.getLocation());
+		plugin.portalManager.deletePortals(user);
 		
-		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_INVENTORY) && !user.getUsingTool())
-			PortalManager.setPortalInventory(player, region);
+		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_INVENTORY) && !user.usingTool)
+			plugin.portalManager.setPortalInventory(player, region);
 		
 		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS)) {
-			UserManager.deleteDroppedItems(player);
+			plugin.userManager.deleteDroppedItems(player);
 		}
 		
 	}
@@ -194,7 +190,7 @@ public class GrillManager implements Runnable {
 			if (!g.create()) {
 				Block b = g.getFirstBlock();
 				g.delete();
-				GrillManager.placeRecursiveEmancipationGrill(b);
+				placeRecursiveEmancipationGrill(b);
 			}
 		}
 	}

@@ -11,16 +11,20 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
 import com.matejdro.bukkit.portalstick.Grill;
-import com.matejdro.bukkit.portalstick.GrillManager;
 import com.matejdro.bukkit.portalstick.Portal;
-import com.matejdro.bukkit.portalstick.PortalManager;
+import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
-import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 public class PortalStickEntityListener implements Listener {
+	private final PortalStick plugin;
+	
+	public PortalStickEntityListener(PortalStick plugin)
+	{
+		this.plugin = plugin;
+	}
 	
 	@EventHandler()
 	public void onEntityDamage(EntityDamageEvent event) {
@@ -30,7 +34,7 @@ public class PortalStickEntityListener implements Listener {
 		{
 			Player player = (Player)event.getEntity();
 			if (!Permission.damageBoots(player)) return;
-			Region region = RegionManager.getRegion(player.getLocation());
+			Region region = plugin.regionManager.getRegion(player.getLocation());
 			if (event.getCause() == DamageCause.FALL && region.getBoolean(RegionSetting.ENABLE_FALL_DAMAGE_BOOTS) && region.getInt(RegionSetting.FALL_DAMAGE_BOOTS) == player.getInventory().getBoots().getTypeId())
 				event.setCancelled(true);
 		}
@@ -40,15 +44,15 @@ public class PortalStickEntityListener implements Listener {
 	public void onEntityExplode(EntityExplodeEvent event) {
 		if (event.isCancelled()) return;
 
-		Region region = RegionManager.getRegion(event.getLocation());
+		Region region = plugin.regionManager.getRegion(event.getLocation());
 		for (Block block : event.blockList().toArray(new Block[0])) {
 			Location loc = block.getLocation();
 
 			if (block.getType() == Material.WOOL)
 			{
-				Portal portal = PortalManager.borderBlocks.get(loc);
-				if (portal == null) portal = PortalManager.insideBlocks.get(loc);
-				if (portal == null) portal = PortalManager.behindBlocks.get(loc);
+				Portal portal = plugin.portalManager.borderBlocks.get(loc);
+				if (portal == null) portal = plugin.portalManager.insideBlocks.get(loc);
+				if (portal == null) portal = plugin.portalManager.behindBlocks.get(loc);
 				if (portal != null)
 				{
 					portal.delete();
@@ -59,8 +63,8 @@ public class PortalStickEntityListener implements Listener {
 			
 			if (block.getType() == Material.SUGAR_CANE_BLOCK || BlockUtil.compareBlockToString(block, region.getString(RegionSetting.GRILL_MATERIAL)))
 			{
-				Grill grill = GrillManager.insideBlocks.get(loc);
-				if (grill == null) grill = GrillManager.borderBlocks.get(loc);
+				Grill grill = plugin.grillManager.insideBlocks.get(loc);
+				if (grill == null) grill = plugin.grillManager.borderBlocks.get(loc);
 				if (grill != null )
 				{
 						event.setCancelled(true);

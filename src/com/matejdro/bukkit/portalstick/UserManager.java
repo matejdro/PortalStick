@@ -1,7 +1,5 @@
 package com.matejdro.bukkit.portalstick;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.entity.Item;
@@ -9,49 +7,47 @@ import org.bukkit.entity.Player;
 
 
 public class UserManager {
+	private final PortalStick plugin;
 	
-	public static HashMap<Player, Boolean> teleportPermissionCache  = new HashMap<Player, Boolean>();
-	private static ConcurrentHashMap<String, User> users = new ConcurrentHashMap<String, User>();
-	
-	public static ConcurrentHashMap<String, User> getUserList() {
-		return users;
+	UserManager(PortalStick plugin)
+	{
+		this.plugin = plugin;
 	}
 	
-	public static void createUser(Player player) {
+	public final ConcurrentHashMap<String, User> users = new ConcurrentHashMap<String, User>();
+	
+	public void createUser(Player player) {
 		users.put(player.getName(), new User(player.getName()));
 	}
 	
-	public static User getUser(Player player) {
+	public User getUser(Player player) {
 		return getUser(player.getName());
 	}
 	
-	public static User getUser(String player) {
+	public User getUser(String player) {
 		return users.get(player);
 	}
 
-	public static void deleteUser(Player player) {
+	public void deleteUser(Player player) {
 		deleteUser(getUser(player));
 	}
 	
-	public static void deleteUser(User user) {
-		PortalManager.deletePortals(user);
+	public void deleteUser(User user) {
+		plugin.portalManager.deletePortals(user);
 		deleteDroppedItems(user);
-		String key = "";
-		for (Map.Entry<String, User> entry : users.entrySet())
-			if (entry.getValue() == user)
-				key = entry.getKey();
-		users.remove(key);
+		users.values().remove(user);
 	}
 
-	public static void deleteDroppedItems(Player player) {
+	public void deleteDroppedItems(Player player) {
 		deleteDroppedItems(getUser(player));
 	}
 	
-	public static void deleteDroppedItems(User user) {
-		if (user != null && user.getDroppedItems() != null) {
-			for (Item item : user.getDroppedItems())
-				if (item != null) item.remove();
-			user.resetItems();
+	public void deleteDroppedItems(User user) {
+		if (user != null && user.droppedItems != null) {
+			for (Item item : user.droppedItems)
+				if (item != null)
+					item.remove();
+			user.droppedItems.clear();
 		}
 	}
 

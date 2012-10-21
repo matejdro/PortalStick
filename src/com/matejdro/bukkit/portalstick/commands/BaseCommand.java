@@ -6,13 +6,13 @@ import java.util.List;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
-import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.User;
-import com.matejdro.bukkit.portalstick.UserManager;
 import com.matejdro.bukkit.portalstick.util.Util;
 
 public abstract class BaseCommand {
+	final PortalStick plugin;
 	
 	public CommandSender sender;
 	public List<String> args = new ArrayList<String>();
@@ -24,6 +24,11 @@ public abstract class BaseCommand {
 	public Region region;
 	public User user;
 	public String usedCommand;
+	
+	public BaseCommand(PortalStick plugin)
+	{
+	  this.plugin = plugin;
+	}
 	
 	public boolean run(CommandSender sender, String[] preArgs, String cmd) {
 		this.sender = sender;
@@ -39,8 +44,8 @@ public abstract class BaseCommand {
 		if (bePlayer && !(sender instanceof Player))
 			return false;
 		player = (Player)sender;
-		region = RegionManager.getRegion(player.getLocation());
-		user = UserManager.getUser(player);
+		region = plugin.regionManager.getRegion(player.getLocation());
+		user = plugin.userManager.getUser(player);
 		usedCommand = cmd;
 		if (!permission(player))
 			return false;

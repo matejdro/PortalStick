@@ -1,22 +1,23 @@
 package com.matejdro.bukkit.portalstick.commands;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import com.matejdro.bukkit.portalstick.PortalManager;
+import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.util.Permission;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class DeleteCommand extends BaseCommand {
 
-	public DeleteCommand() {
+	public DeleteCommand(PortalStick plugin) {
+		super(plugin);
 		name = "delete";
 		argLength = 0;
 		usage = "<- deletes your portals";
 	}
 	
 	public boolean execute() {
-		PortalManager.deletePortals(user);
-		Util.sendMessage(player, "&cPortals deleted");
+		plugin.portalManager.deletePortals(user);
+		player.sendMessage(ChatColor.RED+"Portals deleted");
 		return true;
 	}
 	

@@ -14,18 +14,18 @@ public class Region extends User {
 	
 	public HashMap<RegionSetting, Object> settings = new HashMap<RegionSetting, Object>();
 	
-	public String Name;
-	public Vector Min = new Vector();
-	public Vector Max = new Vector();
-	public String World;
+	public final String name;
+	public final Vector min = new Vector();
+	public final Vector max = new Vector();
+	public String world;
 	
 	public HashSet<Portal> portals = new HashSet<Portal>();
 	public Portal bluePortalDest;
 	public Portal orangePortalDest;
 	
-	public Region(String name) {
+	Region(String name) {
 		super("region_" + name);
-		Name = name;
+		this.name = name;
 	}
 	
 	public void updateLocation() {
@@ -35,14 +35,14 @@ public class Region extends User {
 		String[] loc2 = loc[2].split(",");
 		Vector two = new Vector(Double.parseDouble(loc2[0]), Double.parseDouble(loc2[1]), Double.parseDouble(loc2[2]));
 
-		Min.setX(one.getX() < two.getX()?one.getX():two.getX());
-		Max.setX(one.getX() > two.getX()?one.getX():two.getX());
-		Min.setY(one.getY() < two.getY()?one.getY():two.getY());
-		Max.setY(one.getY() > two.getY()?one.getY():two.getY());
-		Min.setZ(one.getZ() < two.getZ()?one.getZ():two.getZ());
-		Max.setZ(one.getZ() > two.getZ()?one.getZ():two.getZ());
+		min.setX(one.getX() < two.getX()?one.getX():two.getX());
+		max.setX(one.getX() > two.getX()?one.getX():two.getX());
+		min.setY(one.getY() < two.getY()?one.getY():two.getY());
+		max.setY(one.getY() > two.getY()?one.getY():two.getY());
+		min.setZ(one.getZ() < two.getZ()?one.getZ():two.getZ());
+		max.setZ(one.getZ() > two.getZ()?one.getZ():two.getZ());
 
-		World = loc[0];
+		world = loc[0];
 	}
 	
 	public void setLocation(Location one, Location two) {
@@ -57,19 +57,19 @@ public class Region extends User {
 		{
 			if (orange)
 			{
-				if (p.getDestination() == getBluePortal() && getBluePortal() != null) 
+				if (p.getDestination() == bluePortal && bluePortal != null) 
 				{
-					getBluePortal().open();
-					if (orangePortalDest == null || !orangePortalDest.isOpen()) orangePortalDest = p;
+					bluePortal.open();
+					if (orangePortalDest == null || !orangePortalDest.open) orangePortalDest = p;
 					break;
 				}
 			}
 			else
 			{
-				if (p.getDestination() == getOrangePortal() && getOrangePortal() != null) 
+				if (p.getDestination() == orangePortal && orangePortal != null) 
 				{
-					getOrangePortal().open();
-					if (bluePortalDest == null || !bluePortalDest.isOpen()) bluePortalDest = p;
+					orangePortal.open();
+					if (bluePortalDest == null || !bluePortalDest.open) bluePortalDest = p;
 					break;
 				}
 			}
@@ -82,19 +82,19 @@ public class Region extends User {
 		{
 			if (orange)
 			{
-				if (p.isOpen() && p.getDestination() == getBluePortal() && getBluePortal() != null) 
+				if (p.open && p.getDestination() == bluePortal && bluePortal != null) 
 				{
 					Util.info("test12");
-					if (orangePortalDest == null || !orangePortalDest.isOpen()) orangePortalDest = p;
+					if (orangePortalDest == null || !orangePortalDest.open) orangePortalDest = p;
 					break;
 				}
 			}
 			else
 			{
-				if (p.isOpen() && p.getDestination() == getOrangePortal() && getOrangePortal() != null) 
+				if (p.open && p.getDestination() == orangePortal && orangePortal != null) 
 				{
 					Util.info("test13");
-					if (bluePortalDest == null || !bluePortalDest.isOpen()) bluePortalDest = p;
+					if (bluePortalDest == null || !bluePortalDest.open) bluePortalDest = p;
 					break;
 				}
 			}
@@ -102,12 +102,12 @@ public class Region extends User {
 		
 		if (orange)
 		{
-			if (getOrangePortal() != null) getOrangePortal().close();
+			if (orangePortal != null) orangePortal.close();
 			orangePortalDest = null;
 		}
 		else
 		{
-			if (getBluePortal() != null) getBluePortal().close();
+			if (bluePortal != null) bluePortal.close();
 			bluePortalDest = null;
 		}
 
@@ -125,12 +125,12 @@ public class Region extends User {
 	{
 		for (Portal p : portals)
 		{
-			if (p.isOrange() != orange && p.getDestination() == null) p.open();
+			if (p.open != orange && p.getDestination() == null) p.open();
 		}
 	}
 	
 	public boolean contains(Vector vector) {
-		return vector.isInAABB(Min, Max);
+		return vector.isInAABB(min, max);
 	}
 	
 	public boolean getBoolean(RegionSetting setting) {

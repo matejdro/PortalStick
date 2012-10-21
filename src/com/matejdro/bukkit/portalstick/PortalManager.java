@@ -13,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.material.Wool;
-import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
@@ -22,31 +21,36 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalManager {
+	private final PortalStick plugin;
 	
-	public static HashSet<Portal> portals = new HashSet<Portal>();
-	//public static HashMap<Chunk, HashMap<Location, String>> oldportals = new HashMap<Chunk, HashMap<Location, String> >(); //Some preparation for unloaded chunk fix
-	public static HashMap<Location, Portal> borderBlocks = new HashMap<Location, Portal>();
-	public static HashMap<Location, Portal> behindBlocks = new HashMap<Location, Portal>();
-	public static HashMap<Location, Portal> insideBlocks = new HashMap<Location, Portal>();
-	public static HashMap<Location, Portal> awayBlocksGeneral = new HashMap<Location, Portal>();
-	public static HashMap<Location, Portal> awayBlocksX = new HashMap<Location, Portal>();
-	public static HashMap<Location, Portal> awayBlocksY = new HashMap<Location, Portal>();
-	public static HashMap<Location, Portal> awayBlocksZ = new HashMap<Location, Portal>();
-	public static HashMap<Location, Vector> vectors = new HashMap<Location, Vector>();
-
-	public static void checkPlayerMove(Player player, Region regionFrom, Region regionTo)
+	PortalManager(PortalStick plugin)
 	{
-		User user = UserManager.getUser(player);
+		this.plugin = plugin;
+	}
+	
+	public final HashSet<Portal> portals = new HashSet<Portal>();
+	//public static HashMap<Chunk, HashMap<Location, String>> oldportals = new HashMap<Chunk, HashMap<Location, String> >(); //Some preparation for unloaded chunk fix
+	public final HashMap<Location, Portal> borderBlocks = new HashMap<Location, Portal>();
+	public final HashMap<Location, Portal> behindBlocks = new HashMap<Location, Portal>();
+	public final HashMap<Location, Portal> insideBlocks = new HashMap<Location, Portal>();
+	final HashMap<Location, Portal> awayBlocksGeneral = new HashMap<Location, Portal>();
+	final HashMap<Location, Portal> awayBlocksX = new HashMap<Location, Portal>();
+	final HashMap<Location, Portal> awayBlocksY = new HashMap<Location, Portal>();
+	final HashMap<Location, Portal> awayBlocksZ = new HashMap<Location, Portal>();
+
+	public void checkPlayerMove(Player player, Region regionFrom, Region regionTo)
+	{
+		User user = plugin.userManager.getUser(player);
 		if (user == null) return;
-		if (user.getUsingTool()) return;
-		if (!regionTo.Name.equals(regionFrom.Name)) {
+		if (user.usingTool) return;
+		if (!regionTo.name.equals(regionFrom.name)) {
 			if (regionFrom.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE) || regionTo.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE))
 				deletePortals(user);
-			UserManager.deleteDroppedItems(player);
+			plugin.userManager.deleteDroppedItems(player);
 
 			if (regionFrom.getBoolean(RegionSetting.UNIQUE_INVENTORY) || regionTo.getBoolean(RegionSetting.UNIQUE_INVENTORY))
 			{
-				if (regionTo.Name.equalsIgnoreCase("global"))
+				if (regionTo.name.equalsIgnoreCase("global"))
 					user.revertInventory(player);
 				else {
 					user.saveInventory(player);
@@ -57,17 +61,17 @@ public class PortalManager {
 		}
 	}
 	
-	public static void deleteAll()
+	public void deleteAll()
 	{
 		for (Portal p : portals.toArray(new Portal[0]))
 			p.delete();
 	}
 
-	private static Boolean checkPortal(PortalCoord portal)
+	private boolean checkPortal(PortalCoord portal)
 	{
 		for (Block b: portal.border)
 		{
-			Region region = RegionManager.getRegion(b.getLocation());
+			Region region = plugin.regionManager.getRegion(b.getLocation());
 			if ((!borderBlocks.containsKey(b.getLocation()) && !insideBlocks.containsKey(b.getLocation()) && !behindBlocks.containsKey(b.getLocation())) && (region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(b.getTypeId()) || (!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(b.getTypeId()))))
 			{
 				return false;
@@ -75,7 +79,7 @@ public class PortalManager {
 		}
 		for (Block b: portal.inside)
 		{
-			Region region = RegionManager.getRegion(b.getLocation());
+			Region region = plugin.regionManager.getRegion(b.getLocation());
 			if ((!borderBlocks.containsKey(b.getLocation()) && !insideBlocks.containsKey(b.getLocation()) && !behindBlocks.containsKey(b.getLocation())) && (region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(b.getTypeId()) || (!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(b.getTypeId()))))
 			{
 				return false;
@@ -84,13 +88,13 @@ public class PortalManager {
 		return true;
 	}
 
-	public static void deletePortals(User user)
+	public void deletePortals(User user)
 	{
-		if (user.getBluePortal() != null) user.getBluePortal().delete();
-		if (user.getOrangePortal() != null) user.getOrangePortal().delete();
+		if (user.bluePortal != null) user.bluePortal.delete();
+		if (user.orangePortal != null) user.orangePortal.delete();
 	}
 
-	private static PortalCoord generateHorizontalPortal(Block block, BlockFace face)
+	private PortalCoord generateHorizontalPortal(Block block, BlockFace face)
 	{
 		PortalCoord portal = generatePortal(block, face);
 		if (checkPortal(portal)) return portal;
@@ -121,7 +125,7 @@ public class PortalManager {
 		
 	}
 
-	private static PortalCoord generatePortal(Block block, BlockFace face)
+	private PortalCoord generatePortal(Block block, BlockFace face)
 	{
 		PortalCoord portal = new PortalCoord();
 		portal.block = block;
@@ -210,11 +214,11 @@ public class PortalManager {
 		return portal;
 	}
 
-	public static Boolean placePortal(Block block, BlockFace face, Player player, Boolean orange, Boolean end)
+	public boolean placePortal(Block block, BlockFace face, Player player, Boolean orange, Boolean end)
 	{   
 		//Check if player can place here
-		Region region = RegionManager.getRegion(block.getLocation());
-		if (region.getBoolean(RegionSetting.CHECK_WORLDGUARD) && PortalStick.worldGuard != null && !PortalStick.worldGuard.canBuild(player, block))
+		Region region = plugin.regionManager.getRegion(block.getLocation());
+		if (region.getBoolean(RegionSetting.CHECK_WORLDGUARD) && plugin.worldGuard != null && !plugin.worldGuard.canBuild(player, block))
 			return false;
 		if (!region.getBoolean(RegionSetting.ENABLE_PORTALS))
 			return false;
@@ -225,7 +229,7 @@ public class PortalManager {
 		
 		PortalCoord portalc = new PortalCoord();
 		
-		User owner = UserManager.getUser(player);
+		User owner = plugin.userManager.getUser(player);
 				    	
 		if (face == BlockFace.DOWN || face == BlockFace.UP)
 		{
@@ -253,20 +257,20 @@ public class PortalManager {
 		portalc.destLoc.setZ(portalc.destLoc.getZ() + 0.5);
 	
 		
-		Portal portal = new Portal(portalc.destLoc, portalc.block, portalc.border, portalc.inside, portalc.behind, owner, orange, vertical, portalc.tpFace);
+		Portal portal = new Portal(plugin, portalc.destLoc, portalc.block, portalc.border, portalc.inside, portalc.behind, owner, orange, vertical, portalc.tpFace);
 		
 		
 		if (orange)
 		{
-			if (owner.getOrangePortal() != null) owner.getOrangePortal().delete();
-			owner.setOrangePortal(portal);
+			if (owner.orangePortal != null) owner.orangePortal.delete();
+			owner.orangePortal = portal;
 			Util.PlaySound(Sound.PORTAL_CREATE_ORANGE, player, block.getLocation());
 			
 		}
 		else
 		{
-			if (owner.getBluePortal() != null) owner.getBluePortal().delete();
-			owner.setBluePortal(portal);
+			if (owner.bluePortal != null) owner.bluePortal.delete();
+			owner.bluePortal = portal;
 			Util.PlaySound(Sound.PORTAL_CREATE_BLUE, player, block.getLocation());
 		}
 		
@@ -278,7 +282,7 @@ public class PortalManager {
 		
 	}
 
-	public static void placePortal(Block block, Player player, Boolean orange)
+	public void placePortal(Block block, Player player, Boolean orange)
 	{
 		
 		float dir = (float)Math.toDegrees(Math.atan2(player.getLocation().getBlockX() - block.getX(), block.getZ() - player.getLocation().getBlockZ()));
@@ -318,7 +322,7 @@ public class PortalManager {
 	
 	 }
 
-	public static void setPortalInventory(Player player, Region region)
+	public void setPortalInventory(Player player, Region region)
 	{
 		PlayerInventory inv = player.getInventory();
 		for (int i = 0; i < 40; i++)
@@ -351,7 +355,7 @@ public class PortalManager {
 		}
 	}
 	
-	public static void tryPlacingAutomatedPortal(Block b)
+	public void tryPlacingAutomatedPortal(Block b)
 	{
 		//Check if wool is correct
 		Wool wool = (Wool) Material.WOOL.getNewData(b.getData());
@@ -439,8 +443,8 @@ public class PortalManager {
 			}
 			else if (borderBlocks.containsKey(firstPortalBlock.getLocation()) || insideBlocks.containsKey(firstPortalBlock.getLocation()))
 			{
-				oldPortal = PortalManager.borderBlocks.get(firstPortalBlock.getLocation());
-				if (oldPortal == null) oldPortal = PortalManager.insideBlocks.get(firstPortalBlock.getLocation());
+				oldPortal = borderBlocks.get(firstPortalBlock.getLocation());
+				if (oldPortal == null) oldPortal = insideBlocks.get(firstPortalBlock.getLocation());
 				portalFace = face2;
 				break;
 
@@ -482,9 +486,9 @@ public class PortalManager {
 		
 		if (portalc.border.size() == 0 || portalc.inside.size() == 0) return;
 		for (Block tb : portalc.border)
-			if (!(tb.getType() == Material.STONE || PortalManager.borderBlocks.containsKey(tb.getLocation()) || insideBlocks.containsKey(tb.getLocation()))) return;
+			if (!(tb.getType() == Material.STONE || borderBlocks.containsKey(tb.getLocation()) || insideBlocks.containsKey(tb.getLocation()))) return;
 		for (Block tb : portalc.inside)
-			if (!(tb.getType() == Material.STONE || PortalManager.borderBlocks.containsKey(tb.getLocation()) || insideBlocks.containsKey(tb.getLocation()))) return;
+			if (!(tb.getType() == Material.STONE || borderBlocks.containsKey(tb.getLocation()) || insideBlocks.containsKey(tb.getLocation()))) return;
 				
 		
 		if (portalc.vertical) portalc.destLoc = portalc.inside.toArray(new Block[0])[0].getRelative(portalFace.getOppositeFace()).getLocation();
@@ -506,19 +510,19 @@ public class PortalManager {
 		if (oldPortal != null) oldPortal.delete();
 		
 		Boolean orange = wool.getColor() == DyeColor.ORANGE;
-		Region region = RegionManager.getRegion(b.getLocation());
+		Region region = plugin.regionManager.getRegion(b.getLocation());
 		
-		Portal portal = new Portal(portalc.destLoc, portalc.block, portalc.border, portalc.inside, portalc.behind, region, orange, portalc.vertical, portalc.tpFace);
+		Portal portal = new Portal(plugin, portalc.destLoc, portalc.block, portalc.border, portalc.inside, portalc.behind, region, orange, portalc.vertical, portalc.tpFace);
 		
 		if (orange)
 		{
-			if (region.getOrangePortal() != null) region.getOrangePortal().delete();
-			region.setOrangePortal(portal);
+			if (region.orangePortal != null) region.orangePortal.delete();
+			region.orangePortal = portal;
 		}
 		else
 		{
-			if (region.getBluePortal() != null) region.getBluePortal().delete();
-			region.setBluePortal(portal);
+			if (region.bluePortal != null) region.bluePortal.delete();
+			region.bluePortal = portal;
 		}
 		portals.add(portal);
 		region.portals.add(portal);

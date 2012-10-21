@@ -13,10 +13,15 @@ import org.getspout.spoutapi.SpoutManager;
 
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
-import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
 
 public class Util {
+	private static PortalStick plugin;
+	
+	public static void setPlugin(PortalStick plugin) // Workaround for static...
+	{
+		Util.plugin = plugin;
+	}
 	
 	private static final Logger log = Logger.getLogger("Minecraft");
 	private static int maxLength = 105;
@@ -96,12 +101,12 @@ public class Util {
         final Byte data = block.getData();
         final Material material = block.getType();
         
-        Region region = RegionManager.getRegion(player.getLocation());
+        Region region = plugin.regionManager.getRegion(player.getLocation());
         if (!region.getBoolean(RegionSetting.ENABLE_SOUNDS)) return;
 
         player.sendBlockChange(block.getLocation(), Material.NOTE_BLOCK, (byte)instrument);
-        PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(
-        		PortalStick.instance,
+        plugin.getServer().getScheduler().scheduleSyncDelayedTask(
+        		plugin,
                 new Runnable(){
                     public void run(){
                         player.playNote(block.getLocation(), instrument, note);
@@ -114,8 +119,8 @@ public class Util {
     
     public static void PlaySound(Sound sound, Player player, Location loc)
     {
-    	if (!RegionManager.getRegion(loc).getBoolean(RegionSetting.ENABLE_SOUNDS)) return;
-        Plugin spoutPlugin = PortalStick.instance.getServer().getPluginManager().getPlugin("Spout");
+    	if (!plugin.regionManager.getRegion(loc).getBoolean(RegionSetting.ENABLE_SOUNDS)) return;
+        Plugin spoutPlugin = plugin.getServer().getPluginManager().getPlugin("Spout");
         if (spoutPlugin == null || !Config.useBukkitContribSounds)
         {
         	if (player != null && !Config.soundNotes[sound.ordinal()].trim().equals(""))
@@ -129,7 +134,7 @@ public class Util {
         {
         	if (!Config.soundUrls[sound.ordinal()].trim().equals(""))
         	{
-                SpoutManager.getSoundManager().playGlobalCustomSoundEffect(PortalStick.instance, Config.soundUrls[sound.ordinal()], false, loc, Config.soundRange);
+                SpoutManager.getSoundManager().playGlobalCustomSoundEffect(plugin, Config.soundUrls[sound.ordinal()], false, loc, Config.soundRange);
         	}
         }
         

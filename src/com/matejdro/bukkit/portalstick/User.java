@@ -9,49 +9,23 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 public class User {
-	private Portal bluePortal;
-	private Portal orangePortal;
+	public Portal bluePortal;
+	public Portal orangePortal;
 	private ItemStack[] inventory;
 	private ItemStack boots;
 	private ItemStack chest;
 	private ItemStack legs;
 	private ItemStack helmet;
-	private Location pointOne;
-	private Location pointTwo;
-	private Boolean usingTool = false;
-	private int colorPreset = 0;
-	private HashSet<Item> droppedItems = new HashSet<Item>();
+	public Location pointOne;
+	public Location pointTwo;
+	public boolean usingTool = false;
+	public int colorPreset = 0;
+	public final HashSet<Item> droppedItems = new HashSet<Item>();
 	public String name;
 	
 	public User(String Name)
 	{
 		name = Name;
-	}
-	
-	public Portal getBluePortal() {
-		return bluePortal;
-	}
-	
-	public void setBluePortal(Portal portal) {
-		bluePortal = portal;
-	}
-	
-	public Portal getOrangePortal() {
-		return orangePortal;
-	}
-	
-	public void setOrangePortal(Portal portal) {
-		orangePortal = portal;
-	}
-	
-	public int getColorPreset()
-	{
-		return colorPreset;
-	}
-	
-	public void setColorPreset(int input)
-	{
-		colorPreset = input;
 	}
 	
 	public void recreatePortals()
@@ -101,41 +75,5 @@ public class User {
 		chest = new ItemStack(inv.getChestplate().getType());
 		legs = new ItemStack(inv.getLeggings().getType());
 		helmet = new ItemStack(inv.getHelmet().getType());
-	}
-
-	public void setPointTwo(Location positiontwo) {
-		this.pointTwo = positiontwo;
-	}
-
-	public Location getPointTwo() {
-		return pointTwo;
-	}
-
-	public void setPointOne(Location positionone) {
-		this.pointOne = positionone;
-	}
-
-	public Location getPointOne() {
-		return pointOne;
-	}
-
-	public void setUsingTool(Boolean usingTool) {
-		this.usingTool = usingTool;
-	}
-
-	public Boolean getUsingTool() {
-		return usingTool;
-	}
-	
-	public void addDroppedItem(Item item) {
-		droppedItems.add(item);
-	}
-	
-	public HashSet<Item> getDroppedItems() {
-		return droppedItems;
-	}
-	
-	public void resetItems() {
-		droppedItems = new HashSet<Item>();
 	}
 }

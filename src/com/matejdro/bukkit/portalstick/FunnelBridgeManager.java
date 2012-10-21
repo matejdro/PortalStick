@@ -16,22 +16,28 @@ import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class FunnelBridgeManager {
-	public static HashSet<Bridge> bridges = new HashSet<Bridge>();
-	public static HashMap<Portal, Bridge> involvedPortals = new HashMap<Portal, Bridge>();
-	public static HashMap<Block, Bridge> bridgeBlocks = new HashMap<Block, Bridge>();
-	public static HashMap<Block, Bridge> bridgeMachineBlocks = new HashMap<Block, Bridge>();
-	public static HashSet<Entity> inFunnel = new HashSet<Entity>();
-	public static HashMap<Entity, List<Block>> glassBlocks = new HashMap<Entity, List<Block>>();
-	public static HashMap<Block, Entity> glassBlockOwners = new HashMap<Block, Entity>();
+	private final PortalStick plugin;
+	
+	FunnelBridgeManager(PortalStick plugin)
+	{
+	  this.plugin = plugin;
+	}
+	
+	public HashSet<Bridge> bridges = new HashSet<Bridge>();
+	HashMap<Portal, Bridge> involvedPortals = new HashMap<Portal, Bridge>();
+	public HashMap<Block, Bridge> bridgeBlocks = new HashMap<Block, Bridge>();
+	public HashMap<Block, Bridge> bridgeMachineBlocks = new HashMap<Block, Bridge>();
+	private HashSet<Entity> inFunnel = new HashSet<Entity>();
+	HashMap<Entity, List<Block>> glassBlocks = new HashMap<Entity, List<Block>>();
+	private HashMap<Block, Entity> glassBlockOwners = new HashMap<Block, Entity>();
 
-	public static Boolean placeGlassBridge(Player player, Block firstIron)
+	public boolean placeGlassBridge(Player player, Block firstIron)
 	{
 		if (player != null && !Permission.createBridge(player)) return false;
 		
-		Region region = RegionManager.getRegion(firstIron.getLocation());
+		Region region = plugin.regionManager.getRegion(firstIron.getLocation());
 		if (!region.getBoolean(RegionSetting.ENABLE_HARD_GLASS_BRIDGES)) return false;
 		
 		HashSet<Block> machineBlocks = new HashSet<Block>();
@@ -94,9 +100,9 @@ public class FunnelBridgeManager {
 		
 		Bridge bridge;
 		if (BlockUtil.compareBlockToString(firstIron, region.getString(RegionSetting.HARD_GLASS_BRIDGE_BASE_MATERIAL)))
-			bridge = new Bridge(firstIron, startingBlock, face, machineBlocks);
+			bridge = new Bridge(plugin, firstIron, startingBlock, face, machineBlocks);
 		else
-			bridge = new Funnel(firstIron, startingBlock, face, machineBlocks);
+			bridge = new Funnel(plugin, firstIron, startingBlock, face, machineBlocks);
 		bridge.activate();
 		
 		for (Block b : machineBlocks)
@@ -106,7 +112,7 @@ public class FunnelBridgeManager {
 		return true;
 	}
 	
-	public static void reorientBridge(Portal portal)
+	public void reorientBridge(Portal portal)
 	{
 		Bridge bridge = involvedPortals.get(portal);
 		if (bridge != null)
@@ -114,12 +120,12 @@ public class FunnelBridgeManager {
 		
 		for (Bridge cbridge : bridges)
 		{
-			for (Block b: portal.getInside())
+			for (Block b: portal.inside)
 			{
 				if (cbridge.isBlockNextToBridge(b))
 					cbridge.activate();
 			}
-			for (Block b: portal.getBorder())
+			for (Block b: portal.border)
 			{
 				if (cbridge.isBlockNextToBridge(b))
 					cbridge.activate();
@@ -127,10 +133,10 @@ public class FunnelBridgeManager {
 		}
 	}
 	
-	public static void updateBridge(final Block block)
+	public void updateBridge(final Block block)
 	{
 		//delay to make sure all blocks have updated
-		PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new Runnable() {
+		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 
 		    public void run() {
 		    	for (Bridge cbridge : bridges)
@@ -143,27 +149,27 @@ public class FunnelBridgeManager {
 		
 	}
 	
-	public static void loadBridge(String blockloc) {
+	public void loadBridge(String blockloc) {
 		String[] locarr = blockloc.split(",");
 		String world = locarr[0];
-		Block b = PortalStick.instance.getServer().getWorld(world).getBlockAt((int)Double.parseDouble(locarr[1]), (int)Double.parseDouble(locarr[2]), (int)Double.parseDouble(locarr[3]));
+		Block b = plugin.getServer().getWorld(world).getBlockAt((int)Double.parseDouble(locarr[1]), (int)Double.parseDouble(locarr[2]), (int)Double.parseDouble(locarr[3]));
 		if (!placeGlassBridge(null, b))
 			Config.deleteBridge(blockloc);
 	}
 	
-	public static void deleteAll()
+	public void deleteAll()
 	{
 		for (Bridge bridge: bridges.toArray(new Bridge[0]))
 			bridge.deactivate();
 	}
 	
-	public static Funnel getFunnelInEntity(Entity entity)
+	public Funnel getFunnelInEntity(Entity entity)
 	{
-		Bridge bridge = FunnelBridgeManager.bridgeBlocks.get(entity.getLocation().getBlock());
-		if (bridge == null && ((entity.getLocation().getZ() - (double) entity.getLocation().getBlockZ()) < 0.5)) bridge = FunnelBridgeManager.bridgeBlocks.get(entity.getLocation().getBlock().getRelative(0,0,-1));
-		if (bridge == null && ((entity.getLocation().getZ() - (double) entity.getLocation().getBlockZ()) > 0.5)) bridge = FunnelBridgeManager.bridgeBlocks.get(entity.getLocation().getBlock().getRelative(0,0,1));
-		if (bridge == null && ((entity.getLocation().getX() - (double) entity.getLocation().getBlockX()) < 0.5)) bridge = FunnelBridgeManager.bridgeBlocks.get(entity.getLocation().getBlock().getRelative(-1,0,0));
-		if (bridge == null && ((entity.getLocation().getX() - (double) entity.getLocation().getBlockX()) > 0.5)) bridge = FunnelBridgeManager.bridgeBlocks.get(entity.getLocation().getBlock().getRelative(1,0,0));
+		Bridge bridge = bridgeBlocks.get(entity.getLocation().getBlock());
+		if (bridge == null && ((entity.getLocation().getZ() - (double) entity.getLocation().getBlockZ()) < 0.5)) bridge = bridgeBlocks.get(entity.getLocation().getBlock().getRelative(0,0,-1));
+		if (bridge == null && ((entity.getLocation().getZ() - (double) entity.getLocation().getBlockZ()) > 0.5)) bridge = bridgeBlocks.get(entity.getLocation().getBlock().getRelative(0,0,1));
+		if (bridge == null && ((entity.getLocation().getX() - (double) entity.getLocation().getBlockX()) < 0.5)) bridge = bridgeBlocks.get(entity.getLocation().getBlock().getRelative(-1,0,0));
+		if (bridge == null && ((entity.getLocation().getX() - (double) entity.getLocation().getBlockX()) > 0.5)) bridge = bridgeBlocks.get(entity.getLocation().getBlock().getRelative(1,0,0));
 
 		if (bridge == null)
 		{
@@ -172,11 +178,11 @@ public class FunnelBridgeManager {
 			{
 				loc.subtract(0, 1, 0);
 				
-				bridge = FunnelBridgeManager.bridgeBlocks.get(loc.getBlock());
-				if (bridge == null && ((loc.getZ() - (double) loc.getBlockZ()) < 0.5)) bridge = FunnelBridgeManager.bridgeBlocks.get(loc.getBlock().getRelative(0,0,-1));
-				if (bridge == null && ((loc.getZ() - (double) loc.getBlockZ()) > 0.5)) bridge = FunnelBridgeManager.bridgeBlocks.get(loc.getBlock().getRelative(0,0,1));
-				if (bridge == null && ((loc.getX() - (double) loc.getBlockX()) < 0.5)) bridge = FunnelBridgeManager.bridgeBlocks.get(loc.getBlock().getRelative(-1,0,0));
-				if (bridge == null && ((loc.getX() - (double) loc.getBlockX()) > 0.5)) bridge = FunnelBridgeManager.bridgeBlocks.get(loc.getBlock().getRelative(1,0,0));
+				bridge = bridgeBlocks.get(loc.getBlock());
+				if (bridge == null && ((loc.getZ() - (double) loc.getBlockZ()) < 0.5)) bridge = bridgeBlocks.get(loc.getBlock().getRelative(0,0,-1));
+				if (bridge == null && ((loc.getZ() - (double) loc.getBlockZ()) > 0.5)) bridge = bridgeBlocks.get(loc.getBlock().getRelative(0,0,1));
+				if (bridge == null && ((loc.getX() - (double) loc.getBlockX()) < 0.5)) bridge = bridgeBlocks.get(loc.getBlock().getRelative(-1,0,0));
+				if (bridge == null && ((loc.getX() - (double) loc.getBlockX()) > 0.5)) bridge = bridgeBlocks.get(loc.getBlock().getRelative(1,0,0));
 
 				if (bridge != null && bridge instanceof Funnel)
 				{
@@ -206,7 +212,7 @@ public class FunnelBridgeManager {
 			return null;
 	}
 	
-	public static void EntityMoveCheck(Entity entity)
+	public void EntityMoveCheck(Entity entity)
 	{
 		Funnel funnel = getFunnelInEntity(entity);
 		if (funnel == null && inFunnel.contains(entity))
@@ -220,7 +226,7 @@ public class FunnelBridgeManager {
 		}
 	}
 	
-	private static void EntityEntersFunnel(Entity entity)
+	private void EntityEntersFunnel(Entity entity)
 	{
 		inFunnel.add(entity);
 		List<Block> list = glassBlocks.get(entity);
@@ -228,7 +234,7 @@ public class FunnelBridgeManager {
 			glassBlocks.put(entity, new ArrayList<Block>());
 	}
 	
-	public static void EntityExitsFunnel(Entity entity)
+	public void EntityExitsFunnel(Entity entity)
 	{
 		List<Block> list = glassBlocks.get(entity);
 		if (list != null) 
@@ -242,7 +248,7 @@ public class FunnelBridgeManager {
 	
 	}
 
-	private static void EntityMoveInFunnel(Entity entity, Funnel funnel)
+	private void EntityMoveInFunnel(Entity entity, Funnel funnel)
 	{
 		BlockFace face = funnel.getDirection(entity);
 		if (face == null) return;
@@ -265,7 +271,7 @@ public class FunnelBridgeManager {
 				if (pblock.getRelative(face).getType() == Material.AIR) 
 				{
 						Block block = pblock.getRelative(face);
-						BlockUtil.setBlockThreadSafe(block, Material.GLASS);
+						block.setType(Material.GLASS);
 						glassBlocks.get(entity).add(block);
 						glassBlockOwners.put(block, entity);
 				}
@@ -277,7 +283,7 @@ public class FunnelBridgeManager {
 				if (pblock.getRelative(face, 2).getType() == Material.AIR) 
 				{
 						Block block = pblock.getRelative(face, 2);
-						BlockUtil.setBlockThreadSafe(block, Material.GLASS);
+						block.setType(Material.GLASS);
 						glassBlocks.get(entity).add(block);
 						glassBlockOwners.put(block, entity);
 				}
@@ -291,7 +297,7 @@ public class FunnelBridgeManager {
 					{
 						if (glassBlockOwners.get(block) == entity)
 						{
-							BlockUtil.setBlockThreadSafe(block, Material.AIR);
+							block.setType(Material.AIR);
 							glassBlocks.get(entity).remove(block);
 						}
 						if (block.getType() == Material.AIR) glassBlocks.get(entity).remove(block);

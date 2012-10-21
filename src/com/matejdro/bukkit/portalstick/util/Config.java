@@ -16,19 +16,14 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import com.matejdro.bukkit.portalstick.Bridge;
-import com.matejdro.bukkit.portalstick.FunnelBridgeManager;
 import com.matejdro.bukkit.portalstick.Grill;
-import com.matejdro.bukkit.portalstick.GrillManager;
-import com.matejdro.bukkit.portalstick.PortalManager;
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
-import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.User;
-import com.matejdro.bukkit.portalstick.UserManager;
 
 public class Config {
 	
-	public static PortalStick plugin;
+	private static PortalStick plugin;
 	private static FileConfiguration mainConfig;
 	private static FileConfiguration regionConfig;
 	private static FileConfiguration grillConfig;
@@ -145,23 +140,23 @@ public class Config {
 
 		//Load all current users
 		for (Player player : plugin.getServer().getOnlinePlayers())
-			UserManager.createUser(player);
+			plugin.userManager.createUser(player);
 		
         //Load all regions
         if (regionConfig.getConfigurationSection("regions") != null)
         	for (String regionName : regionConfig.getConfigurationSection("regions").getKeys(false))
-        		RegionManager.loadRegion(regionName);
-        RegionManager.loadRegion("global");
-        Util.info(RegionManager.getRegionMap().size() + " region(s) loaded");
+        		plugin.regionManager.loadRegion(regionName);
+        plugin.regionManager.loadRegion("global");
+        Util.info(plugin.regionManager.regions.size() + " region(s) loaded");
         
         //Load grills
         for (String grill : (grillConfig.getStringList("grills")).toArray(new String[0]))
-        	GrillManager.loadGrill(grill);
-        Util.info(GrillManager.grills.size() + " grill(s) loaded");
+        	plugin.grillManager.loadGrill(grill);
+        Util.info(plugin.grillManager.grills.size() + " grill(s) loaded");
         //Load bridges
         for (String bridge : bridgeConfig.getStringList("bridges"))
-        	FunnelBridgeManager.loadBridge(bridge);
-        Util.info(FunnelBridgeManager.bridges.size() + " bridge(s) loaded");
+        	plugin.funnelBridgeManager.loadBridge(bridge);
+        Util.info(plugin.funnelBridgeManager.bridges.size() + " bridge(s) loaded");
         
         saveAll();
 		
@@ -207,29 +202,29 @@ public class Config {
 	
 	public static void unLoad() {
 		
-		FunnelBridgeManager.deleteAll();
-		PortalManager.deleteAll();
-		GrillManager.deleteAll();
-		for (Map.Entry<String, User> entry : UserManager.getUserList().entrySet()) {
+		plugin.funnelBridgeManager.deleteAll();
+		plugin.portalManager.deleteAll();
+		plugin.grillManager.deleteAll();
+		for (Map.Entry<String, User> entry : plugin.userManager.users.entrySet()) {
 			User user = entry.getValue();
 			Player player = plugin.getServer().getPlayer(entry.getKey());
 			if (player != null) {
-				if (!RegionManager.getRegion(player.getLocation()).Name.equalsIgnoreCase("global"))
+				if (!plugin.regionManager.getRegion(player.getLocation()).name.equalsIgnoreCase("global"))
 					user.revertInventory(player);
 			}
-			UserManager.deleteUser(user);
+			plugin.userManager.deleteUser(user);
 		}
 		
 	}
 	
 	public static void loadRegionSettings(Region region) {
 		for (RegionSetting setting : RegionSetting.values()) {
-			Object prop = regionConfig.get("regions." + region.Name + "." + setting.getYaml());
+			Object prop = regionConfig.get("regions." + region.name + "." + setting.getYaml());
     		if (prop == null)
     			region.settings.put(setting, setting.getDefault());
     		else
     			region.settings.put(setting, prop);
-    		regionConfig.set("regions." + region.Name + "." + setting.getYaml(), region.settings.get(setting));
+    		regionConfig.set("regions." + region.name + "." + setting.getYaml(), region.settings.get(setting));
     	}
 		region.updateLocation();
 	}
@@ -262,10 +257,10 @@ public class Config {
 	public static void saveAll() {
 		
 		//Save regions
-		for (Map.Entry<String, Region> entry : RegionManager.getRegionMap().entrySet()) {
+		for (Map.Entry<String, Region> entry : plugin.regionManager.regions.entrySet()) {
 			Region region = entry.getValue();
 			for (Entry<RegionSetting, Object> setting : region.settings.entrySet())
-				regionConfig.set("regions." + region.Name + "." + setting.getKey().getYaml(), setting.getValue());
+				regionConfig.set("regions." + region.name + "." + setting.getKey().getYaml(), setting.getValue());
 		}
 		try
 		{
@@ -279,7 +274,7 @@ public class Config {
 		//Save grills
 		grillConfig.set("grills", null);
 		List<String> list = new ArrayList<String>();
-		for (Grill grill : GrillManager.getGrillList())
+		for (Grill grill : plugin.grillManager.grills)
 			list.add(grill.getStringLocation());
 		grillConfig.set("grills", list);
 		try
@@ -294,7 +289,7 @@ public class Config {
 		//Save bridges
 		bridgeConfig.set("bridges", null);
 		list = new ArrayList<String>();
-		for (Bridge bridge : FunnelBridgeManager.bridges)
+		for (Bridge bridge : plugin.funnelBridgeManager.bridges)
 			list.add(bridge.getStringLocation());
 		bridgeConfig.set("bridges", list);
 		try

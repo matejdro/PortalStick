@@ -8,9 +8,9 @@ import com.matejdro.bukkit.portalstick.util.Config;
 
 public class RegionManager {
 	
-	private static HashMap<String, Region> regions = new HashMap<String, Region>();
+	public final HashMap<String, Region> regions = new HashMap<String, Region>();
 	
-	public static Region loadRegion(String name) {
+	public Region loadRegion(String name) {
 		Region region = getRegion(name);
 		if (region == null)
 			region = new Region(name);
@@ -19,31 +19,27 @@ public class RegionManager {
 		return region;
 	}
 	
-	public static void deleteRegion(String name) {
+	public void deleteRegion(String name) {
 		Region region = getRegion(name);
-		regions.remove(region.Name);
+		regions.remove(region.name);
 		Config.deleteRegion(name);
 	}
 	
-	public static void createRegion(String name, Location one, Location two) {
+	public void createRegion(String name, Location one, Location two) {
 		Region region = loadRegion(name);
 		region.setLocation(one, two);
 		Config.saveAll();
 	}
 	
-	public static Region getRegion(Location location) {
+	public Region getRegion(Location location) {
 		for (Region region : regions.values())
-			if (region.contains(location.toVector()) && location.getWorld().getName().equalsIgnoreCase(region.World) && !region.Name.equalsIgnoreCase("global"))
+			if (region.contains(location.toVector()) && location.getWorld().getName().equalsIgnoreCase(region.world) && !region.name.equalsIgnoreCase("global"))
 				return region;
 		return getRegion("global");
 	}
 	
-	public static Region getRegion(String name) {
+	public Region getRegion(String name) {
 		return regions.get(name.toLowerCase());
-	}
-	
-	public static HashMap<String, Region> getRegionMap() {
-		return regions;
 	}
 	
 }

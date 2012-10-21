@@ -9,15 +9,16 @@ import org.bukkit.block.Block;
 import com.matejdro.bukkit.portalstick.util.Config;
 
 public class Grill {
+	private final PortalStick plugin;
 	
-	private HashSet<Block> border;
-	private HashSet<Block> inside;
-	private Block firstBlock;
+	private final HashSet<Block> border;
+	private final HashSet<Block> inside;
+	private final Block firstBlock;
 	private Boolean disabled;
 	
-	
-	public Grill(HashSet<Block> Border, HashSet<Block> Inside, Block FirstBlock)
+	public Grill(PortalStick plugin, HashSet<Block> Border, HashSet<Block> Inside, Block FirstBlock)
 	{
+		this.plugin = plugin;
 		border = Border;
 		inside = Inside;
 		firstBlock = FirstBlock;
@@ -28,12 +29,12 @@ public class Grill {
 	{
 		deleteInside();
 		Config.deleteGrill(getStringLocation());
-		GrillManager.grills.remove(this);
+		plugin.grillManager.grills.remove(this);
 		Config.saveAll();
 		
 		for (Block b : border)
 		{
-			GrillManager.borderBlocks.remove(b.getLocation());
+			plugin.grillManager.borderBlocks.remove(b.getLocation());
 		}
 	}
 	
@@ -42,7 +43,7 @@ public class Grill {
 		for (Block b: inside)
 		{
 			b.setType(Material.AIR);
-			GrillManager.insideBlocks.remove(b.getLocation());
+			plugin.grillManager.insideBlocks.remove(b.getLocation());
 		}
 	}
 	
@@ -69,7 +70,7 @@ public class Grill {
 		boolean complete = true;
 		for (Block b: inside)
     	{
-			GrillManager.insideBlocks.put(b.getLocation(), this);
+			plugin.grillManager.insideBlocks.put(b.getLocation(), this);
 			if (b.getType() != Material.SUGAR_CANE_BLOCK) {
 				b.setType(Material.SUGAR_CANE_BLOCK);
 				complete = false;
@@ -78,7 +79,7 @@ public class Grill {
     	}
 		for (Block b : border)
 		{
-			GrillManager.borderBlocks.put(b.getLocation(), this);
+			plugin.grillManager.borderBlocks.put(b.getLocation(), this);
 		}
 		return complete;
 	}

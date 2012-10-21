@@ -2,16 +2,17 @@ package com.matejdro.bukkit.portalstick.commands;
 
 import org.bukkit.entity.Player;
 
+import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
-import com.matejdro.bukkit.portalstick.RegionManager;
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
 public class FlagCommand extends BaseCommand {
-	
-	public FlagCommand() {
+
+	public FlagCommand(PortalStick plugin) {
+		super(plugin);
 		name = "flag";
 		argLength = 3;
 		usage = "<region> <flag> <value> <- flag a region";
@@ -19,7 +20,7 @@ public class FlagCommand extends BaseCommand {
 	
 	public boolean execute() {
 		
-		Region editRegion = RegionManager.getRegion(args.get(0));
+		Region editRegion = plugin.regionManager.getRegion(args.get(0));
 		if (editRegion == null) {
 			Util.sendMessage(player, "&cInvalid region name, please supply an existing region!");
 			return true;
@@ -39,7 +40,7 @@ public class FlagCommand extends BaseCommand {
 					else
 						editRegion.settings.put(setting, args.get(2));
 					
-					Util.sendMessage(player, "&aRegion &7" + editRegion.Name + " &aupdated");
+					Util.sendMessage(player, "&aRegion &7" + editRegion.name + " &aupdated");
 					Config.saveAll();
 					Config.reLoad();
 					return true;

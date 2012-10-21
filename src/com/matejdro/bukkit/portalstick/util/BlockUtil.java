@@ -6,8 +6,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.material.Directional;
 import org.bukkit.material.MaterialData;
 
-import com.matejdro.bukkit.portalstick.PortalStick;
-
 public class BlockUtil {
 	public static boolean compareBlockToString(Block block, String blockData) {
 		String[] blockArr = blockData.split(":");
@@ -35,16 +33,6 @@ public class BlockUtil {
 			if (compareBlockToString(block.getRelative(face), material))
 				return face;
 		return null;
-	}
-	
-	public static void setBlockThreadSafe(final Block block, final Material material)
-	{
-		PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new Runnable() {
-
-		    public void run() {
-		       block.setType(material);
-		    }
-		}, 1L);
 	}
 	
 	public static Byte rotateBlock(Material block, Byte bdata, BlockFace origin, BlockFace newOrientation)

@@ -20,7 +20,7 @@ import org.bukkit.craftbukkit.entity.CraftItem;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.FallingSand;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Vehicle;
@@ -32,41 +32,37 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 import com.matejdro.bukkit.portalstick.util.Util;
 
 public class EntityManager implements Runnable {
-	private PortalStick plugin;
-	private HashSet<World> processingWorlds = new HashSet<World>();
-	private static HashSet<Entity> blockedEntities = new HashSet<Entity>();
+	private final PortalStick plugin;
+	private final HashSet<World> processingWorlds = new HashSet<World>();
+	private final HashSet<Entity> blockedEntities = new HashSet<Entity>();
 
-	public EntityManager(PortalStick instance)
+	EntityManager(PortalStick instance)
 	{
 		plugin = instance;
 	}
 
-	public static Location teleport(Entity entity, Location LocTo, Vector vector)
+	public Location teleport(Entity entity, Location LocTo, Vector vector)
 	{
-		if (entity == null || entity.isDead()) return null;
+		if (entity == null || entity.isDead() || blockedEntities.contains(entity)) return null;
 		
-		if (blockedEntities.contains(entity)) return null;
-
-		if (entity.isDead()) return null;
-		
-		Region regionTo = RegionManager.getRegion(LocTo);
-		Portal portal = PortalManager.insideBlocks.get(LocTo);
+		Region regionTo = plugin.regionManager.getRegion(LocTo);
+		Portal portal = plugin.portalManager.insideBlocks.get(LocTo);
 		if (portal == null && ((Math.abs(vector.getX()) > 0.5 || (Math.abs(vector.getY()) > 1 || (Math.abs(vector.getZ()) > 0.5))) || entity instanceof Boat)) 
 		{
-			portal = PortalManager.awayBlocksGeneral.get(LocTo);
-			if (portal == null && (Math.abs(vector.getX()) > 0.5)) portal = PortalManager.awayBlocksX.get(LocTo);
-			if (portal == null && (Math.abs(vector.getY()) > 1)) portal = PortalManager.awayBlocksY.get(LocTo);
-			if (portal == null && (Math.abs(vector.getZ()) > 0.5)) portal = PortalManager.awayBlocksZ.get(LocTo);
+			portal = plugin.portalManager.awayBlocksGeneral.get(LocTo);
+			if (portal == null && (Math.abs(vector.getX()) > 0.5)) portal = plugin.portalManager.awayBlocksX.get(LocTo);
+			if (portal == null && (Math.abs(vector.getY()) > 1)) portal = plugin.portalManager.awayBlocksY.get(LocTo);
+			if (portal == null && (Math.abs(vector.getZ()) > 0.5)) portal = plugin.portalManager.awayBlocksZ.get(LocTo);
 		}
-		if (portal == null && (entity instanceof FallingSand || entity instanceof TNTPrimed)) portal = PortalManager.awayBlocksY.get(LocTo);
+		if (portal == null && (entity instanceof FallingBlock || entity instanceof TNTPrimed)) portal = plugin.portalManager.awayBlocksY.get(LocTo);
 		if (portal != null)
 		{
-			if (!portal.isOpen() || portal.isDisabled()) return null;
-			if (Math.abs(vector.getY()) > 1 && !portal.isVertical()) return null;
+			if (!portal.open || portal.disabled) return null;
+			if (Math.abs(vector.getY()) > 1 && !portal.vertical) return null;
 			
-			for (Block b : portal.getInside())
+			for (Block b : portal.inside)
 			{
-				if (!portal.isVertical())
+				if (!portal.vertical)
 				{
 					if (b.getX() + 0.5 < entity.getLocation().getX() && vector.getX() > 0) return null;
 					else if (b.getX() - 0.5 > entity.getLocation().getX() && vector.getX() < 0) return null;
@@ -83,13 +79,12 @@ public class EntityManager implements Runnable {
 			Location teleport;
 			Portal destination = portal.getDestination();
 				 				 
-			teleport = destination.getTeleportLocation().clone();
-			if (destination.getTeleportFace() == BlockFace.DOWN) teleport = teleport.add(0, 1, 0);
+			teleport = destination.teleport.clone();
 								 
 			float yaw = entity.getLocation().getYaw();
 			float pitch = entity.getLocation().getPitch();
 			float startyaw = yaw;
-			switch(portal.getTeleportFace())
+			switch(portal.teleportFace)
 	        {
 	        	case EAST:
 	        		yaw -= 90;
@@ -103,6 +98,7 @@ public class EntityManager implements Runnable {
 	        	case DOWN:
 	        		yaw = pitch;
 	        		pitch = 0;
+	        		teleport.add(0, 1, 0);
 	        		break;
 	        	case UP:
 	        		yaw = pitch;
@@ -112,7 +108,7 @@ public class EntityManager implements Runnable {
 				
 			//Read input velocity
 			Double momentum = 0.0;
-			switch(portal.getTeleportFace())
+			switch(portal.teleportFace)
 	        {
 	        	case NORTH:
 	        	case SOUTH:
@@ -133,7 +129,7 @@ public class EntityManager implements Runnable {
 
 			//reposition velocity to match output portal's orientation
 			Vector outvector = entity.getVelocity().zero();
-			switch(destination.getTeleportFace())
+			switch(destination.teleportFace)
 	        {
 	        	case NORTH:
 	        		yaw += 180;
@@ -152,7 +148,7 @@ public class EntityManager implements Runnable {
 	        		outvector = outvector.setZ(-momentum);
 	        		break;
 	        	case DOWN:
-	        		if (portal.getTeleportFace() != BlockFace.UP || portal.getTeleportFace() != BlockFace.DOWN)
+	        		if (portal.teleportFace != BlockFace.UP && portal.teleportFace != BlockFace.DOWN) //TODO: || to &&
 	        		{
 		        		pitch = startyaw;
 		        		yaw = 0;
@@ -165,7 +161,7 @@ public class EntityManager implements Runnable {
 	        		outvector = outvector.setY(momentum);
 	        		break;
 	        	case UP:
-	        		if (portal.getTeleportFace() != BlockFace.UP || portal.getTeleportFace() != BlockFace.DOWN)
+	        		if (portal.teleportFace != BlockFace.UP && portal.teleportFace != BlockFace.DOWN) //TODO: || to &&
 	        		{
 		        		pitch = startyaw + 180;
 		        		yaw = 0;
@@ -179,7 +175,7 @@ public class EntityManager implements Runnable {
 	        		break;
 	        }
 			
-			if (!(entity instanceof Player) && momentum < 0.5 && (portal.getTeleportFace() == BlockFace.UP || portal.getTeleportFace() == BlockFace.DOWN) && (destination.getTeleportFace() == BlockFace.UP || destination.getTeleportFace() == BlockFace.DOWN))
+			if (!(entity instanceof Player) && momentum < 0.5 && (portal.teleportFace == BlockFace.UP || portal.teleportFace == BlockFace.DOWN) && (destination.teleportFace == BlockFace.UP || destination.teleportFace == BlockFace.DOWN))
 			 	return null;
 			
 			entity.setFallDistance(0);	
@@ -194,25 +190,7 @@ public class EntityManager implements Runnable {
 				entity.remove();
 				teleport.getWorld().spawnArrow(teleport, outvector, (float) (momentum * 1.0f), 12.0f);
 			}			
-//			else if (entity instanceof FallingSand)
-//			{
-//				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
-//				
-//				EntityFallingSand sand = (EntityFallingSand) ((CraftFallingSand) entity).getHandle() ;
-//				EntityFallingSand newsand = new EntityFallingSand(world, teleport.getX(), teleport.getY(), teleport.getZ(), sand.a, 0);
-//				
-//				Material db = teleport.getBlock().getType();
-//				
-//				if (db == Material.AIR || db == Material.WATER || db == Material.STATIONARY_WATER || db == Material.LAVA || db == Material.STATIONARY_LAVA)
-//				{
-//					entity.remove();
-//					
-//					world.addEntity((net.minecraft.server.Entity) newsand);	
-//					newsand.getBukkitEntity().setVelocity(outvector);
-//				}
-//				
-//			}
-			else if (entity instanceof FallingSand)
+			else if (entity instanceof FallingBlock)
 			{
 				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
 				
@@ -248,16 +226,16 @@ public class EntityManager implements Runnable {
 				blockedEntities.add(entity);
 				final Location tploc = teleport;
 				final Vector outVector = outvector;
-				final Entity Entity = entity;
-				PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new Runnable() {
+				final Entity entity2 = entity;
+				plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 
 				    public void run() {
-				        Entity.teleport(tploc);
-				        Entity.setVelocity(outVector);
-				        PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new Runnable() {
+				        entity2.teleport(tploc);
+				        entity2.setVelocity(outVector);
+				        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 
 						    public void run() {
-						    	blockedEntities.remove(Entity);
+						    	blockedEntities.remove(entity2);
 						    }
 						}, 1L);
 				    }
@@ -278,10 +256,10 @@ public class EntityManager implements Runnable {
 				
 				entity.setVelocity(outvector);
 			}
-			destination.setDisabled(true);
-			PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new enablePortal(destination), 10L);
+			destination.disabled = true;
+			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new enablePortal(destination), 10L);
 		
-			if (portal.isOrange())
+			if (portal.orange)
 				Util.PlaySound(Sound.PORTAL_EXIT_ORANGE, entity instanceof Player ? (Player) entity : null, teleport);
 			else
 				Util.PlaySound(Sound.PORTAL_EXIT_BLUE, entity instanceof Player ? (Player) entity : null, teleport);
@@ -313,7 +291,7 @@ public class EntityManager implements Runnable {
 						Vector vector = e.getVelocity();
 										
 						teleport(e, LocTo, vector);
-						FunnelBridgeManager.EntityMoveCheck(e);
+						plugin.funnelBridgeManager.EntityMoveCheck(e);
 					}
 					processingWorlds.remove(world);
 				}
@@ -324,7 +302,7 @@ public class EntityManager implements Runnable {
 	    		
 	}
 	
-	public static class enablePortal implements Runnable
+	public class enablePortal implements Runnable
 	{
 		Portal portal;
 		public enablePortal(Portal instance)
@@ -334,7 +312,7 @@ public class EntityManager implements Runnable {
 
 		@Override
 		public void run() {
-			if (portal != null) portal.setDisabled(false);
+			if (portal != null) portal.disabled = false;
 			// TODO Auto-generated method stub
 			
 		}

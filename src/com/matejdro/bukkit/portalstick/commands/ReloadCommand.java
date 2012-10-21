@@ -2,13 +2,15 @@ package com.matejdro.bukkit.portalstick.commands;
 
 import org.bukkit.entity.Player;
 
+import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.Util;
 
 public class ReloadCommand extends BaseCommand {
 
-	public ReloadCommand() {
+	public ReloadCommand(PortalStick plugin) {
+		super(plugin);
 		name = "reload";
 		argLength = 0;
 		usage = "<- reloads the PortalStick config";

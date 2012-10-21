@@ -8,10 +8,10 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 
 public class Funnel extends Bridge {
-	private Boolean reversed = false;
+	private boolean reversed = false;
 	
-	public Funnel(Block CreationBlock, Block startingBlock, BlockFace face, HashSet<Block> machineBlocks) {
-		super(CreationBlock, startingBlock, face, machineBlocks);
+	Funnel(PortalStick plugin, Block CreationBlock, Block startingBlock, BlockFace face, HashSet<Block> machineBlocks) {
+		super(plugin, CreationBlock, startingBlock, face, machineBlocks);
 	}
 	
 	public void setReverse(Boolean value)
@@ -78,15 +78,15 @@ public class Funnel extends Bridge {
 		int counter = reversed ? 1 : 8;
 		while (true)
 		{			
-			Portal portal = PortalManager.insideBlocks.get(nextBlock.getLocation());
-			if (portal == null) portal = PortalManager.borderBlocks.get(nextBlock.getLocation());
-			if (portal != null && portal.isOpen())
+			Portal portal = plugin.portalManager.insideBlocks.get(nextBlock.getLocation());
+			if (portal == null) portal = plugin.portalManager.borderBlocks.get(nextBlock.getLocation());
+			if (portal != null && portal.open)
 			{
-				nextBlock = portal.getDestination().getTeleportLocation().getBlock();
-				face = portal.getDestination().getTeleportFace().getOppositeFace();
+				nextBlock = portal.getDestination().teleport.getBlock();
+				face = portal.getDestination().teleportFace.getOppositeFace();
 				
 				involvedPortals.add(portal);
-				FunnelBridgeManager.involvedPortals.put(portal, this);
+				plugin.funnelBridgeManager.involvedPortals.put(portal, this);
 				continue;
 			}
 			else if (nextBlock.getY() > 127 || (!nextBlock.isLiquid() && nextBlock.getType() != Material.AIR)) break;
@@ -121,7 +121,7 @@ if (counter < 0) counter = 8;
 			
 						
 			bridgeBlocks.put(nextBlock, counter);
-			FunnelBridgeManager.bridgeBlocks.put(nextBlock, this);
+			plugin.funnelBridgeManager.bridgeBlocks.put(nextBlock, this);
 			
 			nextBlock = nextBlock.getRelative(face);
 		}
@@ -134,12 +134,12 @@ if (counter < 0) counter = 8;
 			b.setType(Material.AIR);
 		
 		for (Block b: bridgeBlocks.keySet())
-			FunnelBridgeManager.bridgeBlocks.remove(b);
+			plugin.funnelBridgeManager.bridgeBlocks.remove(b);
 		bridgeBlocks.clear();
 		for (Portal p: involvedPortals)
-			FunnelBridgeManager.involvedPortals.remove(p);
-		for (Entity e : FunnelBridgeManager.glassBlocks.keySet())
-			FunnelBridgeManager.EntityExitsFunnel(e);
+			plugin.funnelBridgeManager.involvedPortals.remove(p);
+		for (Entity e : plugin.funnelBridgeManager.glassBlocks.keySet())
+			plugin.funnelBridgeManager.EntityExitsFunnel(e);
 		
 		involvedPortals.clear();
 	}

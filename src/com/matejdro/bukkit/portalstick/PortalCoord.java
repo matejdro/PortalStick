@@ -6,21 +6,13 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
-public class PortalCoord {
-	public HashSet<Block> border;
-	public HashSet<Block> inside;
-	public HashSet<Block> behind;
+class PortalCoord {
+	public final HashSet<Block> border = new HashSet<Block>();
+	public final HashSet<Block> inside = new HashSet<Block>();
+	public final HashSet<Block> behind = new HashSet<Block>();
 	public Block block;
 	public Location destLoc;
 	public BlockFace tpFace;
-	public Boolean finished;
-	public Boolean vertical;
-	
-	public PortalCoord()
-	{
-		border = new HashSet<Block>();
-		inside = new HashSet<Block>();
-		behind = new HashSet<Block>();
-		finished = false;
-	}
+	public boolean finished = false;
+	public boolean vertical;
 }

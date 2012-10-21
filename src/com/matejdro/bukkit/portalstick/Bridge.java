@@ -8,18 +8,19 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
-import com.matejdro.bukkit.portalstick.util.Util;
-
 public class Bridge {
-	protected LinkedHashMap<Block, Integer> bridgeBlocks = new LinkedHashMap<Block, Integer>();
-	protected HashSet<Portal> involvedPortals = new HashSet<Portal>();
+	final PortalStick plugin;
+	
+	protected final LinkedHashMap<Block, Integer> bridgeBlocks = new LinkedHashMap<Block, Integer>();
+	protected final HashSet<Portal> involvedPortals = new HashSet<Portal>();
 	protected HashSet<Block> bridgeMachineBlocks;
 	protected Block startBlock;
 	protected Block creationBlock;
 	protected BlockFace facingSide;
 
-	public Bridge(Block CreationBlock, Block startingBlock, BlockFace face, HashSet<Block> machineBlocks)
+	Bridge(PortalStick plugin, Block CreationBlock, Block startingBlock, BlockFace face, HashSet<Block> machineBlocks)
 	{
+		this.plugin = plugin;
 		startBlock = startingBlock;
 		facingSide = face;
 		bridgeMachineBlocks = machineBlocks;
@@ -39,15 +40,15 @@ public class Bridge {
 		Block nextBlock = startBlock;
 		while (true)
 		{			
-			Portal portal = PortalManager.insideBlocks.get(nextBlock.getLocation());
-			if (portal == null) portal = PortalManager.borderBlocks.get(nextBlock.getLocation());
-			if (portal != null && portal.isOpen())
+			Portal portal = plugin.portalManager.insideBlocks.get(nextBlock.getLocation());
+			if (portal == null) portal = plugin.portalManager.borderBlocks.get(nextBlock.getLocation());
+			if (portal != null && portal.open)
 			{
-				nextBlock = portal.getDestination().getTeleportLocation().getBlock();
-				face = portal.getDestination().getTeleportFace().getOppositeFace();
+				nextBlock = portal.getDestination().teleport.getBlock();
+				face = portal.getDestination().teleportFace.getOppositeFace();
 				
 				involvedPortals.add(portal);
-				FunnelBridgeManager.involvedPortals.put(portal, this);
+				plugin.funnelBridgeManager.involvedPortals.put(portal, this);
 				continue;
 			}
 			else if (nextBlock.getY() > 127 || (!nextBlock.isLiquid() && nextBlock.getType() != Material.AIR)) break;			
@@ -55,7 +56,7 @@ public class Bridge {
 			
 			nextBlock.setType(Material.GLASS);
 			bridgeBlocks.put(nextBlock, 0);
-			FunnelBridgeManager.bridgeBlocks.put(nextBlock, this);
+			plugin.funnelBridgeManager.bridgeBlocks.put(nextBlock, this);
 			
 			nextBlock = nextBlock.getRelative(face);
 		}
@@ -67,10 +68,10 @@ public class Bridge {
 			b.setType(Material.AIR);
 		
 		for (Block b: bridgeBlocks.keySet())
-			FunnelBridgeManager.bridgeBlocks.remove(b);
+			plugin.funnelBridgeManager.bridgeBlocks.remove(b);
 		bridgeBlocks.clear();
 		for (Portal p: involvedPortals)
-			FunnelBridgeManager.involvedPortals.remove(p);
+			plugin.funnelBridgeManager.involvedPortals.remove(p);
 		involvedPortals.clear();
 	}
 	
@@ -78,7 +79,7 @@ public class Bridge {
 	{
 		deactivate();
 		for (Block b: bridgeMachineBlocks)
-			FunnelBridgeManager.bridgeMachineBlocks.remove(b);
+			plugin.funnelBridgeManager.bridgeMachineBlocks.remove(b);
 	}
 	
 	public Boolean isBlockNextToBridge(Block check)
