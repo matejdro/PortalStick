@@ -1,45 +1,22 @@
 package com.matejdro.bukkit.portalstick.util;
 
-import java.util.HashMap;
-import java.util.HashSet;
-
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-
-import com.matejdro.bukkit.portalstick.PortalStick;
-import com.nijiko.permissions.PermissionHandler;
-import com.nijikokun.bukkit.Permissions.Permissions;
 
 public class Permission {
 	
-	private PortalStick plugin;
-	private static PermissionPlugin handler = PermissionPlugin.OP;
-	private static PermissionHandler permissionPlugin;
-	private static HashSet<PermissionCache> cache = new HashSet<PermissionCache>();
-	
-	public Permission(PortalStick instance) {
-		plugin = instance;
-        Plugin permissions = plugin.getServer().getPluginManager().getPlugin("Permissions");
-        
-        if (permissions != null) {
-        	permissionPlugin = ((Permissions)permissions).getHandler();
-        	handler = PermissionPlugin.PERMISSIONS;
-        	Util.info("Using Permissions for user permissions");
-        }
-        else {
-        	Util.info("No permission handler detected, only ops can use commands");
-        }
-	}
-	
 	private static boolean hasPermission(Player player, String node, boolean def) {
-		return true;
-//		switch (handler) {
-//			case PERMISSIONS:
-//				return permissionPlugin.has(player, node);
-//			case OP:
-//				return def ? true : player.isOp();
-//		}
-//		return def;
+		if(player.hasPermission(node))
+			return true;
+		while(node.contains("."))
+		{
+			node = node.substring(0, node.lastIndexOf("."));
+			if(player.hasPermission(node))
+				return true;
+			node = node.substring(0, node.length() - 1);
+			if(player.hasPermission(node))
+				return true;
+		}
+		return player.hasPermission("*");
 	}
 	
 	public static boolean placePortal(Player player) {
@@ -68,17 +45,4 @@ public class Permission {
 	public static boolean deleteAll(Player player) {
 		return hasPermission(player, "portalstick.admin.deleteall", false);
 	}
-	
-	private enum PermissionPlugin {
-		PERMISSIONS,
-		OP
-	}
-	
-	private class PermissionCache {
-		
-		public String node = null;
-		public HashMap<Player, Boolean> cache = new HashMap<Player, Boolean>();
-		
-	}
-
 }

@@ -25,7 +25,6 @@ import com.matejdro.bukkit.portalstick.listeners.PortalStickPlayerListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickVehicleListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickWorldListener;
 import com.matejdro.bukkit.portalstick.util.Config;
-import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.Util;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
@@ -41,7 +40,6 @@ public class PortalStick extends JavaPlugin {
 	
 	public static List<BaseCommand> commands = new ArrayList<BaseCommand>();
 	public static Config config;
-	public static Permission permissions;
 	
 	public static PortalStick instance;
 
@@ -71,7 +69,6 @@ public class PortalStick extends JavaPlugin {
 		
 		grillManager = new GrillManager(this);
 		config = new Config(this);
-		permissions = new Permission(this);
 		
 		worldGuard = (WorldGuardPlugin) this.getServer().getPluginManager().getPlugin("WorldGuard");
 
