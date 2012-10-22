@@ -251,7 +251,11 @@ public class PortalStickPlayerListener implements Listener {
 		
 		}
 		
-		plugin.gelManager.useGel( player, locTo, vector);		
+		plugin.gelManager.useGel( player, locTo, vector);
+		
+		//Teleport
+		if (Permission.teleport(player))
+		  plugin.entityManager.teleport(player, locTo, vector.setY(player.getVelocity().getY()));
 		
 		//Funnel
 		plugin.funnelBridgeManager.EntityMoveCheck(player);

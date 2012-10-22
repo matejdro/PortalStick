@@ -29,6 +29,7 @@ public class Portal {
 	final BlockFace teleportFace;
 	private final HashSet<Location> awayBlocks = new HashSet<Location>();
 	private final HashMap<Location, String> oldBlocks = new HashMap<Location, String>();
+	private boolean placetorch = false;
 	
 	public Portal(PortalStick plugin, Location Teleport, Block CenterBlock, HashSet<Block> Border, HashSet<Block> Inside, HashSet<Block> Behind, User Owner, Boolean Orange, Boolean Vertical, BlockFace Teleportface)
 	{
@@ -46,7 +47,7 @@ public class Portal {
 	
 	public void delete()
 	{
-		if (orange && owner != null) {
+		if (owner != null) { //TODO: What was the null check for?
 			for (Block b: border)
 			{
 				if (oldBlocks.containsKey(b.getLocation()))
@@ -101,15 +102,13 @@ public class Portal {
 	    		    	
     		if (isRegionPortal())
     			plugin.regionManager.getRegion(centerBlock.getLocation()).regionPortalDeleted(this);
-	    		
 		}				
 	}
 	
 	public void open()
 	{
 		Region region = plugin.regionManager.getRegion(((Block)inside.toArray()[0]).getLocation());
-	
-		boolean placetorch = false;
+		
 		for (Block b: inside)
     	{
 			b.setType(Material.AIR); 
@@ -130,7 +129,7 @@ public class Portal {
 							 			b2.setType(Material.REDSTONE_TORCH_ON);
 
 						 		else
-						 			placetorch = true;
+						 			destination.placetorch = true;
 						 }
 				 }
 			 }
@@ -138,7 +137,10 @@ public class Portal {
     	}
 		
 		if (placetorch)
+		{
 			((Block)inside.toArray()[0]).setType(Material.REDSTONE_TORCH_ON);
+			placetorch = false;
+		}
 		
 		open = true;
 		plugin.funnelBridgeManager.reorientBridge(this);
