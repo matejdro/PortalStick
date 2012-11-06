@@ -26,10 +26,8 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Vehicle;
 import org.bukkit.util.Vector;
 
-import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class EntityManager implements Runnable {
 	private final PortalStick plugin;
@@ -260,9 +258,9 @@ public class EntityManager implements Runnable {
 			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new enablePortal(destination), 10L);
 		
 			if (portal.orange)
-				Util.PlaySound(Sound.PORTAL_EXIT_ORANGE, entity instanceof Player ? (Player) entity : null, teleport);
+				plugin.util.PlaySound(Sound.PORTAL_EXIT_ORANGE, entity instanceof Player ? (Player) entity : null, teleport);
 			else
-				Util.PlaySound(Sound.PORTAL_EXIT_BLUE, entity instanceof Player ? (Player) entity : null, teleport);
+				plugin.util.PlaySound(Sound.PORTAL_EXIT_BLUE, entity instanceof Player ? (Player) entity : null, teleport);
 
 			return teleport;
 		}
@@ -273,7 +271,7 @@ public class EntityManager implements Runnable {
 	public void run() {
 		for (World w : plugin.getServer().getWorlds())
 		{
-			if (Config.DisabledWorlds.contains(w.getName()) || processingWorlds.contains(w)) return;
+			if (plugin.config.DisabledWorlds.contains(w.getName()) || processingWorlds.contains(w)) return;
 			final List<Entity> entities = w.getEntities();
 			final World world = w;
 			Thread checkworld = new Thread() {

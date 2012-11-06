@@ -25,8 +25,6 @@ import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.Portal;
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
-import com.matejdro.bukkit.portalstick.util.BlockUtil;
-import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 public class PortalStickBlockListener implements Listener {
@@ -72,7 +70,7 @@ public class PortalStickBlockListener implements Listener {
 		bridge = plugin.funnelBridgeManager.bridgeMachineBlocks.get(event.getBlock());
 		if (bridge != null )
 		{
-				if (Permission.deleteBridge(event.getPlayer()))
+				if (plugin.permission.deleteBridge(event.getPlayer()))
 					bridge.delete();
 				else
 					event.setCancelled(true);
@@ -83,10 +81,10 @@ public class PortalStickBlockListener implements Listener {
 		plugin.funnelBridgeManager.updateBridge(event.getBlock());
 		
 		
-		if (BlockUtil.compareBlockToString(event.getBlock(), region.getString(RegionSetting.GRILL_MATERIAL)))
+		if (plugin.blockUtil.compareBlockToString(event.getBlock(), region.getString(RegionSetting.GRILL_MATERIAL)))
 		{
 			grill = plugin.grillManager.borderBlocks.get(event.getBlock().getLocation());
-				if (grill == null || !Permission.deleteGrill(event.getPlayer())) return;
+				if (grill == null || !plugin.permission.deleteGrill(event.getPlayer())) return;
 				grill.delete();
 		}
 		

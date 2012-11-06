@@ -8,10 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
-import com.matejdro.bukkit.portalstick.util.BlockUtil;
-import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class Portal {
 	private final PortalStick plugin;
@@ -51,21 +48,21 @@ public class Portal {
 			for (Block b: border)
 			{
 				if (oldBlocks.containsKey(b.getLocation()))
-					BlockUtil.setBlockData(b, oldBlocks.get(b.getLocation()));
+					plugin.blockUtil.setBlockData(b, oldBlocks.get(b.getLocation()));
 				plugin.portalManager.borderBlocks.remove(b.getLocation());
 			}
 			for (Block b: inside)
 			{
 				if (oldBlocks.containsKey(b.getLocation()))
-					BlockUtil.setBlockData(b, oldBlocks.get(b.getLocation()));
+					plugin.blockUtil.setBlockData(b, oldBlocks.get(b.getLocation()));
 				plugin.portalManager.insideBlocks.remove(b.getLocation());
 			}
-			if (Config.FillPortalBack > -1)
+			if (plugin.config.FillPortalBack > -1)
 			{
 				for (Block b: behind)
 				{
 					if (oldBlocks.containsKey(b.getLocation()))
-						BlockUtil.setBlockData(b, oldBlocks.get(b.getLocation()));
+						plugin.blockUtil.setBlockData(b, oldBlocks.get(b.getLocation()));
 					plugin.portalManager.behindBlocks.remove(b.getLocation());
 				}
 			}
@@ -150,9 +147,9 @@ public class Portal {
 	{
 		byte color;
 		if (orange)
-			color = (byte) Util.getRightPortalColor(owner.colorPreset);
+			color = (byte) plugin.util.getRightPortalColor(owner.colorPreset);
 		else
-			color = (byte) Util.getLeftPortalColor(owner.colorPreset);			
+			color = (byte) plugin.util.getLeftPortalColor(owner.colorPreset);			
 		for (Block b: inside)
     	{
     		b.setType(Material.WOOL);
@@ -167,9 +164,9 @@ public class Portal {
 	{
 		byte color;
 		if (orange)
-			color = (byte) Util.getRightPortalColor(owner.colorPreset);
+			color = (byte) plugin.util.getRightPortalColor(owner.colorPreset);
 		else
-			color = (byte) Util.getLeftPortalColor(owner.colorPreset);			
+			color = (byte) plugin.util.getLeftPortalColor(owner.colorPreset);			
 		
 		for (Block b: border)
     	{
@@ -184,7 +181,7 @@ public class Portal {
 	    	}
 		}
 		
-		if (Config.CompactPortal)
+		if (plugin.config.CompactPortal)
 		{
 			for (Block b: behind)
 	    	{
@@ -197,9 +194,9 @@ public class Portal {
 	{
 		byte color;
 		if (orange)
-			color = (byte) Util.getRightPortalColor(owner.colorPreset);
+			color = (byte) plugin.util.getRightPortalColor(owner.colorPreset);
 		else
-			color = (byte) Util.getLeftPortalColor(owner.colorPreset);			
+			color = (byte) plugin.util.getLeftPortalColor(owner.colorPreset);			
 
     	for (Block b: border)
     	{
@@ -210,16 +207,16 @@ public class Portal {
     		if (plugin.portalManager.behindBlocks.containsKey((b.getLocation())))
     			plugin.portalManager.behindBlocks.get(b.getLocation()).delete();
     		
-    		oldBlocks.put(b.getLocation(), BlockUtil.getBlockData(b));
+    		oldBlocks.put(b.getLocation(), plugin.blockUtil.getBlockData(b));
     		b.setType(Material.WOOL);
     		b.setData(color);
     		plugin.portalManager.borderBlocks.put(b.getLocation(), this);
        	}
     	for (Block b: inside)
     	{
-			oldBlocks.put(b.getLocation(), BlockUtil.getBlockData(b));
+			oldBlocks.put(b.getLocation(), plugin.blockUtil.getBlockData(b));
     	}
-    	if (Config.FillPortalBack > -1)
+    	if (plugin.config.FillPortalBack > -1)
     	{
     		for (Block b: behind)
         	{
@@ -230,15 +227,15 @@ public class Portal {
         		if (plugin.portalManager.behindBlocks.containsKey((b.getLocation())))
         			plugin.portalManager.behindBlocks.get(b.getLocation()).delete();
 
-        		oldBlocks.put(b.getLocation(), BlockUtil.getBlockData(b));
-        		if (Config.CompactPortal)
+        		oldBlocks.put(b.getLocation(), plugin.blockUtil.getBlockData(b));
+        		if (plugin.config.CompactPortal)
         		{
         			b.setType(Material.WOOL);
             		b.setData(color);
         		}
         		else
         		{
-        			b.setTypeId(Config.FillPortalBack);
+        			b.setTypeId(plugin.config.FillPortalBack);
         		}
         		plugin.portalManager.behindBlocks.put(b.getLocation(), this);
         	}

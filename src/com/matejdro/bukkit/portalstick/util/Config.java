@@ -23,33 +23,34 @@ import com.matejdro.bukkit.portalstick.User;
 
 public class Config {
 	
-	private static PortalStick plugin;
-	private static FileConfiguration mainConfig;
-	private static FileConfiguration regionConfig;
-	private static FileConfiguration grillConfig;
-	private static FileConfiguration bridgeConfig;
+	private final PortalStick plugin;
+	private final FileConfiguration mainConfig;
+	private final FileConfiguration regionConfig;
+	private final FileConfiguration grillConfig;
+	private final FileConfiguration bridgeConfig;
 	
-	private static File mainConfigFile;
-	private static File regionConfigFile;
-	private static File grillConfigFile;
-	private static File bridgeConfigFile;
+	private final File mainConfigFile;
+	private final File regionConfigFile;
+	private final File grillConfigFile;
+	private final File bridgeConfigFile;
 	
-	public static HashSet<String> DisabledWorlds;
-	public static boolean DeleteOnQuit;
-	public static int PortalTool;
-	public static boolean CompactPortal;
-	public static Region GlobalRegion;
-	public static int RegionTool;
-	public static boolean RestoreInvOnWorldChange;
-	public static List<String> ColorPresets;
-	public static int FillPortalBack;
+	public HashSet<String> DisabledWorlds;
+	public boolean DeleteOnQuit;
+	public int PortalTool;
+	public boolean CompactPortal;
+	public Region GlobalRegion;
+	public int RegionTool;
+	public boolean RestoreInvOnWorldChange;
+	public List<String> ColorPresets;
+	public int FillPortalBack;
 	
-	public static String MessageCannotPlacePortal;
+	public String MessageCannotPlacePortal;
 	
-	public static Boolean useBukkitContribSounds;
-	public static int soundRange;
-	public static String[] soundUrls = new String[Sound.values().length];
-	public static String[] soundNotes = new String[Sound.values().length];
+	public boolean useBukkitContribSounds;
+	public int soundRange;
+	public final String[] soundUrls = new String[Sound.values().length];
+	public final String[] soundNotes = new String[Sound.values().length];
+	
 	public Config (PortalStick instance) {
 		
 		plugin = instance;
@@ -68,19 +69,19 @@ public class Config {
 		load();
 	}
 	
-	public static void deleteGrill(String grill) {
+	public void deleteGrill(String grill) {
 		List<String> list =  grillConfig.getStringList("grills");
 		list.remove(grill);
 		grillConfig.set("grills", list);
 		saveAll();
 	}
 	
-	public static void deleteRegion(String name) {
+	public void deleteRegion(String name) {
 		regionConfig.set("regions." + name, null);
 		saveAll();
 	}
 	
-	public static void deleteBridge(String bridge) {
+	public void deleteBridge(String bridge) {
 		List<String> list = bridgeConfig.getStringList("bridges");
 		list.remove(bridge);
 		bridgeConfig.set("bridges", list);
@@ -88,7 +89,7 @@ public class Config {
 	}
 
 	
-	public static void load() {
+	public void load() {
 		
 		try {
 			mainConfig.load(mainConfigFile);
@@ -147,22 +148,22 @@ public class Config {
         	for (String regionName : regionConfig.getConfigurationSection("regions").getKeys(false))
         		plugin.regionManager.loadRegion(regionName);
         plugin.regionManager.loadRegion("global");
-        Util.info(plugin.regionManager.regions.size() + " region(s) loaded");
+        plugin.getLogger().info(plugin.regionManager.regions.size() + " region(s) loaded");
         
         //Load grills
         for (String grill : (grillConfig.getStringList("grills")).toArray(new String[0]))
         	plugin.grillManager.loadGrill(grill);
-        Util.info(plugin.grillManager.grills.size() + " grill(s) loaded");
+        plugin.getLogger().info(plugin.grillManager.grills.size() + " grill(s) loaded");
         //Load bridges
         for (String bridge : bridgeConfig.getStringList("bridges"))
         	plugin.funnelBridgeManager.loadBridge(bridge);
-        Util.info(plugin.funnelBridgeManager.bridges.size() + " bridge(s) loaded");
+        plugin.getLogger().info(plugin.funnelBridgeManager.bridges.size() + " bridge(s) loaded");
         
         saveAll();
 		
 	}
 	
-	private static int getInt(String path, int def)
+	private int getInt(String path, int def)
 	{
 
 		if (mainConfig.get(path) == null)
@@ -171,7 +172,7 @@ public class Config {
 		return mainConfig.getInt(path, def);
 	}
 
-	private static String getString(String path, String def)
+	private String getString(String path, String def)
 	{
 		if (mainConfig.get(path) == null)
 			mainConfig.set(path, def);
@@ -179,7 +180,7 @@ public class Config {
 		return mainConfig.getString(path, def);
 	}
 
-	private static List<String> getStringList(String path, List<String> def)
+	private List<String> getStringList(String path, List<String> def)
 	{
 		if (mainConfig.get(path) == null)
 			mainConfig.set(path, def);
@@ -187,7 +188,7 @@ public class Config {
 	return mainConfig.getStringList(path);
 	}
 
-	private static Boolean getBoolean(String path, Boolean def)
+	private boolean getBoolean(String path, Boolean def)
 	{
 		if (mainConfig.get(path) == null)
 			mainConfig.set(path, def);
@@ -195,12 +196,12 @@ public class Config {
 		return mainConfig.getBoolean(path, def);
 	}
 	
-	public static void reLoad() {
+	public void reLoad() {
 		unLoad();
 		load();
 	}
 	
-	public static void unLoad() {
+	public void unLoad() {
 		
 		plugin.funnelBridgeManager.deleteAll();
 		plugin.portalManager.deleteAll();
@@ -217,7 +218,7 @@ public class Config {
 		
 	}
 	
-	public static void loadRegionSettings(Region region) {
+	public void loadRegionSettings(Region region) {
 		for (RegionSetting setting : RegionSetting.values()) {
 			Object prop = regionConfig.get("regions." + region.name + "." + setting.getYaml());
     		if (prop == null)
@@ -229,14 +230,14 @@ public class Config {
 		region.updateLocation();
 	}
 	
-	private static File getConfigFile(String filename)
+	private File getConfigFile(String filename)
 	{
 		if (!plugin.getDataFolder().exists()) plugin.getDataFolder().mkdir();
 		
 		File file = new File(plugin.getDataFolder(), filename);
 		return file;
 	}
-	private static FileConfiguration getConfig(File file) {
+	private FileConfiguration getConfig(File file) {
 		FileConfiguration config = null;
 		try {
 			config = new YamlConfiguration();
@@ -249,12 +250,12 @@ public class Config {
 			
 			return config;
 		} catch (Exception e) {
-			Util.severe("Unable to load YAML file " + file.getAbsolutePath());
+			plugin.getLogger().severe("Unable to load YAML file " + file.getAbsolutePath());
 		}
 		return null;
 	}
 	
-	public static void saveAll() {
+	public void saveAll() {
 		
 		//Save regions
 		for (Map.Entry<String, Region> entry : plugin.regionManager.regions.entrySet()) {
@@ -268,7 +269,7 @@ public class Config {
 		}
 		catch (Exception ex)
 		{
-			Util.severe("Error while writing to regions.yml");
+			plugin.getLogger().severe("Error while writing to regions.yml");
 		}
 		
 		//Save grills
@@ -283,7 +284,7 @@ public class Config {
 		}
 		catch (Exception ex)
 		{
-			Util.severe("Error while writing to grills.yml");
+			plugin.getLogger().severe("Error while writing to grills.yml");
 		}
 		
 		//Save bridges
@@ -298,8 +299,8 @@ public class Config {
 		}
 		catch (Exception ex)
 		{
-			Util.severe("Error while writing to bridges.yml");
-				}
+			plugin.getLogger().severe("Error while writing to bridges.yml");
+		}
 		
 		//Save main
 		try
@@ -308,12 +309,12 @@ public class Config {
 		}
 		catch (Exception ex)
 		{
-			Util.severe("Error while writing to config.yml");
+			plugin.getLogger().severe("Error while writing to config.yml");
 		}
 			
 	}
 	
-	public static enum Sound {
+	public enum Sound {
 		PORTAL_CREATE_BLUE,
 		PORTAL_CREATE_ORANGE,
 		PORTAL_EXIT_BLUE,

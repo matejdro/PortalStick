@@ -25,12 +25,8 @@ import com.matejdro.bukkit.portalstick.Portal;
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.User;
-import com.matejdro.bukkit.portalstick.util.BlockUtil;
-import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
-import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalStickPlayerListener implements Listener {
 	private final PortalStick plugin;
@@ -48,7 +44,7 @@ public class PortalStickPlayerListener implements Listener {
 		User user = plugin.userManager.getUser(player);
 	
 		//Portal tool
-		if (player.getItemInHand().getTypeId() == Config.PortalTool && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
+		if (player.getItemInHand().getTypeId() == plugin.config.PortalTool && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
 		{
 			event.setCancelled(true);
 			Region region = plugin.regionManager.getRegion(player.getLocation());
@@ -61,13 +57,13 @@ public class PortalStickPlayerListener implements Listener {
 				return;
 			if (!region.getBoolean(RegionSetting.ENABLE_PORTALS))
 				return;
-			if (!Permission.placePortal(player))
+			if (!plugin.permission.placePortal(player))
 				return;
 		
 			List<Block> targetBlocks = event.getPlayer().getLineOfSight(tb, 120);
 			if (targetBlocks.size() < 1) return;
 			
-			if (Config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))
+			if (plugin.config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))
 			{
 				return;
 			}
@@ -82,8 +78,8 @@ public class PortalStickPlayerListener implements Listener {
 					{
 						if (p.inside.contains(b))
 						{
-							Util.sendMessage(player, Config.MessageCannotPlacePortal);
-							Util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, b.getLocation());
+							plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
+							plugin.util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, b.getLocation());
 							return;
 						}
 					}
@@ -96,14 +92,14 @@ public class PortalStickPlayerListener implements Listener {
 				{
 					if ((b.getType() == Material.IRON_DOOR_BLOCK || b.getType() == Material.WOODEN_DOOR) && ((b.getData() & 4) != 4) )
 					{
-							Util.sendMessage(player, Config.MessageCannotPlacePortal);
-							Util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, b.getLocation());
+						plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
+							plugin.util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, b.getLocation());
 							return;
 					}
 					else if (b.getType() == Material.TRAP_DOOR && (b.getData() & 4) == 0)
 					{
-						Util.sendMessage(player, Config.MessageCannotPlacePortal);
-						Util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, b.getLocation());
+						plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
+						plugin.util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, b.getLocation());
 						return;
 
 					}
@@ -129,7 +125,7 @@ public class PortalStickPlayerListener implements Listener {
 			//float dir = (float)Math.toDegrees(Math.atan2(player.getLocation().getBlockX() - b.getX(), b.getZ() - player.getLocation().getBlockZ()));
 		}
 		//Region tool
-		else if (user.usingTool && player.getItemInHand().getTypeId() == Config.RegionTool)
+		else if (user.usingTool && player.getItemInHand().getTypeId() == plugin.config.RegionTool)
 		{
 			switch (event.getAction()) {
 				case RIGHT_CLICK_BLOCK:
@@ -137,7 +133,7 @@ public class PortalStickPlayerListener implements Listener {
 					break;
 				case LEFT_CLICK_BLOCK:
 					user.pointOne = event.getClickedBlock().getLocation();
-					Util.sendMessage(player, "&aRegion point one set`nType /portal setregion to save the region");
+					plugin.util.sendMessage(player, "&aRegion point one set`nType /portal setregion to save the region");
 					break;
 			}
 		}
@@ -154,13 +150,13 @@ public class PortalStickPlayerListener implements Listener {
 		{
 			Portal portal = plugin.portalManager.borderBlocks.get(event.getClickedBlock().getLocation());
 			if (portal == null) portal = plugin.portalManager.insideBlocks.get(event.getClickedBlock().getLocation());
-			if (portal == null && Config.CompactPortal) portal = plugin.portalManager.behindBlocks.get(event.getClickedBlock().getLocation());
+			if (portal == null && plugin.config.CompactPortal) portal = plugin.portalManager.behindBlocks.get(event.getClickedBlock().getLocation());
 			if (portal == null) return;
 			if (portal.owner.name != player.getName()) return;
 		
 			
 			int preset = user.colorPreset;
-			if (preset == Config.ColorPresets.size() - 1)
+			if (preset == plugin.config.ColorPresets.size() - 1)
 				preset = 0;
 			else
 				preset++;
@@ -168,10 +164,10 @@ public class PortalStickPlayerListener implements Listener {
 			user.colorPreset = preset;
 			user.recreatePortals();
 
-			String color1 = DyeColor.values()[Util.getLeftPortalColor(preset)].toString().replace("_", " ");
-			String color2 = DyeColor.values()[Util.getRightPortalColor(preset)].toString().replace("_", " ");
+			String color1 = DyeColor.values()[plugin.util.getLeftPortalColor(preset)].toString().replace("_", " ");
+			String color2 = DyeColor.values()[plugin.util.getRightPortalColor(preset)].toString().replace("_", " ");
 
-			Util.sendMessage(player, "Your new portal color is " + color1 + " - " + color2);
+			plugin.util.sendMessage(player, "Your new portal color is " + color1 + " - " + color2);
 		}
 
 	}
@@ -192,7 +188,7 @@ public class PortalStickPlayerListener implements Listener {
 	    Vector vec1 = event.getFrom().toVector();
 	    Vector vector = vec2.subtract(vec1);
 		
-	    if (Config.DisabledWorlds.contains(locTo.getWorld().getName())) return;
+	    if (plugin.config.DisabledWorlds.contains(locTo.getWorld().getName())) return;
 	    
 		//Check for changing regions
 	    plugin.portalManager.checkPlayerMove(player, regionFrom, regionTo);
@@ -217,14 +213,14 @@ public class PortalStickPlayerListener implements Listener {
 			String faithBlock = regionTo.getString(RegionSetting.FAITH_PLATE_BLOCK);
 			Vector velocity = new Vector(0, Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[1]),0);
 			
-			if (blockIn.getType() == Material.STONE_PLATE && BlockUtil.compareBlockToString(blockUnder, faithBlock))
+			if (blockIn.getType() == Material.STONE_PLATE && plugin.blockUtil.compareBlockToString(blockUnder, faithBlock))
 				blockStart = blockUnder;
 			else
 				blockStart = blockIn;
 			
 			if (blockStart != null) {
 				BlockFace[] faces = new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
-				BlockFace face = BlockUtil.getFaceOfMaterial(blockStart, faces, faithBlock);
+				BlockFace face = plugin.blockUtil.getFaceOfMaterial(blockStart, faces, faithBlock);
 				if (face != null) {
 					switch (face) {
 						case NORTH:
@@ -245,7 +241,7 @@ public class PortalStickPlayerListener implements Listener {
 						velocity.setZ(-velocity.getZ());
 					}
 					player.setVelocity(velocity);
-					Util.PlaySound(Sound.FAITHPLATE_LAUNCH, player, blockStart.getLocation());
+					plugin.util.PlaySound(Sound.FAITHPLATE_LAUNCH, player, blockStart.getLocation());
 				}
 			}
 		
@@ -254,7 +250,7 @@ public class PortalStickPlayerListener implements Listener {
 		plugin.gelManager.useGel( player, locTo, vector);
 		
 		//Teleport
-		if (Permission.teleport(player))
+		if (plugin.permission.teleport(player))
 		  plugin.entityManager.teleport(player, locTo, vector.setY(player.getVelocity().getY()));
 		
 		//Funnel
@@ -277,7 +273,7 @@ public class PortalStickPlayerListener implements Listener {
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
 		Region regionFrom = plugin.regionManager.getRegion(event.getFrom());
 		Region regionTo = plugin.regionManager.getRegion(event.getTo());
-		if (!Config.RestoreInvOnWorldChange && !event.getFrom().getWorld().getName().equalsIgnoreCase(event.getTo().getWorld().getName()))
+		if (!plugin.config.RestoreInvOnWorldChange && !event.getFrom().getWorld().getName().equalsIgnoreCase(event.getTo().getWorld().getName()))
 			return;
 		plugin.portalManager.checkPlayerMove(event.getPlayer(), regionFrom, regionTo);
 		}
@@ -291,7 +287,7 @@ public class PortalStickPlayerListener implements Listener {
 		Region region = plugin.regionManager.getRegion(player.getLocation());
 		if (region.name != "global" && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
 			user.revertInventory(player);
-		if (Config.DeleteOnQuit) {
+		if (plugin.config.DeleteOnQuit) {
 			plugin.portalManager.deletePortals(user);
 			plugin.userManager.deleteUser(player);
 		}

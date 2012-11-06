@@ -11,9 +11,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import com.matejdro.bukkit.portalstick.util.BlockUtil;
-import com.matejdro.bukkit.portalstick.util.Config;
-import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 public class GrillManager implements Runnable {
@@ -37,7 +34,7 @@ public class GrillManager implements Runnable {
 		String world = locarr[0];
 		Block b = plugin.getServer().getWorld(world).getBlockAt((int)Double.parseDouble(locarr[1]), (int)Double.parseDouble(locarr[2]), (int)Double.parseDouble(locarr[3]));
 		if (!placeRecursiveEmancipationGrill(b))
-			Config.deleteGrill(blockloc);
+			plugin.config.deleteGrill(blockloc);
 	}
 	
 	public void deleteAll() {
@@ -50,11 +47,11 @@ public class GrillManager implements Runnable {
     
     public boolean createGrill(Player player, Block block) {
     	boolean ret;
-    	if(!Permission.createGrill(player) || Config.DisabledWorlds.contains(player.getLocation().getWorld().getName()))
+    	if(!plugin.permission.createGrill(player) || plugin.config.DisabledWorlds.contains(player.getLocation().getWorld().getName()))
     	  ret = false;
     	else if(placeRecursiveEmancipationGrill(block))
     	{
-    	  Config.saveAll();
+    	  plugin.config.saveAll();
     	  ret = true;
     	}
     	else
@@ -66,7 +63,7 @@ public class GrillManager implements Runnable {
     	
     	Region region = plugin.regionManager.getRegion(initial.getLocation());
     	String borderID = region.getString(RegionSetting.GRILL_MATERIAL);
-    	if (!BlockUtil.compareBlockToString(initial, borderID)) return false;
+    	if (!plugin.blockUtil.compareBlockToString(initial, borderID)) return false;
     	if (!region.getBoolean(RegionSetting.ENABLE_GRILLS)) return false;
 
     	//Check if initial is already in a grill
@@ -132,11 +129,11 @@ public class GrillManager implements Runnable {
     	    			Block temp = block.getRelative(face);
     	    			while (temp.getLocation().toVector().isInAABB(min, max)) {
     	    				
-    	    				if (BlockUtil.compareBlockToString(temp, borderID))
+    	    				if (plugin.blockUtil.compareBlockToString(temp, borderID))
     	    					break;
     	    				temp = temp.getRelative(face);
     	    			}
-    	    			if (!BlockUtil.compareBlockToString(temp, borderID)) {
+    	    			if (!plugin.blockUtil.compareBlockToString(temp, borderID)) {
     	    				add = false;
     	    				break;
     	    			}
@@ -157,7 +154,7 @@ public class GrillManager implements Runnable {
     		complete = true;
     		return;
     	}
-    	if (BlockUtil.compareBlockToString(block, id) && !border.contains(block)) {
+    	if (plugin.blockUtil.compareBlockToString(block, id) && !border.contains(block)) {
     		border.add(block);
     		max++;
     		recurse(initial, id, block.getRelative(one), one, two, three, four);

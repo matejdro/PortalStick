@@ -14,8 +14,6 @@ import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.Portal;
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
-import com.matejdro.bukkit.portalstick.util.BlockUtil;
-import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 public class PortalStickEntityListener implements Listener {
@@ -33,7 +31,7 @@ public class PortalStickEntityListener implements Listener {
 		if (event.getEntity() instanceof Player)
 		{
 			Player player = (Player)event.getEntity();
-			if (!Permission.damageBoots(player)) return;
+			if (!plugin.permission.damageBoots(player)) return;
 			Region region = plugin.regionManager.getRegion(player.getLocation());
 			if (event.getCause() == DamageCause.FALL && region.getBoolean(RegionSetting.ENABLE_FALL_DAMAGE_BOOTS) && region.getInt(RegionSetting.FALL_DAMAGE_BOOTS) == player.getInventory().getBoots().getTypeId())
 				event.setCancelled(true);
@@ -61,7 +59,7 @@ public class PortalStickEntityListener implements Listener {
 				}
 			}
 			
-			if (block.getType() == Material.SUGAR_CANE_BLOCK || BlockUtil.compareBlockToString(block, region.getString(RegionSetting.GRILL_MATERIAL)))
+			if (block.getType() == Material.SUGAR_CANE_BLOCK || plugin.blockUtil.compareBlockToString(block, region.getString(RegionSetting.GRILL_MATERIAL)))
 			{
 				Grill grill = plugin.grillManager.insideBlocks.get(loc);
 				if (grill == null) grill = plugin.grillManager.borderBlocks.get(loc);

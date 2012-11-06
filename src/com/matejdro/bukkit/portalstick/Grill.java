@@ -6,8 +6,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
-import com.matejdro.bukkit.portalstick.util.Config;
-
 public class Grill {
 	private final PortalStick plugin;
 	
@@ -28,9 +26,9 @@ public class Grill {
 	public void delete()
 	{
 		deleteInside();
-		Config.deleteGrill(getStringLocation());
+		plugin.config.deleteGrill(getStringLocation());
 		plugin.grillManager.grills.remove(this);
-		Config.saveAll();
+		plugin.config.saveAll();
 		
 		for (Block b : border)
 		{

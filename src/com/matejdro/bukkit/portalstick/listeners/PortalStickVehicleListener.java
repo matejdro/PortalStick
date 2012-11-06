@@ -11,7 +11,6 @@ import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
-import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 public class PortalStickVehicleListener implements Listener {
@@ -34,7 +33,7 @@ public class PortalStickVehicleListener implements Listener {
 		
 		//Portals
 		if (vehicle.getPassenger() != null && vehicle.getPassenger() instanceof Player) 
-			if (!Permission.teleport((Player) vehicle.getPassenger())) return;
+			if (!plugin.permission.teleport((Player) vehicle.getPassenger())) return;
 			 
 		plugin.entityManager.teleport((Entity) vehicle, LocTo, vector);
 	}

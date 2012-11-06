@@ -4,10 +4,7 @@ import org.bukkit.entity.Player;
 
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
-import com.matejdro.bukkit.portalstick.util.Config;
-import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class FlagCommand extends BaseCommand {
 
@@ -22,7 +19,7 @@ public class FlagCommand extends BaseCommand {
 		
 		Region editRegion = plugin.regionManager.getRegion(args.get(0));
 		if (editRegion == null) {
-			Util.sendMessage(player, "&cInvalid region name, please supply an existing region!");
+			plugin.util.sendMessage(player, "&cInvalid region name, please supply an existing region!");
 			return true;
 		}
 		
@@ -40,27 +37,27 @@ public class FlagCommand extends BaseCommand {
 					else
 						editRegion.settings.put(setting, args.get(2));
 					
-					Util.sendMessage(player, "&aRegion &7" + editRegion.name + " &aupdated");
-					Config.saveAll();
-					Config.reLoad();
+					plugin.util.sendMessage(player, "&aRegion &7" + editRegion.name + " &aupdated");
+					plugin.config.saveAll();
+					plugin.config.reLoad();
 					return true;
 				} catch (Throwable t) {
-					Util.sendMessage(player, "&cInvalid value supplied for flag &7" + setting.getYaml());
+					plugin.util.sendMessage(player, "&cInvalid value supplied for flag &7" + setting.getYaml());
 					editRegion.settings.put(setting, old);
 					return true;
 				}
 			}
 		}
-		Util.sendMessage(player, "&cInvalid flag, please choose from one of the following:");
+		plugin.util.sendMessage(player, "&cInvalid flag, please choose from one of the following:");
 		String flags = "";
 		for (RegionSetting setting : RegionSetting.values())
 			if (setting.getEditable()) flags += "&c" + setting.getYaml() + "&7, ";
-		Util.sendMessage(player, "&c" + flags.substring(0, flags.length() - 2));
+		plugin.util.sendMessage(player, "&c" + flags.substring(0, flags.length() - 2));
 		return true;
 	}
 	
 	public boolean permission(Player player) {
-		return Permission.adminRegions(player);
+		return plugin.permission.adminRegions(player);
 	}
 
 }

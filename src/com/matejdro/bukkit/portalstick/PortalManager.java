@@ -14,11 +14,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.material.Wool;
 
-import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
-import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class PortalManager {
 	private final PortalStick plugin;
@@ -131,7 +128,7 @@ public class PortalManager {
 		portal.block = block;
 		if (face == BlockFace.DOWN || face == BlockFace.UP)
 		{
-			if (!Config.CompactPortal)
+			if (!plugin.config.CompactPortal)
 			{
 				portal.border.add(block.getRelative(1,0,0));
 	    		portal.border.add(block.getRelative(0,0,1));
@@ -144,7 +141,7 @@ public class PortalManager {
 			}
 			
 	
-			if (Config.FillPortalBack < 0 || !Config.CompactPortal) portal.border.add(block.getRelative(1,0,0));
+			if (plugin.config.FillPortalBack < 0 || !plugin.config.CompactPortal) portal.border.add(block.getRelative(1,0,0));
 	
 			
 			portal.inside.add(block);
@@ -187,7 +184,7 @@ public class PortalManager {
 	    		portal.tpFace = BlockFace.EAST;
 	    		break;
 	    	}
-	    	if (!Config.CompactPortal)
+	    	if (!plugin.config.CompactPortal)
 	    	{
 	    		portal.border.add(block.getRelative(0,1,0));
 	        	portal.border.add(block.getRelative(x*1,0,z*1));
@@ -199,7 +196,7 @@ public class PortalManager {
 	        	portal.border.add(block.getRelative(x*1,-2,z*1));
 	        	portal.border.add(block.getRelative(x*-1,-2,z*-1));
 	    	}
-	    	if (Config.FillPortalBack < 0 || !Config.CompactPortal) portal.border.add(block.getRelative(0,-2,0));
+	    	if (plugin.config.FillPortalBack < 0 || !plugin.config.CompactPortal) portal.border.add(block.getRelative(0,-2,0));
 	
 	    	portal.inside.add(block);
 	    	portal.inside.add(block.getRelative(0,-1,0));
@@ -222,7 +219,7 @@ public class PortalManager {
 			return false;
 		if (!region.getBoolean(RegionSetting.ENABLE_PORTALS))
 			return false;
-		if (!Permission.placePortal(player))
+		if (!plugin.permission.placePortal(player))
 			return false;
 	
 		Boolean vertical = false;
@@ -237,8 +234,8 @@ public class PortalManager {
 			portalc = generatePortal(block, face);
 			if (!checkPortal(portalc))
 			{
-				if (end) Util.sendMessage(player, Config.MessageCannotPlacePortal);
-				Util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, block.getLocation());
+				if (end) plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
+				plugin.util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, block.getLocation());
 				return false;
 			}
 		}
@@ -247,8 +244,8 @@ public class PortalManager {
 			portalc = generateHorizontalPortal(block, face);
 			if (portalc.finished)
 			{
-				if (end) Util.sendMessage(player, Config.MessageCannotPlacePortal);
-				Util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, block.getLocation());
+				if (end) plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
+				plugin.util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, block.getLocation());
 				return false;
 			}
 		}
@@ -264,14 +261,14 @@ public class PortalManager {
 		{
 			if (owner.orangePortal != null) owner.orangePortal.delete();
 			owner.orangePortal = portal;
-			Util.PlaySound(Sound.PORTAL_CREATE_ORANGE, player, block.getLocation());
+			plugin.util.PlaySound(Sound.PORTAL_CREATE_ORANGE, player, block.getLocation());
 			
 		}
 		else
 		{
 			if (owner.bluePortal != null) owner.bluePortal.delete();
 			owner.bluePortal = portal;
-			Util.PlaySound(Sound.PORTAL_CREATE_BLUE, player, block.getLocation());
+			plugin.util.PlaySound(Sound.PORTAL_CREATE_BLUE, player, block.getLocation());
 		}
 		
 		portals.add(portal);
@@ -334,7 +331,7 @@ public class PortalManager {
 			Boolean keep = false;
 			for (Object is : region.getList(RegionSetting.GRILL_INVENTORY_CLEAR_EXCEPTIONS))
 			{
-				ItemStack itemcheck = Util.getItemData((String) is);
+				ItemStack itemcheck = plugin.util.getItemData((String) is);
 				if (item.getTypeId() == itemcheck.getTypeId())
 				{
 					keep = true;
@@ -347,8 +344,8 @@ public class PortalManager {
 		
 		for (Object is : region.getList(RegionSetting.UNIQUE_INVENTORY_ITEMS))
 		{
-			ItemStack item = Util.getItemData((String) is);
-			if (item.getTypeId() == Config.PortalTool)
+			ItemStack item = plugin.util.getItemData((String) is);
+			if (item.getTypeId() == plugin.config.PortalTool)
 				inv.setItemInHand(item);
 			else
 				inv.addItem(item);
@@ -407,7 +404,7 @@ public class PortalManager {
 		 }
 
 		//Find, in which direction is other side of portal generator
-		int size = Config.CompactPortal ? 2 : 4; // How far is another side of portal generator
+		int size = plugin.config.CompactPortal ? 2 : 4; // How far is another side of portal generator
 		BlockFace otherSide = null;
 		for (int i = 0; i < 6; i++)
 		 {
@@ -454,10 +451,10 @@ public class PortalManager {
 		if (portalFace == null) return;
 				
 		//Is portal generator right size?
-		if ((!Config.CompactPortal &&
+		if ((!plugin.config.CompactPortal &&
 		(((portalFace == BlockFace.UP || portalFace == BlockFace.DOWN) && ironBars.size() != 6 ) ||
 		(portalFace != BlockFace.UP && portalFace != BlockFace.DOWN && ironBars.size() != 8 ))) ||
-		(Config.CompactPortal && 
+		(plugin.config.CompactPortal && 
 		(((portalFace == BlockFace.UP || portalFace == BlockFace.DOWN) && ironBars.size() != 2 ) ||
 		(portalFace != BlockFace.UP && portalFace != BlockFace.DOWN && ironBars.size() != 4 ))))
 			return;

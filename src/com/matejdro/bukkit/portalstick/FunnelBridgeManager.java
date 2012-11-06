@@ -12,9 +12,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
-import com.matejdro.bukkit.portalstick.util.BlockUtil;
-import com.matejdro.bukkit.portalstick.util.Config;
-import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 public class FunnelBridgeManager {
@@ -35,7 +32,7 @@ public class FunnelBridgeManager {
 
 	public boolean placeGlassBridge(Player player, Block firstIron)
 	{
-		if (player != null && !Permission.createBridge(player)) return false;
+		if (player != null && !plugin.permission.createBridge(player)) return false;
 		
 		Region region = plugin.regionManager.getRegion(firstIron.getLocation());
 		if (!region.getBoolean(RegionSetting.ENABLE_HARD_GLASS_BRIDGES)) return false;
@@ -43,11 +40,11 @@ public class FunnelBridgeManager {
 		HashSet<Block> machineBlocks = new HashSet<Block>();
 
 		//Check if two blocks are iron
-		if (!BlockUtil.compareBlockToString(firstIron, region.getString(RegionSetting.HARD_GLASS_BRIDGE_BASE_MATERIAL)) && !BlockUtil.compareBlockToString(firstIron, region.getString(RegionSetting.FUNNEL_BASE_MATERIAL))) return false;
+		if (!plugin.blockUtil.compareBlockToString(firstIron, region.getString(RegionSetting.HARD_GLASS_BRIDGE_BASE_MATERIAL)) && !plugin.blockUtil.compareBlockToString(firstIron, region.getString(RegionSetting.FUNNEL_BASE_MATERIAL))) return false;
 		BlockFace face = null;
 		for (BlockFace check : new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST})
 		{
-			if (BlockUtil.compareBlockToString(firstIron.getRelative(check).getRelative(check), region.getString(RegionSetting.HARD_GLASS_BRIDGE_BASE_MATERIAL)) || BlockUtil.compareBlockToString(firstIron.getRelative(check).getRelative(check), region.getString(RegionSetting.FUNNEL_BASE_MATERIAL)))
+			if (plugin.blockUtil.compareBlockToString(firstIron.getRelative(check).getRelative(check), region.getString(RegionSetting.HARD_GLASS_BRIDGE_BASE_MATERIAL)) || plugin.blockUtil.compareBlockToString(firstIron.getRelative(check).getRelative(check), region.getString(RegionSetting.FUNNEL_BASE_MATERIAL)))
 			{
 				face = check;
 				break;
@@ -99,7 +96,7 @@ public class FunnelBridgeManager {
 		if (face == null) return false;
 		
 		Bridge bridge;
-		if (BlockUtil.compareBlockToString(firstIron, region.getString(RegionSetting.HARD_GLASS_BRIDGE_BASE_MATERIAL)))
+		if (plugin.blockUtil.compareBlockToString(firstIron, region.getString(RegionSetting.HARD_GLASS_BRIDGE_BASE_MATERIAL)))
 			bridge = new Bridge(plugin, firstIron, startingBlock, face, machineBlocks);
 		else
 			bridge = new Funnel(plugin, firstIron, startingBlock, face, machineBlocks);
@@ -108,7 +105,7 @@ public class FunnelBridgeManager {
 		for (Block b : machineBlocks)
 			bridgeMachineBlocks.put(b, bridge);
 		bridges.add(bridge);
-		Config.saveAll();
+		plugin.config.saveAll();
 		return true;
 	}
 	
@@ -154,7 +151,7 @@ public class FunnelBridgeManager {
 		String world = locarr[0];
 		Block b = plugin.getServer().getWorld(world).getBlockAt((int)Double.parseDouble(locarr[1]), (int)Double.parseDouble(locarr[2]), (int)Double.parseDouble(locarr[3]));
 		if (!placeGlassBridge(null, b))
-			Config.deleteBridge(blockloc);
+			plugin.config.deleteBridge(blockloc);
 	}
 	
 	public void deleteAll()

@@ -22,40 +22,43 @@ import com.matejdro.bukkit.portalstick.listeners.PortalStickEntityListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickPlayerListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickVehicleListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickWorldListener;
+import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Config;
+import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.Util;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 public class PortalStick extends JavaPlugin {
 	
 	public BaseCommand[] commands;
-	public Config config;
+	public Config config = new Config(this);
 	
 	public final EntityManager entityManager = new EntityManager(this);
 	public final FunnelBridgeManager funnelBridgeManager = new FunnelBridgeManager(this);
 	public final GelManager gelManager = new GelManager(this);
 	public final GrillManager grillManager = new GrillManager(this);
 	public final PortalManager portalManager = new PortalManager(this);
-	public final RegionManager regionManager = new RegionManager();
+	public final RegionManager regionManager = new RegionManager(this);
 	public final UserManager userManager = new UserManager(this);
 
 	public WorldGuardPlugin worldGuard = null;
+	
+	public final Util util = new Util(this);
+	public final BlockUtil blockUtil = new BlockUtil();
+	public final Permission permission = new Permission(); // TODO: Remove
 
 	public void onDisable() {
-		Config.saveAll();
-		Config.unLoad();
+		config.saveAll();
+		config.unLoad();
 	}
 
 	public void onEnable() {
-		Util.setPlugin(this);
-		
 		//Register events		
 		getServer().getPluginManager().registerEvents(new PortalStickPlayerListener(this), this);
 		getServer().getPluginManager().registerEvents(new PortalStickBlockListener(this), this);
 		getServer().getPluginManager().registerEvents(new PortalStickVehicleListener(this), this);
 		getServer().getPluginManager().registerEvents(new PortalStickEntityListener(this), this);
 		getServer().getPluginManager().registerEvents(new PortalStickWorldListener(this), this);
-		config = new Config(this);
 		
 		worldGuard = (WorldGuardPlugin) this.getServer().getPluginManager().getPlugin("WorldGuard");
 

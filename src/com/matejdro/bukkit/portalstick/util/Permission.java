@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 
 public class Permission {
 	
-	private static boolean hasPermission(Player player, String node, boolean def) {
+	private boolean hasPermission(Player player, String node, boolean def) {
 		if(player.hasPermission(node))
 			return true;
 		while(node.contains("."))
@@ -19,30 +19,31 @@ public class Permission {
 		return player.hasPermission("*");
 	}
 	
-	public static boolean placePortal(Player player) {
+	public boolean placePortal(Player player) {
 		return hasPermission(player, "portalstick.placeportal", true);
 	}
-	public static boolean createGrill(Player player) {
+	public boolean createGrill(Player player) {
 		return hasPermission(player, "portalstick.creategrill", false);
 	}
-	public static boolean deleteGrill(Player player) {
+	public boolean deleteGrill(Player player) {
 		return hasPermission(player, "portalstick.deletegrill", false);
 	}
-	public static boolean createBridge(Player player) {
+	public boolean createBridge(Player player) {
 		return hasPermission(player, "portalstick.createbridge", false);
-	}public static boolean deleteBridge(Player player) {
+	}
+	public boolean deleteBridge(Player player) {
 		return hasPermission(player, "portalstick.deletebridge", false);
 	}
-	public static boolean teleport(Player player) {
+	public boolean teleport(Player player) {
 		return hasPermission(player, "portalstick.teleport", true);
 	}
-	public static boolean adminRegions(Player player) {
+	public boolean adminRegions(Player player) {
 		return hasPermission(player, "portalstick.admin.regions", false);
 	}
-	public static boolean damageBoots(Player player) {
+	public boolean damageBoots(Player player) {
 		return hasPermission(player, "portalstick.damageboots", true);
 	}
-	public static boolean deleteAll(Player player) {
+	public boolean deleteAll(Player player) {
 		return hasPermission(player, "portalstick.admin.deleteall", false);
 	}
 }

@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.User;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public abstract class BaseCommand {
 	final PortalStick plugin;
@@ -56,7 +55,7 @@ public abstract class BaseCommand {
 	public abstract boolean permission(Player player);
 	
 	public void sendUsage() {
-		Util.sendMessage(sender, "&c/"+usedCommand+" " + name + " " + usage);
+		plugin.util.sendMessage(sender, "&c/"+usedCommand+" " + name + " " + usage);
 	}
 
 }

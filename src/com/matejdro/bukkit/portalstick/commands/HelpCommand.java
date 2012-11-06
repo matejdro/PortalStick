@@ -4,7 +4,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.matejdro.bukkit.portalstick.PortalStick;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class HelpCommand extends BaseCommand {
 
@@ -20,7 +19,7 @@ public class HelpCommand extends BaseCommand {
 		player.sendMessage(ChatColor.RED+"--------------------- "+ChatColor.GRAY+"PortalStick "+ChatColor.RED+"---------------------");
 		for (BaseCommand cmd : plugin.commands)
 			if (cmd.permission(player))
-				Util.sendMessage(player, "&7- /"+usedCommand+" &c" + cmd.name + " &7" + cmd.usage);
+				plugin.util.sendMessage(player, "&7- /"+usedCommand+" &c" + cmd.name + " &7" + cmd.usage);
 		return true;
 	}
 	

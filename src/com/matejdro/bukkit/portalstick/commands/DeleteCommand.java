@@ -4,7 +4,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.matejdro.bukkit.portalstick.PortalStick;
-import com.matejdro.bukkit.portalstick.util.Permission;
 
 public class DeleteCommand extends BaseCommand {
 
@@ -22,7 +21,7 @@ public class DeleteCommand extends BaseCommand {
 	}
 	
 	public boolean permission(Player player) {
-		return Permission.placePortal(player);
+		return plugin.permission.placePortal(player);
 	}
 
 }

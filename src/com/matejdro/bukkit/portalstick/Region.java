@@ -8,7 +8,6 @@ import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class Region extends User {
 	
@@ -84,7 +83,6 @@ public class Region extends User {
 			{
 				if (p.open && p.getDestination() == bluePortal && bluePortal != null) 
 				{
-					Util.info("test12");
 					if (orangePortalDest == null || !orangePortalDest.open) orangePortalDest = p;
 					break;
 				}
@@ -93,7 +91,6 @@ public class Region extends User {
 			{
 				if (p.open && p.getDestination() == orangePortal && orangePortal != null) 
 				{
-					Util.info("test13");
 					if (bluePortalDest == null || !bluePortalDest.open) bluePortalDest = p;
 					break;
 				}

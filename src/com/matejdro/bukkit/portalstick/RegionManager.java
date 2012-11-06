@@ -4,9 +4,13 @@ import java.util.HashMap;
 
 import org.bukkit.Location;
 
-import com.matejdro.bukkit.portalstick.util.Config;
-
 public class RegionManager {
+	private final PortalStick plugin;
+	
+	RegionManager(PortalStick plugin)
+	{
+		this.plugin = plugin;
+	}
 	
 	public final HashMap<String, Region> regions = new HashMap<String, Region>();
 	
@@ -14,7 +18,7 @@ public class RegionManager {
 		Region region = getRegion(name);
 		if (region == null)
 			region = new Region(name);
-		Config.loadRegionSettings(region);
+		plugin.config.loadRegionSettings(region);
 		regions.put(name, region);
 		return region;
 	}
@@ -22,13 +26,13 @@ public class RegionManager {
 	public void deleteRegion(String name) {
 		Region region = getRegion(name);
 		regions.remove(region.name);
-		Config.deleteRegion(name);
+		plugin.config.deleteRegion(name);
 	}
 	
 	public void createRegion(String name, Location one, Location two) {
 		Region region = loadRegion(name);
 		region.setLocation(one, two);
-		Config.saveAll();
+		plugin.config.saveAll();
 	}
 	
 	public Region getRegion(Location location) {
