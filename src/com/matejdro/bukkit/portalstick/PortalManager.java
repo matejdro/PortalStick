@@ -219,7 +219,7 @@ public class PortalManager {
 			return false;
 		if (!region.getBoolean(RegionSetting.ENABLE_PORTALS))
 			return false;
-		if (!plugin.permission.placePortal(player))
+		if (!plugin.hasPermission(player, plugin.PERM_PLACE_PORTAL))
 			return false;
 	
 		Boolean vertical = false;

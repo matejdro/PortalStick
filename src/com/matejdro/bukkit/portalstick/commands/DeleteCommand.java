@@ -21,7 +21,7 @@ public class DeleteCommand extends BaseCommand {
 	}
 	
 	public boolean permission(Player player) {
-		return plugin.permission.placePortal(player);
+		return plugin.hasPermission(player, plugin.PERM_PLACE_PORTAL);
 	}
 
 }

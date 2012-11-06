@@ -55,20 +55,12 @@ public class PortalStickPlayerListener implements Listener {
 			
 			if (region.getBoolean(RegionSetting.CHECK_WORLDGUARD) && plugin.worldGuard != null && !plugin.worldGuard.canBuild(player, player.getLocation().getBlock()))
 				return;
-			if (!region.getBoolean(RegionSetting.ENABLE_PORTALS))
-				return;
-			if (!plugin.permission.placePortal(player))
+			if (!region.getBoolean(RegionSetting.ENABLE_PORTALS) || !plugin.hasPermission(player, plugin.PERM_PLACE_PORTAL))
 				return;
 		
 			List<Block> targetBlocks = event.getPlayer().getLineOfSight(tb, 120);
-			if (targetBlocks.size() < 1) return;
-			
-			if (plugin.config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))
-			{
+			if (targetBlocks.size() < 1 || plugin.config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()) || !region.getBoolean(RegionSetting.ENABLE_PORTALS))
 				return;
-			}
-			
-			if (!region.getBoolean(RegionSetting.ENABLE_PORTALS)) return;
 			
 			if (region.getBoolean(RegionSetting.PREVENT_PORTAL_THROUGH_PORTAL))
 			{
@@ -250,7 +242,7 @@ public class PortalStickPlayerListener implements Listener {
 		plugin.gelManager.useGel( player, locTo, vector);
 		
 		//Teleport
-		if (plugin.permission.teleport(player))
+		if (plugin.hasPermission(player, plugin.PERM_TELEPORT))
 		  plugin.entityManager.teleport(player, locTo, vector.setY(player.getVelocity().getY()));
 		
 		//Funnel

@@ -70,11 +70,11 @@ public class PortalStickBlockListener implements Listener {
 		bridge = plugin.funnelBridgeManager.bridgeMachineBlocks.get(event.getBlock());
 		if (bridge != null )
 		{
-				if (plugin.permission.deleteBridge(event.getPlayer()))
-					bridge.delete();
-				else
-					event.setCancelled(true);
-				return;
+			if (plugin.hasPermission(event.getPlayer(), plugin.PERM_DELETE_BRIDGE))
+				bridge.delete();
+			else
+				event.setCancelled(true);
+			return;
 		}
 		
 		//Update bridge if destroyed block made space
@@ -84,7 +84,7 @@ public class PortalStickBlockListener implements Listener {
 		if (plugin.blockUtil.compareBlockToString(event.getBlock(), region.getString(RegionSetting.GRILL_MATERIAL)))
 		{
 			grill = plugin.grillManager.borderBlocks.get(event.getBlock().getLocation());
-				if (grill == null || !plugin.permission.deleteGrill(event.getPlayer())) return;
+				if (grill == null || !plugin.hasPermission(event.getPlayer(), plugin.PERM_DELETE_GRILL)) return;
 				grill.delete();
 		}
 		

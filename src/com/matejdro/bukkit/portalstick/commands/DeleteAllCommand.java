@@ -20,7 +20,7 @@ public class DeleteAllCommand extends BaseCommand {
 	}
 	
 	public boolean permission(Player player) {
-		return plugin.permission.deleteAll(player);
+		return plugin.hasPermission(player, plugin.PERM_DELETE_ALL);
 	}
 
 }

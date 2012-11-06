@@ -26,7 +26,7 @@ public class DeleteRegionCommand extends BaseCommand {
 	}
 	
 	public boolean permission(Player player) {
-		return plugin.permission.adminRegions(player);
+		return plugin.hasPermission(player, plugin.PERM_ADMIN_REGIONS);
 	}
 
 }

@@ -32,7 +32,7 @@ public class FunnelBridgeManager {
 
 	public boolean placeGlassBridge(Player player, Block firstIron)
 	{
-		if (player != null && !plugin.permission.createBridge(player)) return false;
+		if (player != null && !plugin.hasPermission(player, plugin.PERM_CREATE_BRIDGE)) return false;
 		
 		Region region = plugin.regionManager.getRegion(firstIron.getLocation());
 		if (!region.getBoolean(RegionSetting.ENABLE_HARD_GLASS_BRIDGES)) return false;

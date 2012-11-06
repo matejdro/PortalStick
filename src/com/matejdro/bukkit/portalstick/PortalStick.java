@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.matejdro.bukkit.portalstick.commands.BaseCommand;
@@ -24,7 +25,6 @@ import com.matejdro.bukkit.portalstick.listeners.PortalStickVehicleListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickWorldListener;
 import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Config;
-import com.matejdro.bukkit.portalstick.util.Permission;
 import com.matejdro.bukkit.portalstick.util.Util;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
@@ -45,7 +45,6 @@ public class PortalStick extends JavaPlugin {
 	
 	public final Util util = new Util(this);
 	public final BlockUtil blockUtil = new BlockUtil();
-	public final Permission permission = new Permission(); // TODO: Remove
 
 	public void onDisable() {
 		config.saveAll();
@@ -93,6 +92,30 @@ public class PortalStick extends JavaPlugin {
 		}
 		return false;
 	}
+	
+	public final String PERM_CREATE_BRIDGE = "portalstick.createbridge";
+	public final String PERM_CREATE_GRILL = "portalstick.creategrill";
+	public final String PERM_PLACE_PORTAL = "portalstick.placeportal";
+	public final String PERM_DELETE_ALL = "portalstick.admin.deleteall";
+	public final String PERM_ADMIN_REGIONS = "portalstick.admin.regions";
+	public final String PERM_DELETE_BRIDGE = "portalstick.deletebridge";
+	public final String PERM_DELETE_GRILL = "portalstick.deletegrill";
+	public final String PERM_DAMAGE_BOOTS = "portalstick.damageboots";
+	public final String PERM_TELEPORT = "portalstick.teleport";
     
+	public boolean hasPermission(Player player, String node) {
+		if(player.hasPermission(node))
+			return true;
+		while(node.contains("."))
+		{
+			node = node.substring(0, node.lastIndexOf("."));
+			if(player.hasPermission(node))
+				return true;
+			node = node.substring(0, node.length() - 1);
+			if(player.hasPermission(node))
+				return true;
+		}
+		return player.hasPermission("*");
+	}
 }
 		    
