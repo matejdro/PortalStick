@@ -66,7 +66,7 @@ public class Config {
 		grillConfig = getConfig(grillConfigFile);
 		bridgeConfig = getConfig(bridgeConfigFile);
 		
-		load();
+		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){public void run(){load();}});
 	}
 	
 	public void deleteGrill(String grill) {
@@ -146,7 +146,8 @@ public class Config {
         //Load all regions
         if (regionConfig.getConfigurationSection("regions") != null)
         	for (String regionName : regionConfig.getConfigurationSection("regions").getKeys(false))
-        		plugin.regionManager.loadRegion(regionName);
+        		if(!regionName.equals("global"))
+        			plugin.regionManager.loadRegion(regionName);
         plugin.regionManager.loadRegion("global");
         plugin.getLogger().info(plugin.regionManager.regions.size() + " region(s) loaded");
         

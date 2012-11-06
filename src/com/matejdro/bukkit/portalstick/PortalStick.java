@@ -31,7 +31,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 public class PortalStick extends JavaPlugin {
 	
 	public BaseCommand[] commands;
-	public Config config = new Config(this);
+	public Config config;
 	
 	public final EntityManager entityManager = new EntityManager(this);
 	public final FunnelBridgeManager funnelBridgeManager = new FunnelBridgeManager(this);
@@ -52,6 +52,8 @@ public class PortalStick extends JavaPlugin {
 	}
 
 	public void onEnable() {
+		config = new Config(this);
+		
 		//Register events		
 		getServer().getPluginManager().registerEvents(new PortalStickPlayerListener(this), this);
 		getServer().getPluginManager().registerEvents(new PortalStickBlockListener(this), this);
