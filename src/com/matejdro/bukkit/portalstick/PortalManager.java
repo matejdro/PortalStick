@@ -192,17 +192,29 @@ public class PortalManager {
 	    
 	    if (!plugin.config.CompactPortal || plugin.config.FillPortalBack < 0)
 	    {
-	      portal.border.add(new V10Location(rb.getRelative(BlockFace.DOWN, 2)));
+	      Block block2 = rb.getRelative(BlockFace.DOWN, 2);
+	      portal.border.add(new V10Location(block2));
+	      
 	      if(!plugin.config.CompactPortal)
 	      {
-	    	portal.border.add(new V10Location(rb.getRelative(BlockFace.UP)));
-	    	
-	    	Block block2 = rb.getRelative(face);
+	    	block2 = block2.getRelative(face);
+	    	portal.border.add(new V10Location(block2));
 	    	for(int i = 0; i < 3; i++)
-	    	  portal.border.add(new V10Location(block2.getRelative(BlockFace.DOWN, i)));
-	    	block2 = rb.getRelative(face.getOppositeFace());
+		    {
+	    	  block2 = block2.getRelative(BlockFace.UP);
+	    	  portal.border.add(new V10Location(block2));
+		    }
+	    	face = face.getOppositeFace();
+	    	for(int i = 0; i < 2; i++)
+	    	{
+	    	  block2 = block2.getRelative(face);
+	    	  portal.border.add(new V10Location(block2));
+	    	}
 	    	for(int i = 0; i < 3; i++)
-		      portal.border.add(new V10Location(block2.getRelative(BlockFace.DOWN, i)));
+	    	{
+	    	  block2 = block2.getRelative(BlockFace.DOWN);
+	    	  portal.border.add(new V10Location(block2));
+	    	}
 	      }
 	    }
 	    
@@ -210,10 +222,10 @@ public class PortalManager {
 	    Block block2 = rb.getRelative(BlockFace.DOWN);
 	    portal.inside.add(new V10Location(block2));
 	    
-	    portal.destLoc = new V10Location(block2.getRelative(portal.tpFace));
+	    portal.destLoc = new V10Location(block2.getRelative(portal.tpFace.getOppositeFace()));
 	    portal.vertical = false;
 	    
-	    block2.getRelative(portal.tpFace.getOppositeFace());
+	    block2.getRelative(portal.tpFace);
 	    portal.behind.add(new V10Location(block2));
 	    portal.behind.add(new V10Location(block2.getRelative(BlockFace.UP)));
 	    
@@ -540,5 +552,4 @@ public class PortalManager {
 
 		portal.create();
 	}
-
 }
