@@ -7,34 +7,32 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 
+import de.V10lator.PortalStick.V10Location;
+
 public class Funnel extends Bridge {
 	private boolean reversed = false;
 	
-	Funnel(PortalStick plugin, Block CreationBlock, Block startingBlock, BlockFace face, HashSet<Block> machineBlocks) {
+	Funnel(PortalStick plugin, V10Location CreationBlock, V10Location startingBlock, BlockFace face, HashSet<V10Location> machineBlocks) {
 		super(plugin, CreationBlock, startingBlock, face, machineBlocks);
 	}
 	
-	public void setReverse(Boolean value)
+	public void setReverse(boolean value)
 	{
 		reversed = value;
 		activate();
 	}
 	
-	public Boolean isReversed(Boolean value)
-	{
-		return reversed;
-	}
-	
 	public BlockFace getDirection(Block block)
 	{
-		if (!bridgeBlocks.containsKey(block)) return null;
+		V10Location vb = new V10Location(block);
+		if (!bridgeBlocks.containsKey(vb)) return null;
 		
-		int curnum = bridgeBlocks.get(block);
+		int curnum = bridgeBlocks.get(vb);
 		BlockFace face = null;
 		for (BlockFace check : new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST, BlockFace.UP, BlockFace.DOWN})
 		{
-			Block cblock = block.getRelative(check);
-			if (bridgeBlocks.containsKey(cblock) && (curnum - bridgeBlocks.get(cblock) == 1 || bridgeBlocks.get(cblock) > curnum + 1) )			{
+			vb = new V10Location(block.getRelative(check));
+			if (bridgeBlocks.containsKey(vb) && (curnum - bridgeBlocks.get(vb) == 1 || bridgeBlocks.get(vb) > curnum + 1) )			{
 				face = check;
 				break;
 			}
@@ -62,7 +60,7 @@ public class Funnel extends Bridge {
 		return face;
 	}
 	
-	public int getCounter(Block block)
+	public int getCounter(V10Location block)
 	{
 		return bridgeBlocks.get(block);
 	}
@@ -74,15 +72,18 @@ public class Funnel extends Bridge {
 		deactivate();
 		
 		BlockFace face = facingSide;
-		Block nextBlock = startBlock;
+		V10Location nextV10Location = startBlock;
+		Block nextBlock = nextV10Location.getHandle().getBlock();
 		int counter = reversed ? 1 : 8;
 		while (true)
 		{			
-			Portal portal = plugin.portalManager.insideBlocks.get(nextBlock.getLocation());
-			if (portal == null) portal = plugin.portalManager.borderBlocks.get(nextBlock.getLocation());
+			Portal portal = plugin.portalManager.insideBlocks.get(nextV10Location);
+			if (portal == null) portal = plugin.portalManager.borderBlocks.get(nextV10Location);
 			if (portal != null && portal.open)
 			{
-				nextBlock = portal.getDestination().teleport.getBlock();
+				nextV10Location = portal.getDestination().teleport;
+				nextBlock = nextV10Location.getHandle().getBlock();
+
 				face = portal.getDestination().teleportFace.getOppositeFace();
 				
 				involvedPortals.add(portal);
@@ -93,48 +94,35 @@ public class Funnel extends Bridge {
 			
 			if (!nextBlock.getWorld().isChunkLoaded(nextBlock.getChunk())) return;
 			
-			if (reversed)
+			if (counter < 0) counter = 8;
+			if (counter > 0)
 			{
-if (counter < 0) counter = 8;
-				
-				if (counter > 0)
-				{
-					nextBlock.setType(Material.WATER);
-					if (face != BlockFace.UP && face != BlockFace.DOWN) nextBlock.setData((byte) (counter - 1));
-				}
-				
-				counter--;
+				nextBlock.setType(Material.WATER);
+				byte data;
+				if(reversed)
+				  data = (byte)(counter - 1);
+				else
+				  data = (byte)(8 - counter);
+				if (face != BlockFace.UP && face != BlockFace.DOWN) nextBlock.setData(data);
 			}
-			else
-			{
-				if (counter < 0) counter = 8;
+			counter--;
 				
-				if (counter > 0)
-				{
-					nextBlock.setType(Material.WATER);
-					if (face != BlockFace.UP && face != BlockFace.DOWN) nextBlock.setData((byte) (8 - counter));
-				}
-				
-				counter--;
-
-			}
-			
-						
-			bridgeBlocks.put(nextBlock, counter);
-			plugin.funnelBridgeManager.bridgeBlocks.put(nextBlock, this);
+			bridgeBlocks.put(nextV10Location, counter);
+			plugin.funnelBridgeManager.bridgeBlocks.put(nextV10Location, this);
 			
 			nextBlock = nextBlock.getRelative(face);
+			nextV10Location = new V10Location(nextBlock);
 		}
 	}
 	
 	@Override
 	public void deactivate()
 	{
-		for (Block b : bridgeBlocks.keySet())
-			b.setType(Material.AIR);
-		
-		for (Block b: bridgeBlocks.keySet())
+		for (V10Location b : bridgeBlocks.keySet())
+		{
+			b.getHandle().getBlock().setType(Material.AIR);
 			plugin.funnelBridgeManager.bridgeBlocks.remove(b);
+		}
 		bridgeBlocks.clear();
 		for (Portal p: involvedPortals)
 			plugin.funnelBridgeManager.involvedPortals.remove(p);

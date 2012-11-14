@@ -11,7 +11,6 @@ import net.minecraft.server.WorldServer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftEntity;
@@ -29,9 +28,11 @@ import org.bukkit.util.Vector;
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
+import de.V10lator.PortalStick.V10Location;
+
 public class EntityManager implements Runnable {
 	private final PortalStick plugin;
-	private final HashSet<World> processingWorlds = new HashSet<World>();
+	private final HashSet<String> processingWorlds = new HashSet<String>();
 	private final HashSet<Entity> blockedEntities = new HashSet<Entity>();
 
 	EntityManager(PortalStick instance)
@@ -39,45 +40,54 @@ public class EntityManager implements Runnable {
 		plugin = instance;
 	}
 
-	public Location teleport(Entity entity, Location LocTo, Vector vector)
+	public Location teleport(Entity entity, V10Location locTo, Vector vector)
 	{
 		if (entity == null || entity.isDead() || blockedEntities.contains(entity)) return null;
-		
-		Region regionTo = plugin.regionManager.getRegion(LocTo);
-		Portal portal = plugin.portalManager.insideBlocks.get(LocTo);
+
+		Region regionTo = plugin.regionManager.getRegion(locTo);
+		Portal portal = plugin.portalManager.insideBlocks.get(locTo);
 		if (portal == null && ((Math.abs(vector.getX()) > 0.5 || (Math.abs(vector.getY()) > 1 || (Math.abs(vector.getZ()) > 0.5))) || entity instanceof Boat)) 
 		{
-			portal = plugin.portalManager.awayBlocksGeneral.get(LocTo);
-			if (portal == null && (Math.abs(vector.getX()) > 0.5)) portal = plugin.portalManager.awayBlocksX.get(LocTo);
-			if (portal == null && (Math.abs(vector.getY()) > 1)) portal = plugin.portalManager.awayBlocksY.get(LocTo);
-			if (portal == null && (Math.abs(vector.getZ()) > 0.5)) portal = plugin.portalManager.awayBlocksZ.get(LocTo);
+			portal = plugin.portalManager.awayBlocksGeneral.get(locTo);
+			if (portal == null && (Math.abs(vector.getX()) > 0.5)) portal = plugin.portalManager.awayBlocksX.get(locTo);
+			if (portal == null && (Math.abs(vector.getY()) > 1)) portal = plugin.portalManager.awayBlocksY.get(locTo);
+			if (portal == null && (Math.abs(vector.getZ()) > 0.5)) portal = plugin.portalManager.awayBlocksZ.get(locTo);
 		}
-		if (portal == null && (entity instanceof FallingBlock || entity instanceof TNTPrimed)) portal = plugin.portalManager.awayBlocksY.get(LocTo);
+		if (portal == null && (entity instanceof FallingBlock || entity instanceof TNTPrimed)) portal = plugin.portalManager.awayBlocksY.get(locTo);
 		if (portal != null)
 		{
 			if (!portal.open || portal.disabled) return null;
 			if (Math.abs(vector.getY()) > 1 && !portal.vertical) return null;
 			
-			for (Block b : portal.inside)
+			double x, y, z;
+			
+			for (V10Location b : portal.inside)
 			{
+				//TODO: Anti alarm ^^
+				x = b.x;
+				y = b.y;
+				z = b.z;
+				
+				x += 0.5D;
+				z += 0.5D;
+				
 				if (!portal.vertical)
 				{
-					if (b.getX() + 0.5 < entity.getLocation().getX() && vector.getX() > 0) return null;
-					else if (b.getX() - 0.5 > entity.getLocation().getX() && vector.getX() < 0) return null;
-					else if (b.getZ() + 0.5 < entity.getLocation().getZ() && vector.getZ() > 0) return null;
-					else if (b.getZ() - 0.5 > entity.getLocation().getZ() && vector.getZ() < 0) return null;
+					if (x + 0.5 < entity.getLocation().getX() && vector.getX() > 0) return null;
+					else if (x - 0.5 > entity.getLocation().getX() && vector.getX() < 0) return null;
+					else if (y + 0.5 < entity.getLocation().getZ() && vector.getZ() > 0) return null;
+					else if (z - 0.5 > entity.getLocation().getZ() && vector.getZ() < 0) return null;
 				}
 				else
 				{
-					if (b.getY() + 0.5 < entity.getLocation().getY() && vector.getY() > 0) return null;
-					if (b.getY() - 0.5 > entity.getLocation().getY() && vector.getY() < -0.1) return null;
+					if (y + 0.5 < entity.getLocation().getY() && vector.getY() > 0) return null;
+					if (y - 0.5 > entity.getLocation().getY() && vector.getY() < -0.1) return null;
 				}
 				
 			}
-			Location teleport;
-			Portal destination = portal.getDestination();
-				 				 
-			teleport = destination.teleport.clone();
+			
+			Portal destination = portal.getDestination();	 
+			Location teleport = destination.teleport.getHandle();
 								 
 			float yaw = entity.getLocation().getYaw();
 			float pitch = entity.getLocation().getPitch();
@@ -258,9 +268,9 @@ public class EntityManager implements Runnable {
 			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new enablePortal(destination), 10L);
 		
 			if (portal.orange)
-				plugin.util.PlaySound(Sound.PORTAL_EXIT_ORANGE, entity instanceof Player ? (Player) entity : null, teleport);
+				plugin.util.PlaySound(Sound.PORTAL_EXIT_ORANGE, entity instanceof Player ? (Player) entity : null, new V10Location(teleport));
 			else
-				plugin.util.PlaySound(Sound.PORTAL_EXIT_BLUE, entity instanceof Player ? (Player) entity : null, teleport);
+				plugin.util.PlaySound(Sound.PORTAL_EXIT_BLUE, entity instanceof Player ? (Player) entity : null, new V10Location(teleport));
 
 			return teleport;
 		}
@@ -273,8 +283,8 @@ public class EntityManager implements Runnable {
 		{
 			if (plugin.config.DisabledWorlds.contains(w.getName()) || processingWorlds.contains(w)) return;
 			final List<Entity> entities = w.getEntities();
-			final World world = w;
-			Thread checkworld = new Thread() {
+			final String world = w.getName();
+			Thread checkworld = new Thread() { //TODO: Not...
 				public void run() {
 					for (Entity e : entities)
 					{
@@ -288,8 +298,8 @@ public class EntityManager implements Runnable {
 
 						Vector vector = e.getVelocity();
 										
-						teleport(e, LocTo, vector);
-						plugin.funnelBridgeManager.EntityMoveCheck(e);
+						teleport(e, new V10Location(LocTo), vector); //TODO: ...hread...
+						plugin.funnelBridgeManager.EntityMoveCheck(e); //TODO ...save...
 					}
 					processingWorlds.remove(world);
 				}
@@ -311,9 +321,6 @@ public class EntityManager implements Runnable {
 		@Override
 		public void run() {
 			if (portal != null) portal.disabled = false;
-			// TODO Auto-generated method stub
-			
 		}
-		
 	}
 }

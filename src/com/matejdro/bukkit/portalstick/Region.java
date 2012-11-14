@@ -9,6 +9,8 @@ import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
+import de.V10lator.PortalStick.V10Location;
+
 public class Region extends User {
 	
 	public HashMap<RegionSetting, Object> settings = new HashMap<RegionSetting, Object>();
@@ -44,13 +46,14 @@ public class Region extends User {
 		world = loc[0];
 	}
 	
-	public void setLocation(Location one, Location two) {
+	public void setLocation(V10Location one, V10Location two) {
 		settings.remove(RegionSetting.LOCATION);
-		settings.put(RegionSetting.LOCATION, one.getWorld().getName() + ":" + one.toVector().toString() + ":" + two.toVector().toString());
+		Location a = one.getHandle();
+		settings.put(RegionSetting.LOCATION, a.getWorld().getName() + ":" + a.toVector().toString() + ":" + two.getHandle().toVector().toString());
 		updateLocation();
 	}
 	
-	public void regionPortalOpened(Boolean orange)
+	public void regionPortalOpened(boolean orange)
 	{
 		for (Portal p : portals)
 		{
@@ -75,7 +78,7 @@ public class Region extends User {
 		}			
 	}
 	
-	public void regionPortalClosed(Boolean orange)
+	public void regionPortalClosed(boolean orange)
 	{
 		for (Portal p : portals)
 		{
@@ -118,7 +121,7 @@ public class Region extends User {
 		}
 	}
 	
-	public void regionPortalCreated(Boolean orange)
+	public void regionPortalCreated(boolean orange)
 	{
 		for (Portal p : portals)
 		{

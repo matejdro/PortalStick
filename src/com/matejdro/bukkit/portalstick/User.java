@@ -2,11 +2,12 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.HashSet;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+
+import de.V10lator.PortalStick.V10Location;
 
 public class User {
 	public Portal bluePortal;
@@ -16,8 +17,8 @@ public class User {
 	private ItemStack chest;
 	private ItemStack legs;
 	private ItemStack helmet;
-	public Location pointOne;
-	public Location pointTwo;
+	public V10Location pointOne;
+	public V10Location pointTwo;
 	public boolean usingTool = false;
 	public int colorPreset = 0;
 	public final HashSet<Item> droppedItems = new HashSet<Item>();

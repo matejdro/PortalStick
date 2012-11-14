@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -13,15 +13,17 @@ import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
+import de.V10lator.PortalStick.V10Location;
+
 public class GrillManager implements Runnable {
 	
 	public final List<Grill> grills = new ArrayList<Grill>();
-	public final HashMap<Location, Grill> insideBlocks = new HashMap<Location, Grill>();
-	public final HashMap<Location, Grill> borderBlocks = new HashMap<Location, Grill>();
+	public final HashMap<V10Location, Grill> insideBlocks = new HashMap<V10Location, Grill>();
+	public final HashMap<V10Location, Grill> borderBlocks = new HashMap<V10Location, Grill>();
 	private final PortalStick plugin; 
 	
-	private HashSet<Block> border;
-	private HashSet<Block> inside;
+	private HashSet<V10Location> border = new HashSet<V10Location>();
+	private HashSet<V10Location> inside = new HashSet<V10Location>();
 	private boolean complete;
 	private int max = 0;
 	
@@ -32,8 +34,7 @@ public class GrillManager implements Runnable {
 	public void loadGrill(String blockloc) {
 		String[] locarr = blockloc.split(",");
 		String world = locarr[0];
-		Block b = plugin.getServer().getWorld(world).getBlockAt((int)Double.parseDouble(locarr[1]), (int)Double.parseDouble(locarr[2]), (int)Double.parseDouble(locarr[3]));
-		if (!placeRecursiveEmancipationGrill(b))
+		if (!placeRecursiveEmancipationGrill(new V10Location(plugin.getServer().getWorld(world).getBlockAt((int)Double.parseDouble(locarr[1]), (int)Double.parseDouble(locarr[2]), (int)Double.parseDouble(locarr[3])))))
 			plugin.config.deleteGrill(blockloc);
 	}
 	
@@ -45,7 +46,7 @@ public class GrillManager implements Runnable {
 		borderBlocks.clear();
 	}
     
-    public boolean createGrill(Player player, Block block) {
+    public boolean createGrill(Player player, V10Location block) {
     	boolean ret;
     	if(!plugin.hasPermission(player, plugin.PERM_CREATE_GRILL) || plugin.config.DisabledWorlds.contains(player.getLocation().getWorld().getName()))
     	  ret = false;
@@ -59,16 +60,15 @@ public class GrillManager implements Runnable {
     	return ret;
     }
     
-    public boolean placeRecursiveEmancipationGrill(Block initial) {
+    public boolean placeRecursiveEmancipationGrill(V10Location initial) {
     	
-    	Region region = plugin.regionManager.getRegion(initial.getLocation());
+    	Region region = plugin.regionManager.getRegion(initial);
     	String borderID = region.getString(RegionSetting.GRILL_MATERIAL);
-    	if (!plugin.blockUtil.compareBlockToString(initial, borderID)) return false;
-    	if (!region.getBoolean(RegionSetting.ENABLE_GRILLS)) return false;
+    	if (!plugin.blockUtil.compareBlockToString(initial, borderID) || !region.getBoolean(RegionSetting.ENABLE_GRILLS)) return false;
 
     	//Check if initial is already in a grill
     	for (Grill grill : grills)
-    		if (grill.getBorder().contains(initial))
+    		if (grill.border.contains(initial))
     			return false;
     	//Attempt to get complete border
     	startRecurse(initial, borderID, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.DOWN, BlockFace.UP);
@@ -87,9 +87,9 @@ public class GrillManager implements Runnable {
     }
     
     
-    private void startRecurse(Block initial, String id, BlockFace one, BlockFace two, BlockFace three, BlockFace four, BlockFace iOne, BlockFace iTwo) {
-    	border = new HashSet<Block>();
-    	inside = new HashSet<Block>();
+    private void startRecurse(V10Location initial, String id, BlockFace one, BlockFace two, BlockFace three, BlockFace four, BlockFace iOne, BlockFace iTwo) {
+    	border.clear();
+    	inside.clear();
     	max = 0;
     	complete = false;
     	recurse(initial, id, initial, one, two, three, four);
@@ -99,34 +99,37 @@ public class GrillManager implements Runnable {
     		complete = false;
     }
     
-    private void generateInsideBlocks(String borderID, Block initial, BlockFace iOne, BlockFace iTwo) {
+    private void generateInsideBlocks(String borderID, V10Location initial, BlockFace iOne, BlockFace iTwo) {
     	
     	//Work out maximums and minimums
-    	Vector max = border.toArray(new Block[0])[0].getLocation().toVector();
-    	Vector min = border.toArray(new Block[0])[0].getLocation().toVector();
+    	Vector max = border.toArray(new V10Location[0])[0].getHandle().toVector();
+    	Vector min = border.toArray(new V10Location[0])[0].getHandle().toVector();
     	
-    	for (Block block : border.toArray(new Block[0])) {
-    		if (block.getX() >= max.getX()) max.setX(block.getX());
-    		if (block.getY() >= max.getY()) max.setY(block.getY());
-    		if (block.getZ() >= max.getZ()) max.setZ(block.getZ());
-    		if (block.getX() <= min.getX()) min.setX(block.getX());
-    		if (block.getY() <= min.getY()) min.setY(block.getY());
-    		if (block.getZ() <= min.getZ()) min.setZ(block.getZ());
+    	for (V10Location block : border.toArray(new V10Location[0])) {
+    		if (block.x >= max.getX()) max.setX(block.x);
+    		if (block.y >= max.getY()) max.setY(block.y);
+    		if (block.z >= max.getZ()) max.setZ(block.z);
+    		if (block.x <= min.getX()) min.setX(block.x);
+    		if (block.y <= min.getY()) min.setY(block.y);
+    		if (block.z <= min.getZ()) min.setZ(block.z);
     	}
     	
     	//Loop through all blocks in the min-max range checking for 'inside' blocks
+    	BlockFace[] faces = new BlockFace[]{BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
+    	World world = initial.getHandle().getWorld();
+    	Block rb;
     	for (int y = (int)min.getY(); y <= (int)max.getY(); y++) {
     		for (int x = (int)min.getX(); x <= (int)max.getX(); x++) {
     			for (int z = (int)min.getZ(); z <= (int)max.getZ(); z++) {
-    			
-    				Block block = initial.getWorld().getBlockAt(x, y, z);
-    				if (border.contains(block) || inside.contains(block))
+    				rb = world.getBlockAt(x, y, z);
+    				initial = new V10Location(rb);
+    				if (border.contains(initial) || inside.contains(initial))
     	    			continue;
     	    		boolean add = true;
-    	    		for (BlockFace face : new BlockFace[]{BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST}) {
+    	    		for (BlockFace face : faces) {
     	    			if (face == iOne || face == iTwo)
     	    				continue;
-    	    			Block temp = block.getRelative(face);
+    	    			Block temp = rb.getRelative(face);
     	    			while (temp.getLocation().toVector().isInAABB(min, max)) {
     	    				
     	    				if (plugin.blockUtil.compareBlockToString(temp, borderID))
@@ -140,34 +143,33 @@ public class GrillManager implements Runnable {
     	    		}
     	    		
     	    		if (add)
-    	    			inside.add(block);
-    	        	
-
+    	    			inside.add(initial);
     			}
     		}
     	}
     }
     
-    private void recurse(Block initial, String id, Block block, BlockFace one, BlockFace two, BlockFace three, BlockFace four) {
+    private void recurse(V10Location initial, String id, V10Location vb, BlockFace one, BlockFace two, BlockFace three, BlockFace four) {
     	if (max >= 100) return;
-    	if (block == initial && border.size() > 2) {
+    	if (vb.equals(initial) && border.size() > 2) {
     		complete = true;
     		return;
     	}
-    	if (plugin.blockUtil.compareBlockToString(block, id) && !border.contains(block)) {
-    		border.add(block);
+    	if (plugin.blockUtil.compareBlockToString(vb, id) && !border.contains(vb)) {
+    		border.add(vb);
     		max++;
-    		recurse(initial, id, block.getRelative(one), one, two, three, four);
-    		recurse(initial, id, block.getRelative(two), one, two, three, four);
-    		recurse(initial, id, block.getRelative(three), one, two, three, four);
-    		recurse(initial, id, block.getRelative(four), one, two, three, four);
+    		Block b = vb.getHandle().getBlock();
+    		recurse(initial, id, new V10Location(b.getRelative(one)), one, two, three, four);
+    		recurse(initial, id, new V10Location(b.getRelative(two)), one, two, three, four);
+    		recurse(initial, id, new V10Location(b.getRelative(three)), one, two, three, four);
+    		recurse(initial, id, new V10Location(b.getRelative(four)), one, two, three, four);
     	}
     }
 
 	public void emancipate(Player player) {
 		
 		User user = plugin.userManager.getUser(player);
-		Region region = plugin.regionManager.getRegion(player.getLocation());
+		Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
 		plugin.portalManager.deletePortals(user);
 		
 		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_INVENTORY) && !user.usingTool)
@@ -181,13 +183,15 @@ public class GrillManager implements Runnable {
 
 	@Override
 	public void run() {
+		Block b;
 		for (Grill g : grills.toArray(new Grill[0])) {
-			if (g.isDisabled() || !g.getFirstBlock().getWorld().isChunkLoaded(g.getFirstBlock().getChunk())) continue;
+			b = g.firstBlock.getHandle().getBlock();
+			if (g.disabled || !b.getWorld().isChunkLoaded(b.getChunk())) continue;
 
 			if (!g.create()) {
-				Block b = g.getFirstBlock();
+				V10Location loc = g.firstBlock;
 				g.delete();
-				placeRecursiveEmancipationGrill(b);
+				placeRecursiveEmancipationGrill(loc);
 			}
 		}
 	}

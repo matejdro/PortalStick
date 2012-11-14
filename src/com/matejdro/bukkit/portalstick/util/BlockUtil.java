@@ -6,13 +6,24 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.material.Directional;
 import org.bukkit.material.MaterialData;
 
+import de.V10lator.PortalStick.V10Location;
+
 public class BlockUtil {
+	public boolean compareBlockToString(V10Location block, String blockData)
+	{
+	  return compareBlockToString(block.getHandle().getBlock(), blockData);
+	}
+	
 	public boolean compareBlockToString(Block block, String blockData) {
 		String[] blockArr = blockData.split(":");
 		if (blockArr.length > 1)
 			return (block.getTypeId() == Integer.parseInt(blockArr[0]) && block.getData() == Integer.parseInt(blockArr[1]));
 		else
 			return block.getTypeId() == Integer.parseInt(blockArr[0]);
+	}
+	
+	public void setBlockData(V10Location block, String blockData) {
+	  setBlockData(block.getHandle().getBlock(), blockData);
 	}
 
 	public void setBlockData(Block block, String blockData) {

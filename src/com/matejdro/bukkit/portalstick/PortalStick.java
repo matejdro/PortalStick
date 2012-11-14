@@ -64,10 +64,10 @@ public class PortalStick extends JavaPlugin {
 		worldGuard = (WorldGuardPlugin) this.getServer().getPluginManager().getPlugin("WorldGuard");
 
 		//Start grill checking timer
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, new GrillManager(this), 400, 400);
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, grillManager, 400, 400);
 		
 		//Teleport all entities.
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, new EntityManager(this), 2, 2);
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, entityManager, 2, 2);
 		
 		//Register commands
 		ArrayList<BaseCommand> tmpList = new ArrayList<BaseCommand>();
@@ -95,15 +95,15 @@ public class PortalStick extends JavaPlugin {
 		return false;
 	}
 	
-	public final String PERM_CREATE_BRIDGE = "portalstick.createbridge";
-	public final String PERM_CREATE_GRILL = "portalstick.creategrill";
-	public final String PERM_PLACE_PORTAL = "portalstick.placeportal";
-	public final String PERM_DELETE_ALL = "portalstick.admin.deleteall";
-	public final String PERM_ADMIN_REGIONS = "portalstick.admin.regions";
-	public final String PERM_DELETE_BRIDGE = "portalstick.deletebridge";
-	public final String PERM_DELETE_GRILL = "portalstick.deletegrill";
-	public final String PERM_DAMAGE_BOOTS = "portalstick.damageboots";
-	public final String PERM_TELEPORT = "portalstick.teleport";
+	public final String PERM_CREATE_BRIDGE	= "portalstick.createbridge";
+	public final String PERM_CREATE_GRILL	= "portalstick.creategrill";
+	public final String PERM_PLACE_PORTAL	= "portalstick.placeportal";
+	public final String PERM_DELETE_ALL		= "portalstick.admin.deleteall";
+	public final String PERM_ADMIN_REGIONS	= "portalstick.admin.regions";
+	public final String PERM_DELETE_BRIDGE	= "portalstick.deletebridge";
+	public final String PERM_DELETE_GRILL	= "portalstick.deletegrill";
+	public final String PERM_DAMAGE_BOOTS	= "portalstick.damageboots";
+	public final String PERM_TELEPORT 		= "portalstick.teleport";
     
 	public boolean hasPermission(Player player, String node) {
 		if(player.hasPermission(node))

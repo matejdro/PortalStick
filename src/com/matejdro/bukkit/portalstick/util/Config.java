@@ -21,6 +21,8 @@ import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.User;
 
+import de.V10lator.PortalStick.V10Location;
+
 public class Config {
 	
 	private final PortalStick plugin;
@@ -205,13 +207,13 @@ public class Config {
 	public void unLoad() {
 		
 		plugin.funnelBridgeManager.deleteAll();
-		plugin.portalManager.deleteAll();
+		plugin.portalManager.portals.clear();
 		plugin.grillManager.deleteAll();
 		for (Map.Entry<String, User> entry : plugin.userManager.users.entrySet()) {
 			User user = entry.getValue();
 			Player player = plugin.getServer().getPlayer(entry.getKey());
 			if (player != null) {
-				if (!plugin.regionManager.getRegion(player.getLocation()).name.equalsIgnoreCase("global"))
+				if (!plugin.regionManager.getRegion(new V10Location(player.getLocation())).name.equalsIgnoreCase("global"))
 					user.revertInventory(player);
 			}
 			plugin.userManager.deleteUser(user);

@@ -11,6 +11,8 @@ import org.getspout.spoutapi.SpoutManager;
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
 
+import de.V10lator.PortalStick.V10Location;
+
 public class Util {
 	private final PortalStick plugin;
 	private int maxLength = 105;
@@ -74,11 +76,12 @@ public class Util {
     public void PlayNote(Player player, byte instrument, byte note)
     {
     	Location loc = player.getLocation();
-        if (!plugin.regionManager.getRegion(loc).getBoolean(RegionSetting.ENABLE_SOUNDS)) return;
+        if (!plugin.regionManager.getRegion(new V10Location(loc)).getBoolean(RegionSetting.ENABLE_SOUNDS)) return;
         player.playNote(loc, instrument, note);
     }
     
-    public void PlaySound(Sound sound, Player player, Location loc)
+    //TODO: Add in the new sound API.
+    public void PlaySound(Sound sound, Player player, V10Location loc)
     {
     	if (!plugin.regionManager.getRegion(loc).getBoolean(RegionSetting.ENABLE_SOUNDS)) return;
         Plugin spoutPlugin = plugin.getServer().getPluginManager().getPlugin("Spout");
@@ -95,7 +98,7 @@ public class Util {
         {
         	if (!plugin.config.soundUrls[sound.ordinal()].trim().equals(""))
         	{
-                SpoutManager.getSoundManager().playGlobalCustomSoundEffect(plugin, plugin.config.soundUrls[sound.ordinal()], false, loc, plugin.config.soundRange);
+                SpoutManager.getSoundManager().playGlobalCustomSoundEffect(plugin, plugin.config.soundUrls[sound.ordinal()], false, loc.getHandle(), plugin.config.soundRange);
         	}
         }
         

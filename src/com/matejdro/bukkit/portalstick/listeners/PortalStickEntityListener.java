@@ -16,6 +16,8 @@ import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
+import de.V10lator.PortalStick.V10Location;
+
 public class PortalStickEntityListener implements Listener {
 	private final PortalStick plugin;
 	
@@ -32,7 +34,7 @@ public class PortalStickEntityListener implements Listener {
 		{
 			Player player = (Player)event.getEntity();
 			if (!plugin.hasPermission(player, plugin.PERM_DAMAGE_BOOTS)) return;
-			Region region = plugin.regionManager.getRegion(player.getLocation());
+			Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
 			if (event.getCause() == DamageCause.FALL && region.getBoolean(RegionSetting.ENABLE_FALL_DAMAGE_BOOTS) && region.getInt(RegionSetting.FALL_DAMAGE_BOOTS) == player.getInventory().getBoots().getTypeId())
 				event.setCancelled(true);
 		}
@@ -42,7 +44,7 @@ public class PortalStickEntityListener implements Listener {
 	public void onEntityExplode(EntityExplodeEvent event) {
 		if (event.isCancelled()) return;
 
-		Region region = plugin.regionManager.getRegion(event.getLocation());
+		Region region = plugin.regionManager.getRegion(new V10Location(event.getLocation()));
 		for (Block block : event.blockList().toArray(new Block[0])) {
 			Location loc = block.getLocation();
 

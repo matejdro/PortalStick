@@ -8,43 +8,50 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
+import de.V10lator.PortalStick.V10Location;
+
+//import de.V10lator.PortalStick.V10Location;
+
 public class Bridge {
 	final PortalStick plugin;
 	
-	protected final LinkedHashMap<Block, Integer> bridgeBlocks = new LinkedHashMap<Block, Integer>();
-	protected final HashSet<Portal> involvedPortals = new HashSet<Portal>();
-	protected HashSet<Block> bridgeMachineBlocks;
-	protected Block startBlock;
-	protected Block creationBlock;
-	protected BlockFace facingSide;
+	final LinkedHashMap<V10Location, Integer> bridgeBlocks = new LinkedHashMap<V10Location, Integer>();
+	final HashSet<Portal> involvedPortals = new HashSet<Portal>();
+	HashSet<V10Location> bridgeMachineBlocks = new HashSet<V10Location>();
+	V10Location startBlock;
+	public V10Location creationBlock;
+	BlockFace facingSide;
 
-	Bridge(PortalStick plugin, Block CreationBlock, Block startingBlock, BlockFace face, HashSet<Block> machineBlocks)
+	Bridge(PortalStick plugin, V10Location creationBlock, V10Location startingBlock, BlockFace face, HashSet<V10Location> machineBlocks)
 	{
 		this.plugin = plugin;
 		startBlock = startingBlock;
 		facingSide = face;
 		bridgeMachineBlocks = machineBlocks;
-		creationBlock = CreationBlock;
+		this.creationBlock = creationBlock;
 	}
-	
+	/*
 	public Block getCreationBlock()
 	{
 		return creationBlock;
 	}
+	*/
 	public void activate()
 	{
 		//deactivate first for cleanup
 		deactivate();
 		
 		BlockFace face = facingSide;
-		Block nextBlock = startBlock;
+		V10Location nextV10Location = startBlock;
+		Block nextBlock = nextV10Location.getHandle().getBlock();
 		while (true)
 		{			
-			Portal portal = plugin.portalManager.insideBlocks.get(nextBlock.getLocation());
-			if (portal == null) portal = plugin.portalManager.borderBlocks.get(nextBlock.getLocation());
+			Portal portal = plugin.portalManager.insideBlocks.get(nextV10Location);
+			if (portal == null) portal = plugin.portalManager.borderBlocks.get(nextV10Location);
 			if (portal != null && portal.open)
 			{
-				nextBlock = portal.getDestination().teleport.getBlock();
+				nextV10Location = portal.getDestination().teleport;
+				nextBlock = nextV10Location.getHandle().getBlock();
 				face = portal.getDestination().teleportFace.getOppositeFace();
 				
 				involvedPortals.add(portal);
@@ -55,8 +62,8 @@ public class Bridge {
 			if (!nextBlock.getWorld().isChunkLoaded(nextBlock.getChunk())) return;
 			
 			nextBlock.setType(Material.GLASS);
-			bridgeBlocks.put(nextBlock, 0);
-			plugin.funnelBridgeManager.bridgeBlocks.put(nextBlock, this);
+			bridgeBlocks.put(nextV10Location, 0);
+			plugin.funnelBridgeManager.bridgeBlocks.put(nextV10Location, this);
 			
 			nextBlock = nextBlock.getRelative(face);
 		}
@@ -64,11 +71,11 @@ public class Bridge {
 	
 	public void deactivate()
 	{
-		for (Block b : bridgeBlocks.keySet())
-			b.setType(Material.AIR);
-		
-		for (Block b: bridgeBlocks.keySet())
+		for (V10Location b : bridgeBlocks.keySet())
+		{
+			b.getHandle().getBlock().setType(Material.AIR);
 			plugin.funnelBridgeManager.bridgeBlocks.remove(b);
+		}
 		bridgeBlocks.clear();
 		for (Portal p: involvedPortals)
 			plugin.funnelBridgeManager.involvedPortals.remove(p);
@@ -78,28 +85,22 @@ public class Bridge {
 	public void delete()
 	{
 		deactivate();
-		for (Block b: bridgeMachineBlocks)
+		for (V10Location b: bridgeMachineBlocks)
 			plugin.funnelBridgeManager.bridgeMachineBlocks.remove(b);
 	}
 	
-	public Boolean isBlockNextToBridge(Block check)
+	public boolean isBlockNextToBridge(V10Location check)
 	{
-		for (Block b : bridgeBlocks.keySet())
-		{
-			for (BlockFace face : new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST, BlockFace.UP, BlockFace.DOWN})
-			{
-				if (b.getRelative(face) == check) return true;
-			}
-		}
-		
+		BlockFace[] faces = new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST, BlockFace.UP, BlockFace.DOWN};
+		for (V10Location b : bridgeBlocks.keySet())
+			for (BlockFace face : faces)
+				if (new V10Location(b.getHandle().getBlock().getRelative(face)).equals(check)) return true;
 		return false;
 	}
 	
 	public String getStringLocation()
 	{
-		Location loc = creationBlock.getLocation();
+		Location loc = creationBlock.getHandle();
 		return loc.getWorld().getName() + "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
 	}
 }
-
-

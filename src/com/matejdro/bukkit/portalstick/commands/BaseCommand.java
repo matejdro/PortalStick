@@ -10,6 +10,8 @@ import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.User;
 
+import de.V10lator.PortalStick.V10Location;
+
 public abstract class BaseCommand {
 	final PortalStick plugin;
 	
@@ -43,7 +45,7 @@ public abstract class BaseCommand {
 		if (bePlayer && !(sender instanceof Player))
 			return false;
 		player = (Player)sender;
-		region = plugin.regionManager.getRegion(player.getLocation());
+		region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
 		user = plugin.userManager.getUser(player);
 		usedCommand = cmd;
 		if (!permission(player))

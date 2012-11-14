@@ -6,15 +6,17 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
+import de.V10lator.PortalStick.V10Location;
+
 public class Grill {
 	private final PortalStick plugin;
 	
-	private final HashSet<Block> border;
-	private final HashSet<Block> inside;
-	private final Block firstBlock;
-	private Boolean disabled;
+	final HashSet<V10Location> border;
+	private final HashSet<V10Location> inside;
+	final V10Location firstBlock;
+	public boolean disabled;
 	
-	public Grill(PortalStick plugin, HashSet<Block> Border, HashSet<Block> Inside, Block FirstBlock)
+	public Grill(PortalStick plugin, HashSet<V10Location> Border, HashSet<V10Location> Inside, V10Location FirstBlock)
 	{
 		this.plugin = plugin;
 		border = Border;
@@ -30,35 +32,35 @@ public class Grill {
 		plugin.grillManager.grills.remove(this);
 		plugin.config.saveAll();
 		
-		for (Block b : border)
+		for (V10Location b : border)
 		{
-			plugin.grillManager.borderBlocks.remove(b.getLocation());
+			plugin.grillManager.borderBlocks.remove(b.getHandle());
 		}
 	}
 	
 	public void deleteInside()
 	{
-		for (Block b: inside)
+		for (V10Location b: inside)
 		{
-			b.setType(Material.AIR);
-			plugin.grillManager.insideBlocks.remove(b.getLocation());
+			b.getHandle().getBlock().setType(Material.AIR);
+			plugin.grillManager.insideBlocks.remove(b.getHandle());
 		}
 	}
 	
 	public void disable()
 	{
-		for (Block b: inside)
+		for (V10Location b: inside)
 		{
-			b.setType(Material.AIR);
+			b.getHandle().getBlock().setType(Material.AIR);
 			disabled = true;
 		}
 	}
 	
 	public void enable()
 	{
-		for (Block b: inside)
+		for (V10Location b: inside)
 		{
-			b.setType(Material.SUGAR_CANE_BLOCK);
+			b.getHandle().getBlock().setType(Material.SUGAR_CANE_BLOCK);
 			disabled = false;
 		}
 	}
@@ -66,29 +68,29 @@ public class Grill {
 	public boolean create()
 	{
 		boolean complete = true;
-		for (Block b: inside)
+		Block rb;
+		for (V10Location b: inside)
     	{
-			plugin.grillManager.insideBlocks.put(b.getLocation(), this);
-			if (b.getType() != Material.SUGAR_CANE_BLOCK) {
-				b.setType(Material.SUGAR_CANE_BLOCK);
+			rb = b.getHandle().getBlock();
+			plugin.grillManager.insideBlocks.put(b, this);
+			if (rb.getType() != Material.SUGAR_CANE_BLOCK) {
+				rb.setType(Material.SUGAR_CANE_BLOCK);
 				complete = false;
 			}
 			
     	}
-		for (Block b : border)
-		{
-			plugin.grillManager.borderBlocks.put(b.getLocation(), this);
-		}
+		for (V10Location b : border)
+			plugin.grillManager.borderBlocks.put(b, this);
 		return complete;
 	}
 	
 	public String getStringLocation()
 	{
-		Location loc = firstBlock.getLocation();
+		Location loc = firstBlock.getHandle();
 		return loc.getWorld().getName() + "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
 	}
-	
-	public HashSet<Block> getBorder()
+	/*
+	public HashSet<V10Location> getBorder()
 	{
 		return border;
 	}
@@ -106,4 +108,5 @@ public class Grill {
 	{
 		return disabled;
 	}
+	*/
 }

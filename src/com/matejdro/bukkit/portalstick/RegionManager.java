@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import org.bukkit.Location;
 
+import de.V10lator.PortalStick.V10Location;
+
 public class RegionManager {
 	private final PortalStick plugin;
 	
@@ -29,15 +31,16 @@ public class RegionManager {
 		plugin.config.deleteRegion(name);
 	}
 	
-	public void createRegion(String name, Location one, Location two) {
+	public void createRegion(String name, V10Location one, V10Location two) {
 		Region region = loadRegion(name);
 		region.setLocation(one, two);
 		plugin.config.saveAll();
 	}
 	
-	public Region getRegion(Location location) {
+	public Region getRegion(V10Location location) {
+		Location rl = location.getHandle();
 		for (Region region : regions.values())
-			if (region.contains(location.toVector()) && location.getWorld().getName().equalsIgnoreCase(region.world) && !region.name.equalsIgnoreCase("global"))
+			if (region.contains(rl.toVector()) && rl.getWorld().getName().equalsIgnoreCase(region.world) && !region.name.equalsIgnoreCase("global"))
 				return region;
 		return getRegion("global");
 	}

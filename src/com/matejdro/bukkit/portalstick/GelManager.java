@@ -8,6 +8,8 @@ import org.bukkit.util.Vector;
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
+import de.V10lator.PortalStick.V10Location;
+
 public class GelManager {
 	private final PortalStick plugin;
 	
@@ -16,11 +18,11 @@ public class GelManager {
 		this.plugin = plugin;
 	}
 	
-	public Location useGel(Player player, Location locTo, Vector vector)
+	public Location useGel(Player player, V10Location locTo, Vector vector)
 	{
 		Vector fallingspeed = player.getVelocity();
 		Region region = plugin.regionManager.getRegion(locTo);
-		Block block = locTo.getBlock();
+		Block block = locTo.getHandle().getBlock();
 		
 		if (region.getBoolean(RegionSetting.ENABLE_RED_GEL_BLOCKS) && plugin.blockUtil.compareBlockToString(block.getRelative(0,-1,0), region.getString(RegionSetting.RED_GEL_BLOCK))) return redGel(player, vector, region);
 
@@ -116,7 +118,7 @@ public class GelManager {
 			}
 			player.setVelocity(vector);
 						
-			plugin.util.PlaySound(Sound.GEL_BLUE_BOUNCE, player, player.getLocation());
+			plugin.util.PlaySound(Sound.GEL_BLUE_BOUNCE, player, new V10Location(player.getLocation()));
 		return null;
 	}
 	
