@@ -2,6 +2,7 @@ package com.matejdro.bukkit.portalstick.util;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -26,7 +27,6 @@ public class Util {
 		int i;
 		String part;
 		ChatColor lastColor = ChatColor.RESET;
-		//CustomColor lastColor = CustomColor.WHITE;
 		for (String line : msg.split("`n")) {
 			i = 0;
 			while (i < line.length()) {
@@ -80,30 +80,62 @@ public class Util {
         player.playNote(loc, instrument, note);
     }
     
-    //TODO: Add in the new sound API.
     public void PlaySound(Sound sound, Player player, V10Location loc)
     {
-    	if (!plugin.regionManager.getRegion(loc).getBoolean(RegionSetting.ENABLE_SOUNDS)) return;
-        Plugin spoutPlugin = plugin.getServer().getPluginManager().getPlugin("Spout");
-        if (spoutPlugin == null || !plugin.config.useBukkitContribSounds)
+      if (!plugin.regionManager.getRegion(loc).getBoolean(RegionSetting.ENABLE_SOUNDS))
+    	return;
+      
+      Plugin spoutPlugin = plugin.getServer().getPluginManager().getPlugin("Spout");
+      if(spoutPlugin == null || !plugin.config.useSpoutSounds)
+      {
+        if(plugin.config.useNativeSounds)
         {
-        	if (player != null && !plugin.config.soundNotes[sound.ordinal()].trim().equals(""))
+          String raw = plugin.config.soundNative[sound.ordinal()];
+          if(raw == null || raw.equals(""))
+        	return;
+          String[] split = raw.split(":");
+          float volume = 0.0F;
+          float pitch = volume;
+          if(split.length > 1)
+        	try
+          	{
+        	  volume = Float.parseFloat(split[1]);
+          	}
+          	catch(Exception e)
+          	{
+          	  plugin.getLogger().info("Warning: Invalid volume \""+split[1]+"\" for sound "+split[0]);
+          	  volume = 1.0F;
+          	}
+          if(split.length > 2)
+          {
+        	try
         	{
-        		Byte instrument = Byte.parseByte(plugin.config.soundNotes[sound.ordinal()].split("-")[0]);
-        		Byte note = Byte.parseByte(plugin.config.soundNotes[sound.ordinal()].split("-")[1]);
-        		PlayNote(player, instrument, note);
+        	  volume = Float.parseFloat(split[1]);
         	}
+        	catch(Exception e)
+          	{
+          	  plugin.getLogger().info("Warning: Invalid pitch \""+split[2]+"\" for sound "+split[0]);
+          	  pitch = 1.0F;
+          	}
+          }
+          org.bukkit.Sound s = org.bukkit.Sound.valueOf(split[0]);
+          World world;
+          if(player != null)
+        	world = player.getWorld();
+          else
+        	world = loc.getHandle().getWorld();
+          world.playSound(loc.getHandle(), s, volume, pitch);
         }
-        if (spoutPlugin != null && plugin.config.useBukkitContribSounds)
+        else
         {
-        	if (!plugin.config.soundUrls[sound.ordinal()].trim().equals(""))
-        	{
-                SpoutManager.getSoundManager().playGlobalCustomSoundEffect(plugin, plugin.config.soundUrls[sound.ordinal()], false, loc.getHandle(), plugin.config.soundRange);
-        	}
+          Byte instrument = Byte.parseByte(plugin.config.soundNotes[sound.ordinal()].split("-")[0]);
+          Byte note = Byte.parseByte(plugin.config.soundNotes[sound.ordinal()].split("-")[1]);
+          PlayNote(player, instrument, note);
         }
-        
+      }
+      else
+        SpoutManager.getSoundManager().playGlobalCustomSoundEffect(plugin, plugin.config.soundUrls[sound.ordinal()], false, loc.getHandle(), plugin.config.soundRange);
     }
-       
     
     public int getLeftPortalColor(int preset)
     {

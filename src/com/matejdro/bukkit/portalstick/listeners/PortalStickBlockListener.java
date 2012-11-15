@@ -44,13 +44,19 @@ public class PortalStickBlockListener implements Listener {
 		Block block = event.getBlock();
 		V10Location loc = new V10Location(block);
 		Portal portal = plugin.portalManager.borderBlocks.get(loc);
-		if (portal == null) portal = plugin.portalManager.insideBlocks.get(loc);
 		if (portal == null) portal = plugin.portalManager.behindBlocks.get(loc);
 		if (portal != null)
 		{
 			portal.delete();
 			event.setCancelled(true);
 			return;
+		}
+		portal = plugin.portalManager.insideBlocks.get(loc);
+		if (portal != null)
+		{
+		  if(portal.transmitter && block.getType() == Material.REDSTONE_TORCH_ON)
+			event.setCancelled(true);
+		  return;
 		}
 		Grill grill = plugin.grillManager.insideBlocks.get(loc);
 		if (grill != null )
@@ -149,9 +155,8 @@ public class PortalStickBlockListener implements Listener {
 		}
 	}
 	 	 
-	@EventHandler()
+	@EventHandler(ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
-		if (event.isCancelled()) return;	
 		if (event.getBlock().getType() != Material.SUGAR_CANE_BLOCK) return;
 		
 		Grill grill = plugin.grillManager.insideBlocks.get(event.getBlock().getLocation());
@@ -164,7 +169,15 @@ public class PortalStickBlockListener implements Listener {
 		V10Location vb = new V10Location(event.getBlock());
 		 Region region = plugin.regionManager.getRegion(vb);
 		 //Liquid teleporting
-			if (region.getBoolean(RegionSetting.TELEPORT_LIQUIDS) && !plugin.funnelBridgeManager.bridgeBlocks.containsKey(vb))
+			if (region. //TODO: region is null!
+					getBoolean(
+							RegionSetting.
+							TELEPORT_LIQUIDS)
+							&& 
+							!plugin.
+							funnelBridgeManager.
+							bridgeBlocks.
+							containsKey(vb))
 			{
 				V10Location loc = new V10Location(event.getBlock().getLocation());
 					Portal portal = plugin.portalManager.insideBlocks.get(loc);
@@ -247,9 +260,9 @@ public class PortalStickBlockListener implements Listener {
 		 Region region = plugin.regionManager.getRegion(loc);
 		 
 		 //Infinite Dispensers
-		 Block poweredBlock = null;
 		 if (region.getBoolean(RegionSetting.INFINITE_DISPENSERS) && event.getNewCurrent() > 0)
-		 { 
+		 {
+			 Block poweredBlock = null;
 			 for (int i = 0; i < 5; i++)
 				 if (block.getRelative(BlockFace.values()[i]).getType() == Material.DISPENSER) 
 					 	poweredBlock = block.getRelative(BlockFace.values()[i]);
@@ -271,6 +284,7 @@ public class PortalStickBlockListener implements Listener {
 		 {			 
 			 Location l = block.getLocation();
 			 BlockFace face;
+			 Block block2;
 			 for (int i = 0; i < 5; i++)
 			 {
 				 face = BlockFace.values()[i];
@@ -283,20 +297,25 @@ public class PortalStickBlockListener implements Listener {
 					 	Portal destination = portal.getDestination();
 					 	if (destination == null || destination.transmitter) continue;
 					 	
-					 	Material mat;
+					 	Material mat1, mat2;
 					 	if (event.getNewCurrent() > 0)
 					 	{
 					 		portal.transmitter = true;
-					 		mat = Material.REDSTONE_TORCH_ON;
-
+					 		mat1 = Material.REDSTONE_TORCH_ON;
+					 		mat2 = Material.AIR;
 					 	}
 					 	else
 					 	{
 					 		portal.transmitter = false;
-					 		mat = Material.AIR;
+					 		mat1 = Material.AIR;
+					 		mat2 = Material.REDSTONE_TORCH_ON;
 					 	}
 					 	for (V10Location b: destination.inside)
-				 			b.getHandle().getBlock().setType(mat);
+					 	{
+					 		block2 = b.getHandle().getBlock();
+					 		if(block2.getType() == mat2)
+				 			block2.setType(mat1);
+					 	}
 					 }
 			 }	 
 		 }

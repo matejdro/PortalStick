@@ -39,6 +39,7 @@ public class Config {
 	public HashSet<String> DisabledWorlds;
 	public boolean DeleteOnQuit;
 	public int PortalTool;
+	public short portalToolData; //Short for spout compatiblity!
 	public boolean CompactPortal;
 	public Region GlobalRegion;
 	public int RegionTool;
@@ -48,9 +49,10 @@ public class Config {
 	
 	public String MessageCannotPlacePortal;
 	
-	public boolean useBukkitContribSounds;
+	public boolean useNativeSounds, useSpoutSounds;
 	public int soundRange;
 	public final String[] soundUrls = new String[Sound.values().length];
+	public final String[] soundNative = new String[Sound.values().length];
 	public final String[] soundNotes = new String[Sound.values().length];
 	
 	public Config (PortalStick instance) {
@@ -92,7 +94,6 @@ public class Config {
 
 	
 	public void load() {
-		
 		try {
 			mainConfig.load(mainConfigFile);
 			regionConfig.load(regionConfigFile);
@@ -106,13 +107,20 @@ public class Config {
 			e.printStackTrace();
 		}
 		
+		boolean aa = false;
+		
 		//Load messages
 		MessageCannotPlacePortal = getString("messages.cannot-place-portal", "&cCannot place a portal there!");
         
         //Load main settings
         DisabledWorlds = new HashSet<String>(getStringList("main.disabled-worlds", new ArrayList<String>()));
         DeleteOnQuit = getBoolean("main.delete-on-quit", false);
-        PortalTool = getInt("main.portal-tool", 280);
+        String[] split = getString("main.portal-tool", "280:0").split(":");
+        PortalTool = Integer.parseInt(split[0]);
+        if(split.length > 1)
+          portalToolData = Short.parseShort(split[1]);
+        else
+          portalToolData = 0;
         CompactPortal = getBoolean("main.compact-portal", false);
         RegionTool = getInt("main.region-tool", 268);
         RestoreInvOnWorldChange = getBoolean("main.restore-inventory-on-world-change", true);
@@ -120,27 +128,48 @@ public class Config {
         FillPortalBack = getInt("main.fill-portal-back", -1);
         
         //Load sound settings
-        useBukkitContribSounds = getBoolean("sounds.use-bukkitcontrib-sounds", true);
+        useNativeSounds = getBoolean("sounds.use-minecraft-sounds", true);
+        soundNative[Sound.PORTAL_CREATE_BLUE.ordinal()] = getString("sounds.minecraft.create-blue-portal", "");
+        soundNative[Sound.PORTAL_CREATE_ORANGE.ordinal()] = getString("sounds.minecraft.create-orange-portal", "");
+        soundNative[Sound.PORTAL_EXIT_BLUE.ordinal()] = getString("sounds.minecraft.exit-blue-portal", "ENDERMAN_TELEPORT:1.0:1.0");
+        soundNative[Sound.PORTAL_EXIT_ORANGE.ordinal()] = getString("sounds.minecraft.exit-orange-portal", "ENDERMAN_TELEPORT:1.0:1.0");
+        soundNative[Sound.PORTAL_CANNOT_CREATE.ordinal()] = getString("sounds.minecraft.cannot-create-portal", "");
+        soundNative[Sound.GRILL_EMANCIPATE.ordinal()] = getString("sounds.minecraft.grill-emancipate", "");
+        soundNative[Sound.FAITHPLATE_LAUNCH.ordinal()] = getString("sounds.minecraft.faith-plate-launch", "");
+        soundNative[Sound.GEL_BLUE_BOUNCE.ordinal()] = getString("sounds.minecraft.blue-gel-bounce", "mob.slime.small");
+        
+        
+        useSpoutSounds = getBoolean("sounds.use-spout-sounds", true);
+        //TODO: Holds compat for < weisstscho o.O
+        if(mainConfig.isSet("sounds.use-bukkitcontrib-sounds"))
+        {
+          if(!mainConfig.isSet("sounds.use-spout-sounds"))
+        	useSpoutSounds = getBoolean("sounds.use-bukkitcontrib-sounds", useSpoutSounds);
+          getBoolean("sounds.use-spout-sounds", useSpoutSounds);
+          getBoolean("sounds.use-bukkitcontrib-sounds", null);
+          aa = true;
+        }
+        
+        soundUrls[Sound.PORTAL_CREATE_BLUE.ordinal()] = getString("sounds.spout.create-blue-portal-url", "");
+        soundUrls[Sound.PORTAL_CREATE_ORANGE.ordinal()] = getString("sounds.spout.create-orange-portal-url", "");
+        soundUrls[Sound.PORTAL_EXIT_BLUE.ordinal()] = getString("sounds.spout.exit-blue-portal-url", "");
+        soundUrls[Sound.PORTAL_EXIT_ORANGE.ordinal()] = getString("sounds.spout.exit-orange-portal-url", "");
+        soundUrls[Sound.PORTAL_CANNOT_CREATE.ordinal()] = getString("sounds.spout.cannot-create-portal-url", "");
+        soundUrls[Sound.GRILL_EMANCIPATE.ordinal()] = getString("sounds.spout.grill-emancipate-url", "");
+        soundUrls[Sound.FAITHPLATE_LAUNCH.ordinal()] = getString("sounds.spout.faith-plate-launch-url", "");
+        soundUrls[Sound.GEL_BLUE_BOUNCE.ordinal()] = getString("sounds.spout.blue-gel-bounce-url", "");
+        
+        soundNotes[Sound.PORTAL_CREATE_BLUE.ordinal()] = getString("sounds.fallback.create-blue-portal-note", "");
+        soundNotes[Sound.PORTAL_CREATE_ORANGE.ordinal()] = getString("sounds.fallback.create-orange-portal-note", "");
+        soundNotes[Sound.PORTAL_EXIT_BLUE.ordinal()] = getString("sounds.fallback.exit-blue-portal-note", "");
+        soundNotes[Sound.PORTAL_EXIT_ORANGE.ordinal()] = getString("sounds.fallback.exit-orange-portal-note", "");
+        soundNotes[Sound.PORTAL_CANNOT_CREATE.ordinal()] = getString("sounds.fallback.cannot-create-portal-note", "");
+        soundNotes[Sound.GRILL_EMANCIPATE.ordinal()] = getString("sounds.fallback.grill-emancipate-note", "");
+        soundNotes[Sound.FAITHPLATE_LAUNCH.ordinal()] = getString("sounds.fallback.faith-plate-launch-note", "4-5");
+        soundNotes[Sound.GEL_BLUE_BOUNCE.ordinal()] = getString("sounds.fallback.blue-gel-bounce-note", "4-5");
+        
         soundRange = getInt("sounds.sound-range", 20);
         
-        soundUrls[Sound.PORTAL_CREATE_BLUE.ordinal()] = getString("sounds.create-blue-portal-url", "");
-        soundUrls[Sound.PORTAL_CREATE_ORANGE.ordinal()] = getString("sounds.create-orange-portal-url", "");
-        soundUrls[Sound.PORTAL_EXIT_BLUE.ordinal()] = getString("sounds.exit-blue-portal-url", "");
-        soundUrls[Sound.PORTAL_EXIT_ORANGE.ordinal()] = getString("sounds.exit-orange-portal-url", "");
-        soundUrls[Sound.PORTAL_CANNOT_CREATE.ordinal()] = getString("sounds.cannot-create-portal-url", "");
-        soundUrls[Sound.GRILL_EMANCIPATE.ordinal()] = getString("sounds.grill-emancipate-url", "");
-        soundUrls[Sound.FAITHPLATE_LAUNCH.ordinal()] = getString("sounds.faith-plate-launch-url", "");
-        soundUrls[Sound.GEL_BLUE_BOUNCE.ordinal()] = getString("sounds.blue-gel-bounce-url", "");
-
-        soundNotes[Sound.PORTAL_CREATE_BLUE.ordinal()] = getString("sounds.create-blue-portal-note", "");
-        soundNotes[Sound.PORTAL_CREATE_ORANGE.ordinal()] = getString("sounds.create-orange-portal-note", "");
-        soundNotes[Sound.PORTAL_EXIT_BLUE.ordinal()] = getString("sounds.exit-blue-portal-note", "");
-        soundNotes[Sound.PORTAL_EXIT_ORANGE.ordinal()] = getString("sounds.exit-orange-portal-note", "");
-        soundNotes[Sound.PORTAL_CANNOT_CREATE.ordinal()] = getString("sounds.cannot-create-portal-note", "");
-        soundNotes[Sound.GRILL_EMANCIPATE.ordinal()] = getString("sounds.grill-emancipate-note", "");
-        soundNotes[Sound.FAITHPLATE_LAUNCH.ordinal()] = getString("sounds.faith-plate-launch-note", "4-5");
-        soundNotes[Sound.GEL_BLUE_BOUNCE.ordinal()] = getString("sounds.blue-gel-bounce-note", "4-5");
-
 		//Load all current users
 		for (Player player : plugin.getServer().getOnlinePlayers())
 			plugin.userManager.createUser(player);
@@ -161,6 +190,9 @@ public class Config {
         for (String bridge : bridgeConfig.getStringList("bridges"))
         	plugin.funnelBridgeManager.loadBridge(bridge);
         plugin.getLogger().info(plugin.funnelBridgeManager.bridges.size() + " bridge(s) loaded");
+        
+        if(aa)
+        	plugin.getLogger().info("Your config file has been updated");
         
         saveAll();
 		

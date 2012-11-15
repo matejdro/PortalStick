@@ -38,15 +38,14 @@ public class PortalStickPlayerListener implements Listener {
 		this.plugin = plugin;
 	}
 
-	@EventHandler()
+	@EventHandler(ignoreCancelled = true)
 	public void onPlayerInteract(PlayerInteractEvent event)
-	{	
-		if (event.isCancelled()) return;
+	{
 		Player player = event.getPlayer();
 		User user = plugin.userManager.getUser(player);
 	
 		//Portal tool
-		if (player.getItemInHand().getTypeId() == plugin.config.PortalTool && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
+		if (player.getItemInHand().getTypeId() == plugin.config.PortalTool && player.getItemInHand().getDurability() == plugin.config.portalToolData && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
 		{
 			event.setCancelled(true);
 			Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
@@ -100,18 +99,17 @@ public class PortalStickPlayerListener implements Listener {
 				}
 			}
 			
-			Boolean orange = false;
+			boolean orange = false;
 			if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)
 				orange = true;
 			if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR ||  tb.contains((byte) event.getClickedBlock().getTypeId()))
 			{
 				Block b = targetBlocks.get(targetBlocks.size() - 1);
 				V10Location loc = new V10Location(b);
-				Block b2 = targetBlocks.size() >= 2 ? targetBlocks.get(targetBlocks.size() - 2) : null;
-		        if (targetBlocks.size() < 2 || b.getFace(b2) == null)
+		        if (targetBlocks.size() < 2)
 		        	plugin.portalManager.placePortal(loc, event.getPlayer(), orange);
 		        else
-		    	   plugin.portalManager.placePortal(loc, b.getFace(b2), event.getPlayer(), orange, true); 
+		    	   plugin.portalManager.placePortal(loc, b.getFace(targetBlocks.get(targetBlocks.size() - 2)), event.getPlayer(), orange, true);
 			}
 			else
 				plugin.portalManager.placePortal(new V10Location(event.getClickedBlock()), event.getBlockFace(), event.getPlayer(), orange, true);

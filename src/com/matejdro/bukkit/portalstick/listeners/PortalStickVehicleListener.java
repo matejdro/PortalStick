@@ -29,7 +29,8 @@ public class PortalStickVehicleListener implements Listener {
 		V10Location locTo = new V10Location(event.getTo());
 		Region regionTo = plugin.regionManager.getRegion(locTo);
 		
-		if (!regionTo.getBoolean(RegionSetting.TELEPORT_VEHICLES)) return;
+		if (!regionTo.getBoolean(RegionSetting.TELEPORT_VEHICLES))
+		  return;
 		
 		//Portals
 		if (vehicle.getPassenger() != null && vehicle.getPassenger() instanceof Player && !plugin.hasPermission((Player)vehicle.getPassenger(), plugin.PERM_TELEPORT))
@@ -37,5 +38,4 @@ public class PortalStickVehicleListener implements Listener {
 			 
 		plugin.entityManager.teleport((Entity) vehicle, locTo, vector);
 	}
-
 }

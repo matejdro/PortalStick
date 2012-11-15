@@ -1,6 +1,5 @@
 package com.matejdro.bukkit.portalstick;
 
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -18,64 +17,57 @@ public class GelManager {
 		this.plugin = plugin;
 	}
 	
-	public Location useGel(Player player, V10Location locTo, Vector vector)
+	public void useGel(Player player, V10Location locTo, Vector vector)
 	{
-		Vector fallingspeed = player.getVelocity();
 		Region region = plugin.regionManager.getRegion(locTo);
 		Block block = locTo.getHandle().getBlock();
 		
-		if (region.getBoolean(RegionSetting.ENABLE_RED_GEL_BLOCKS) && plugin.blockUtil.compareBlockToString(block.getRelative(0,-1,0), region.getString(RegionSetting.RED_GEL_BLOCK))) return redGel(player, vector, region);
+		if (region.getBoolean(RegionSetting.ENABLE_RED_GEL_BLOCKS) && plugin.blockUtil.compareBlockToString(block.getRelative(0,-1,0), region.getString(RegionSetting.RED_GEL_BLOCK))) return;
 
 		if (region.getBoolean(RegionSetting.ENABLE_BLUE_GEL_BLOCKS))
 		{
-			if (fallingspeed.getY() <= 0)
+			if (player.getVelocity().getY() <= 0)
 			{
-				if (plugin.blockUtil.compareBlockToString(block.getRelative(0,-1,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(player, vector, region, 0);
-				else if (Math.abs(vector.getY()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(0,-2,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(player, vector, region, 0);
-				else if (Math.abs(vector.getY()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(0,-3,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(player, vector, region, 0);
+				if (plugin.blockUtil.compareBlockToString(block.getRelative(0,-1,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return;
+				else if (Math.abs(vector.getY()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(0,-2,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return;
+				else if (Math.abs(vector.getY()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(0,-3,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return;
 			}
 			if (vector.getX() >= 0)
 			{
-				if (plugin.blockUtil.compareBlockToString(block.getRelative(1,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(player, vector, region, 1);
-				else if (Math.abs(vector.getX()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(2,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(player, vector, region, 1);
-				else if (Math.abs(vector.getX()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(3,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(player, vector, region, 1);
+				if (plugin.blockUtil.compareBlockToString(block.getRelative(1,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return;
+				else if (Math.abs(vector.getX()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(2,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return;
+				else if (Math.abs(vector.getX()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(3,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return;
 
 			}
 			else if (vector.getX() <= 0)
 			{
-				if (plugin.blockUtil.compareBlockToString(block.getRelative(-1,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(player, vector, region, 2);
-				else if (Math.abs(vector.getX()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(-2,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(player, vector, region, 2);
-				else if (Math.abs(vector.getX()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(-3,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(player, vector, region, 2);
+				if (plugin.blockUtil.compareBlockToString(block.getRelative(-1,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return;
+				else if (Math.abs(vector.getX()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(-2,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return;
+				else if (Math.abs(vector.getX()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(-3,0,0), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return;
 
 			}
 			if (vector.getZ() >= 0)
 			{
-				if (plugin.blockUtil.compareBlockToString(block.getRelative(0,0,1), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(player, vector, region, 3);
-				else if (Math.abs(vector.getZ()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(0,0,2), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(player, vector, region, 3);
-				else if (Math.abs(vector.getZ()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(0,0,3), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(player, vector, region, 3);
+				if (plugin.blockUtil.compareBlockToString(block.getRelative(0,0,1), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return;
+				else if (Math.abs(vector.getZ()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(0,0,2), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return;
+				else if (Math.abs(vector.getZ()) > 1 && plugin.blockUtil.compareBlockToString(block.getRelative(0,0,3), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return;
 
 			}
 			else if (vector.getZ() <=0 )
 			{
-				if (plugin.blockUtil.compareBlockToString(block.getRelative(0,0,-1), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(player, vector, region, 4);
-				else if (Math.abs(vector.getZ()) < 1 && plugin.blockUtil.compareBlockToString(block.getRelative(0,0,-2), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(player, vector, region, 4);
-				else if (Math.abs(vector.getZ()) > 1 &&plugin.blockUtil.compareBlockToString(block.getRelative(0,0,-3), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return BlueGel(player, vector, region, 4);
+				if (plugin.blockUtil.compareBlockToString(block.getRelative(0,0,-1), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return;
+				else if (Math.abs(vector.getZ()) < 1 && plugin.blockUtil.compareBlockToString(block.getRelative(0,0,-2), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return;
+				else if (Math.abs(vector.getZ()) > 1 &&plugin.blockUtil.compareBlockToString(block.getRelative(0,0,-3), region.getString(RegionSetting.BLUE_GEL_BLOCK))) return;
 
 			}
 		}
-		return null;
+		return;
 
 	}
 	
-	public Location BlueGel(Player player, Vector vector, Region region, int direction)
+	public void BlueGel(Player player, Vector vector, Region region, int direction)
 	{
-		
-//		((Player) player).sendMessage(String.valueOf(vector.getX()));
-//		((Player) player).sendMessage(String.valueOf(vector.getY()));
-//		((Player) player).sendMessage(String.valueOf(vector.getZ()));
-//		((Player) player).sendMessage(".");
-
-		if (player instanceof Player && ((Player) player).isSneaking()) return null;
+		if (player instanceof Player && ((Player) player).isSneaking()) return;
 			
 			switch (direction)
 			{
@@ -119,10 +111,9 @@ public class GelManager {
 			player.setVelocity(vector);
 						
 			plugin.util.PlaySound(Sound.GEL_BLUE_BOUNCE, player, new V10Location(player.getLocation()));
-		return null;
 	}
 	
-	public Location redGel(Player player, Vector vector, Region region)
+	public void redGel(Player player, Vector vector, Region region)
 	{
 		if (player.isSneaking())
 		{
@@ -141,8 +132,5 @@ public class GelManager {
 		if (vector.getZ() < -11) vector = vector.setZ(-11);
 		
 		player.setVelocity(vector);
-		
-		//player.sendMessage(String.format("%.5g%n", vector.getX()));
-				return null;
 	}
 }

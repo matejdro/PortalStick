@@ -58,12 +58,7 @@ public class PortalManager {
 			
 		}
 	}
-	//TODO: Remove one liner:
-/*	public void deleteAll()
-	{
-		portals.clear();
-	}
-*/
+	
 	private boolean checkPortal(PortalCoord portal)
 	{
 		Region region;
@@ -85,7 +80,9 @@ public class PortalManager {
 			{
 			  id = loc.getHandle().getBlock().getTypeId();
 			  if(region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(id) || (!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(id)))
+			  {
 				return false;
+			  }
 			}
 		}
 		return true;
@@ -100,32 +97,29 @@ public class PortalManager {
 	private PortalCoord generateHorizontalPortal(V10Location block, BlockFace face)
 	{
 		PortalCoord portal = generatePortal(block, face); // 0
-		if (checkPortal(portal)) return portal;
-	//TODO Remove this useless check (if really useless)	
-/*		block = block.getRelative(0,0,0);
-		portal = generatePortal(block, face);
-		if (checkPortal(portal)) return portal;
-*/
-		block = new V10Location(block.getHandle().getBlock().getRelative(BlockFace.DOWN)); // -1
-		portal = generatePortal(block, face);
-		if (checkPortal(portal)) return portal;
-		
-		block = new V10Location(block.getHandle().getBlock().getRelative(BlockFace.DOWN)); // -2
-		portal = generatePortal(block, face);
-		if (checkPortal(portal)) return portal;
-		
-		block = new V10Location(block.getHandle().getBlock().getRelative(BlockFace.UP, 3)); // 1 (-2 + 3)
-		portal = generatePortal(block, face);
-		if (checkPortal(portal)) return portal;
-		
-		block = new V10Location(block.getHandle().getBlock().getRelative(BlockFace.UP)); // 2
-		portal = generatePortal(block, face);
-		if (checkPortal(portal)) return portal;
-
-		
-		if (!checkPortal(portal)) portal.finished = true;
-			return portal;
-		
+		if(!checkPortal(portal))
+		{
+		  block = new V10Location(block.getHandle().getBlock().getRelative(BlockFace.DOWN)); // -1
+		  portal = generatePortal(block, face);
+		  if(!checkPortal(portal))
+		  {
+			block = new V10Location(block.getHandle().getBlock().getRelative(BlockFace.DOWN)); // -2 TODO: Doesn't work
+			portal = generatePortal(block, face);
+			if(!checkPortal(portal))
+			{
+			  block = new V10Location(block.getHandle().getBlock().getRelative(BlockFace.UP, 3)); // 1 (-2 + 3)
+			  portal = generatePortal(block, face);
+			  if(!checkPortal(portal))
+			  {
+				block = new V10Location(block.getHandle().getBlock().getRelative(BlockFace.UP)); // 2
+				portal = generatePortal(block, face);
+				if(!checkPortal(portal))
+				  portal.finished = true;
+			  }
+			}
+		  }
+		}
+		return portal;
 	}
 
 	private PortalCoord generatePortal(V10Location block, BlockFace face)
@@ -174,7 +168,7 @@ public class PortalManager {
 	    	face = BlockFace.NORTH;
 	    	break;
 		  default:
-	    	face = BlockFace.NORTH;
+	    	face = BlockFace.EAST;
 	    	break;
 		}
 	    
@@ -233,7 +227,7 @@ public class PortalManager {
 	}
 
 	public boolean placePortal(V10Location block, BlockFace face, Player player, boolean orange, boolean end)
-	{   
+	{
 		//Check if player can place here
 		Location loc = block.getHandle();
 		Region region = plugin.regionManager.getRegion(block);
@@ -244,7 +238,7 @@ public class PortalManager {
 		
 		boolean vertical = false;
 		
-		PortalCoord portalc = new PortalCoord();
+		PortalCoord portalc;
 		
 		User owner = plugin.userManager.getUser(player);
 		
@@ -366,7 +360,7 @@ public class PortalManager {
 		for (Object is : region.getList(RegionSetting.UNIQUE_INVENTORY_ITEMS))
 		{
 			ItemStack item = plugin.util.getItemData((String) is);
-			if (item.getTypeId() == plugin.config.PortalTool)
+			if (item.getTypeId() == plugin.config.PortalTool && item.getDurability() == plugin.config.portalToolData)
 				inv.setItemInHand(item);
 			else
 				inv.addItem(item);
@@ -462,10 +456,10 @@ public class PortalManager {
 			}
 			else
 			{
-				
-				if (borderBlocks.containsKey(firstPortalBlock.getLocation()) || insideBlocks.containsKey(firstPortalBlock.getLocation()))
+				V10Location loc = new V10Location(firstPortalBlock);
+				if (borderBlocks.containsKey(loc) || insideBlocks.containsKey(loc))
 			
-				oldPortal = borderBlocks.get(firstPortalBlock.getLocation());
+				oldPortal = borderBlocks.get(loc);
 				if (oldPortal == null) oldPortal = insideBlocks.get(firstPortalBlock.getLocation());
 				portalFace = face2;
 				break;
