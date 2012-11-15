@@ -43,7 +43,7 @@ public enum RegionSetting {
 	FAITH_PLATE_BLOCK("aerial-faith-plate-block", "57", true),
 	FAITH_PLATE_POWER("aerial-faith-plate-power", "6-2", true),
 	ENABLE_SOUNDS("enable-sounds", true, true),
-	PREVENT_TNT_NEAR_PORTALS("prevent-tnt-near-portals", false, true),
+	PROTECT_PORTALS_FROM_TNT("protect-portals-from-tnt", false, true),
 	ENABLE_REDSTONE_TRANSFER("enable-transferring-redstone-current", true, true),
 	ENABLE_PISTON_BLOCK_TELEPORT("enable-teleporting-blocks-moved-by-pistons", true, true),
 	LOCATION("location", "world:0,0,0:0,0,0");

@@ -38,7 +38,7 @@ public class PortalStickPlayerListener implements Listener {
 		this.plugin = plugin;
 	}
 
-	@EventHandler(ignoreCancelled = true)
+	@EventHandler(ignoreCancelled = false)
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{
 		Player player = event.getPlayer();

@@ -134,7 +134,17 @@ public class Util {
         }
       }
       else
-        SpoutManager.getSoundManager().playGlobalCustomSoundEffect(plugin, plugin.config.soundUrls[sound.ordinal()], false, loc.getHandle(), plugin.config.soundRange);
+      {
+    	String url = plugin.config.soundUrls[sound.ordinal()];
+    	if(url != null && url.length() > 4 && url.length() < 257)
+    	  SpoutManager.getSoundManager().playGlobalCustomSoundEffect(plugin, url, false, loc.getHandle(), plugin.config.soundRange);
+    	else
+    	{
+    	  plugin.config.useSpoutSounds = false;
+    	  PlaySound(sound, player, loc);
+    	  plugin.config.useSpoutSounds = true;
+    	}
+      }
     }
     
     public int getLeftPortalColor(int preset)

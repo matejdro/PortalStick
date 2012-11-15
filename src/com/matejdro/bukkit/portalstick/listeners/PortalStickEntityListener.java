@@ -1,6 +1,7 @@
 package com.matejdro.bukkit.portalstick.listeners;
 
-import org.bukkit.Location;
+import java.util.Iterator;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -9,6 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.inventory.ItemStack;
 
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.Portal;
@@ -33,44 +35,55 @@ public class PortalStickEntityListener implements Listener {
 		if (event.getEntity() instanceof Player)
 		{
 			Player player = (Player)event.getEntity();
-			if (!plugin.hasPermission(player, plugin.PERM_DAMAGE_BOOTS)) return;
+			if (!plugin.hasPermission(player, plugin.PERM_DAMAGE_BOOTS))
+			  return;
 			Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
-			if (event.getCause() == DamageCause.FALL && region.getBoolean(RegionSetting.ENABLE_FALL_DAMAGE_BOOTS) && region.getInt(RegionSetting.FALL_DAMAGE_BOOTS) == player.getInventory().getBoots().getTypeId())
+			ItemStack is = player.getInventory().getBoots();
+			if (event.getCause() == DamageCause.FALL && region.getBoolean(RegionSetting.ENABLE_FALL_DAMAGE_BOOTS) && is == null ? false : region.getInt(RegionSetting.FALL_DAMAGE_BOOTS) == is.getTypeId())
 				event.setCancelled(true);
 		}
 	}
 	
-	@EventHandler()
-	public void onEntityExplode(EntityExplodeEvent event) {
-		if (event.isCancelled()) return;
-
+	@EventHandler(ignoreCancelled = true)
+	public void onEntityExplode(EntityExplodeEvent event)
+	{
 		Region region = plugin.regionManager.getRegion(new V10Location(event.getLocation()));
-		for (Block block : event.blockList().toArray(new Block[0])) {
-			Location loc = block.getLocation();
-
+		Iterator<Block> iter = event.blockList().iterator();
+		Block block;
+		V10Location loc;
+		Portal portal;
+		while(iter.hasNext())
+		{
+			block = iter.next();
+			loc = new V10Location(block.getLocation());
 			if (block.getType() == Material.WOOL)
 			{
-				Portal portal = plugin.portalManager.borderBlocks.get(loc);
-				if (portal == null) portal = plugin.portalManager.insideBlocks.get(loc);
-				if (portal == null) portal = plugin.portalManager.behindBlocks.get(loc);
+				portal = plugin.portalManager.borderBlocks.get(loc);
+				if (portal == null)
+				  portal = plugin.portalManager.insideBlocks.get(loc);
+				if (portal == null)
+				  portal = plugin.portalManager.behindBlocks.get(loc);
 				if (portal != null)
 				{
-					portal.delete();
-					if (region.getBoolean(RegionSetting.PREVENT_TNT_NEAR_PORTALS)) event.setCancelled(true);
-					return;
+					if (region.getBoolean(RegionSetting.PROTECT_PORTALS_FROM_TNT))
+					  iter.remove();
+					else
+					{
+					  portal.delete();
+					  return;
+					}
 				}
 			}
-			
-			if (block.getType() == Material.SUGAR_CANE_BLOCK || plugin.blockUtil.compareBlockToString(block, region.getString(RegionSetting.GRILL_MATERIAL)))
+			else if (block.getType() == Material.SUGAR_CANE_BLOCK || plugin.blockUtil.compareBlockToString(block, region.getString(RegionSetting.GRILL_MATERIAL)))
 			{
 				Grill grill = plugin.grillManager.insideBlocks.get(loc);
 				if (grill == null) grill = plugin.grillManager.borderBlocks.get(loc);
 				if (grill != null )
 				{
-						event.setCancelled(true);
-						return;
+					event.setCancelled(true);
+					return;
 				}
 			}
 		}
 	}
-	}
+}

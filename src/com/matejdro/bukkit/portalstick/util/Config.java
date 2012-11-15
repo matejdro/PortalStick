@@ -128,6 +128,8 @@ public class Config {
         FillPortalBack = getInt("main.fill-portal-back", -1);
         
         //Load sound settings
+        if(!mainConfig.isSet("sounds.use-minecraft-sounds"))
+          aa = true;
         useNativeSounds = getBoolean("sounds.use-minecraft-sounds", true);
         soundNative[Sound.PORTAL_CREATE_BLUE.ordinal()] = getString("sounds.minecraft.create-blue-portal", "");
         soundNative[Sound.PORTAL_CREATE_ORANGE.ordinal()] = getString("sounds.minecraft.create-orange-portal", "");
@@ -136,10 +138,10 @@ public class Config {
         soundNative[Sound.PORTAL_CANNOT_CREATE.ordinal()] = getString("sounds.minecraft.cannot-create-portal", "");
         soundNative[Sound.GRILL_EMANCIPATE.ordinal()] = getString("sounds.minecraft.grill-emancipate", "");
         soundNative[Sound.FAITHPLATE_LAUNCH.ordinal()] = getString("sounds.minecraft.faith-plate-launch", "");
-        soundNative[Sound.GEL_BLUE_BOUNCE.ordinal()] = getString("sounds.minecraft.blue-gel-bounce", "mob.slime.small");
+        soundNative[Sound.GEL_BLUE_BOUNCE.ordinal()] = getString("sounds.minecraft.blue-gel-bounce", "");
         
         
-        useSpoutSounds = getBoolean("sounds.use-spout-sounds", true);
+        useSpoutSounds = getBoolean("sounds.use-spout-sounds", false);
         //TODO: Holds compat for < weisstscho o.O
         if(mainConfig.isSet("sounds.use-bukkitcontrib-sounds"))
         {
