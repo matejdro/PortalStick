@@ -7,9 +7,9 @@ import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Boat;
+import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Vehicle;
@@ -22,7 +22,6 @@ import de.V10lator.PortalStick.V10Location;
 
 public class EntityManager implements Runnable {
 	private final PortalStick plugin;
-	final HashSet<String> processingWorlds = new HashSet<String>();
 	private final HashSet<Entity> blockedEntities = new HashSet<Entity>();
 
 	EntityManager(PortalStick instance)
@@ -30,9 +29,9 @@ public class EntityManager implements Runnable {
 		plugin = instance;
 	}
 
-	public Location teleport(Entity entity, V10Location locTo, Vector vector)
+	public void teleport(Entity entity, V10Location locTo, Vector vector)
 	{
-		if (entity == null || entity.isDead() || blockedEntities.contains(entity)) return null;
+		if (entity == null || entity.isDead() || blockedEntities.contains(entity)) return;
 
 		Region regionTo = plugin.regionManager.getRegion(locTo);
 		Portal portal = plugin.portalManager.insideBlocks.get(locTo);
@@ -46,7 +45,7 @@ public class EntityManager implements Runnable {
 		if (portal == null && (entity instanceof FallingBlock || entity instanceof TNTPrimed))
 		  portal = plugin.portalManager.awayBlocksY.get(locTo);
 		if (portal == null ||!portal.open || portal.disabled || (Math.abs(vector.getY()) > 1 && !portal.vertical))
-		  return null;
+		  return;
 		
 		double x, y, z;
 		
@@ -58,15 +57,15 @@ public class EntityManager implements Runnable {
 			
 			if (!portal.vertical)
 			{
-				if (x + 0.5 < entity.getLocation().getX() && vector.getX() > 0) return null;
-				else if (x - 0.5 > entity.getLocation().getX() && vector.getX() < 0) return null;
-				else if (y + 0.5 < entity.getLocation().getZ() && vector.getZ() > 0) return null;
-				else if (z - 0.5 > entity.getLocation().getZ() && vector.getZ() < 0) return null;
+				if (x + 0.5 < entity.getLocation().getX() && vector.getX() > 0) return;
+				else if (x - 0.5 > entity.getLocation().getX() && vector.getX() < 0) return;
+				else if (y + 0.5 < entity.getLocation().getZ() && vector.getZ() > 0) return;
+				else if (z - 0.5 > entity.getLocation().getZ() && vector.getZ() < 0) return;
 			}
 			else
 			{
-				if (y + 0.5 < entity.getLocation().getY() && vector.getY() > 0) return null;
-				if (y - 0.5 > entity.getLocation().getY() && vector.getY() < -0.1) return null;
+				if (y + 0.5 < entity.getLocation().getY() && vector.getY() > 0) return;
+				if (y - 0.5 > entity.getLocation().getY() && vector.getY() < -0.1) return;
 			}
 		}
 		
@@ -75,7 +74,6 @@ public class EntityManager implements Runnable {
 		Location teleport = destination.teleport.getHandle();
 		
 		teleport.setX(teleport.getX() + 0.5D);
-		teleport.setY(teleport.getY() + 0.5D);
 		teleport.setZ(teleport.getZ() + 0.5D);
 							 
 		float yaw = entity.getLocation().getYaw();
@@ -90,7 +88,7 @@ public class EntityManager implements Runnable {
 	       		yaw -= 180;
 	       		break;
 	       	case WEST:
-	       		yaw = -270;
+	       		yaw -= 270;
 	       		break;
 	       	case DOWN:
 	       		teleport.add(0, 1, 0);
@@ -168,8 +166,8 @@ public class EntityManager implements Runnable {
         		break;
         }
 		
-		if (!(entity instanceof Player) && momentum < 0.5 && (portal.teleportFace == BlockFace.UP || portal.teleportFace == BlockFace.DOWN) && (destination.teleportFace == BlockFace.UP || destination.teleportFace == BlockFace.DOWN))
-		 	return null;
+		if (!(entity instanceof Player) && !(entity instanceof Chicken) && momentum < 0.5 && (portal.teleportFace == BlockFace.UP || portal.teleportFace == BlockFace.DOWN) && (destination.teleportFace == BlockFace.UP || destination.teleportFace == BlockFace.DOWN))
+			teleport.setX(teleport.getX() + 0.5D);
 		
 		entity.setFallDistance(0);
 		entity.setVelocity(entity.getVelocity().zero());
@@ -178,46 +176,10 @@ public class EntityManager implements Runnable {
 		teleport.setYaw(yaw);
 		
 		if (entity instanceof Arrow)
-		{
 			teleport.setY(teleport.getY() + 0.5);
-			entity.remove();
-			teleport.getWorld().spawnArrow(teleport, outvector, (float) (momentum * 1.0f), 12.0f);
-		}			
-		else if (entity instanceof FallingBlock)
-		{
-			FallingBlock sand = (FallingBlock)entity;
-			sand = teleport.getWorld().spawnFallingBlock(teleport, sand.getBlockId(), sand.getBlockData());
-			entity.remove();
-		}
-		else if (entity instanceof Item)
-		{
-			Item item = (Item)entity;
-			item = teleport.getWorld().dropItem(teleport, item.getItemStack());
-			entity.remove();
-		}
-		else if (entity instanceof Player || entity instanceof Vehicle)
-		{
-			blockedEntities.add(entity);
-			final Location tploc = teleport;
-			final Vector outVector = outvector;
-			final Entity entity2 = entity;
-			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-				    public void run() {
-			        entity2.teleport(tploc);
-			        entity2.setVelocity(outVector);
-			        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-						    public void run() {
-					    	blockedEntities.remove(entity2);
-					    }
-					}, 1L);
-			    }
-			}, 1L);
-		} 
-		else
-		{
-			entity.teleport(teleport);
-			entity.setVelocity(outvector);
-		}
+		
+		entity.teleport(teleport);
+		entity.setVelocity(outvector);
 		destination.disabled = true;
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new enablePortal(destination), 10L);
 	
@@ -225,19 +187,22 @@ public class EntityManager implements Runnable {
 			plugin.util.PlaySound(Sound.PORTAL_EXIT_ORANGE, entity instanceof Player ? (Player) entity : null, new V10Location(teleport));
 		else
 			plugin.util.PlaySound(Sound.PORTAL_EXIT_BLUE, entity instanceof Player ? (Player) entity : null, new V10Location(teleport));
-			return teleport;
 	}
 	
 	@Override
 	public void run() {
 		for (World w : plugin.getServer().getWorlds())
 		{
-			String world = w.getName();
-			if (plugin.config.DisabledWorlds.contains(world) || processingWorlds.contains(world))
-				return;
-			EntityManagerHelper emh = new EntityManagerHelper(plugin, world, w.getEntities().iterator());
-			emh.setPid(plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, emh, 0L, 1L));
-			processingWorlds.add(world);
+			for(Entity e: w.getEntities())
+			{
+				if (e instanceof Player || e instanceof Vehicle || e.isDead())
+				  continue;
+
+				Vector vector = e.getVelocity();
+								
+				teleport(e, new V10Location(e.getLocation()), vector);
+				plugin.funnelBridgeManager.EntityMoveCheck(e);
+			}
 		}
 	}
 	
