@@ -139,9 +139,10 @@ public class PortalStickPlayerListener implements Listener {
 		//Color changing
 		else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && player.getItemInHand().getTypeId() == 0 && event.getClickedBlock().getType() == Material.WOOL)
 		{
-			Portal portal = plugin.portalManager.borderBlocks.get(event.getClickedBlock().getLocation());
-			if (portal == null) portal = plugin.portalManager.insideBlocks.get(event.getClickedBlock().getLocation());
-			if (portal == null && plugin.config.CompactPortal) portal = plugin.portalManager.behindBlocks.get(event.getClickedBlock().getLocation());
+			V10Location loc = new V10Location(event.getClickedBlock());
+			Portal portal = plugin.portalManager.borderBlocks.get(loc);
+			if (portal == null) portal = plugin.portalManager.insideBlocks.get(loc);
+			if (portal == null && plugin.config.CompactPortal) portal = plugin.portalManager.behindBlocks.get(loc);
 			if (portal == null) return;
 			if (portal.owner.name != player.getName()) return;
 		

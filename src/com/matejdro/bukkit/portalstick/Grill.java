@@ -33,9 +33,7 @@ public class Grill {
 		plugin.config.saveAll();
 		
 		for (V10Location b : border)
-		{
-			plugin.grillManager.borderBlocks.remove(b.getHandle());
-		}
+			plugin.grillManager.borderBlocks.remove(b);
 	}
 	
 	public void deleteInside()
@@ -43,7 +41,7 @@ public class Grill {
 		for (V10Location b: inside)
 		{
 			b.getHandle().getBlock().setType(Material.AIR);
-			plugin.grillManager.insideBlocks.remove(b.getHandle());
+			plugin.grillManager.insideBlocks.remove(b);
 		}
 	}
 	
@@ -89,24 +87,4 @@ public class Grill {
 		Location loc = firstBlock.getHandle();
 		return loc.getWorld().getName() + "," + loc.getX() + "," + loc.getY() + "," + loc.getZ();
 	}
-	/*
-	public HashSet<V10Location> getBorder()
-	{
-		return border;
-	}
-	
-	public HashSet<Block> getInside()
-	{
-		return inside;
-	}
-	
-	public Block getFirstBlock() {
-		return firstBlock;
-	}
-	
-	public Boolean isDisabled()
-	{
-		return disabled;
-	}
-	*/
 }

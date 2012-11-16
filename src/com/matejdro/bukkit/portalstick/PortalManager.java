@@ -343,7 +343,7 @@ public class PortalManager {
 			ItemStack item = inv.getItem(i);
 			if (item == null || item.getTypeId() == 0) continue;
 			
-			Boolean keep = false;
+			boolean keep = false;
 			for (Object is : region.getList(RegionSetting.GRILL_INVENTORY_CLEAR_EXCEPTIONS))
 			{
 				ItemStack itemcheck = plugin.util.getItemData((String) is);
