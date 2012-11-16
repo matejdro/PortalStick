@@ -164,13 +164,9 @@ public class PortalStickBlockListener implements Listener {
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		if (event.getBlock().getType() != Material.SUGAR_CANE_BLOCK)
 		  return;
-		System.out.print("Sugar physic!");
 		Grill grill = plugin.grillManager.insideBlocks.get(new V10Location(event.getBlock().getLocation()));
 		if (grill != null)
-		{
 		  event.setCancelled(true);
-		  System.out.print("cancelling...");
-		}
 	}
 	
 	@EventHandler()
