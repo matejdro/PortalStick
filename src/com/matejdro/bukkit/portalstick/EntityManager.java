@@ -29,9 +29,9 @@ public class EntityManager implements Runnable {
 		plugin = instance;
 	}
 
-	public void teleport(Entity entity, V10Location locTo, Vector vector)
+	public Location teleport(Entity entity, V10Location locTo, Vector vector, boolean really)
 	{
-		if (entity == null || entity.isDead() || blockedEntities.contains(entity)) return;
+		if (entity == null || entity.isDead() || blockedEntities.contains(entity)) return null;
 
 		Region regionTo = plugin.regionManager.getRegion(locTo);
 		Portal portal = plugin.portalManager.insideBlocks.get(locTo);
@@ -44,8 +44,8 @@ public class EntityManager implements Runnable {
 		}
 		if (portal == null && (entity instanceof FallingBlock || entity instanceof TNTPrimed))
 		  portal = plugin.portalManager.awayBlocksY.get(locTo);
-		if (portal == null ||!portal.open || portal.disabled || (Math.abs(vector.getY()) > 1 && !portal.vertical))
-		  return;
+		if (portal == null || !portal.open || portal.disabled || (Math.abs(vector.getY()) > 1 && !portal.vertical))
+		  return null;
 		
 		double x, y, z;
 		
@@ -57,15 +57,15 @@ public class EntityManager implements Runnable {
 			
 			if (!portal.vertical)
 			{
-				if (x + 0.5 < entity.getLocation().getX() && vector.getX() > 0) return;
-				else if (x - 0.5 > entity.getLocation().getX() && vector.getX() < 0) return;
-				else if (y + 0.5 < entity.getLocation().getZ() && vector.getZ() > 0) return;
-				else if (z - 0.5 > entity.getLocation().getZ() && vector.getZ() < 0) return;
+				if (x + 0.5 < entity.getLocation().getX() && vector.getX() > 0) return null;
+				else if (x - 0.5 > entity.getLocation().getX() && vector.getX() < 0) return null;
+				else if (y + 0.5 < entity.getLocation().getY() && vector.getY() > 0) return null;
+				else if (z - 0.5 > entity.getLocation().getZ() && vector.getZ() < 0) return null;
 			}
 			else
 			{
-				if (y + 0.5 < entity.getLocation().getY() && vector.getY() > 0) return;
-				if (y - 0.5 > entity.getLocation().getY() && vector.getY() < -0.1) return;
+				if (y + 0.5 < entity.getLocation().getY() && vector.getY() > 0) return null;
+				if (y - 0.5 > entity.getLocation().getY() && vector.getY() < -0.1) return null;
 			}
 		}
 		
@@ -141,8 +141,8 @@ public class EntityManager implements Runnable {
         	case DOWN:
         		if (portal.teleportFace != BlockFace.UP && portal.teleportFace != BlockFace.DOWN) //TODO: || to &&
         		{
+        			yaw = pitch;
 	        		pitch = startyaw;
-	        		yaw = 0;
         		}
         		else
         		{
@@ -154,8 +154,8 @@ public class EntityManager implements Runnable {
         	case UP:
         		if (portal.teleportFace != BlockFace.UP && portal.teleportFace != BlockFace.DOWN) //TODO: || to &&
         		{
+        			yaw = pitch;
 	        		pitch = startyaw + 180;
-	        		yaw = 0;
         		}
         		else
         		{
@@ -178,7 +178,6 @@ public class EntityManager implements Runnable {
 		if (entity instanceof Arrow)
 			teleport.setY(teleport.getY() + 0.5);
 		
-		entity.teleport(teleport);
 		entity.setVelocity(outvector);
 		destination.disabled = true;
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new enablePortal(destination), 10L);
@@ -187,6 +186,11 @@ public class EntityManager implements Runnable {
 			plugin.util.PlaySound(Sound.PORTAL_EXIT_ORANGE, entity instanceof Player ? (Player) entity : null, new V10Location(teleport));
 		else
 			plugin.util.PlaySound(Sound.PORTAL_EXIT_BLUE, entity instanceof Player ? (Player) entity : null, new V10Location(teleport));
+		
+		if(really && !entity.teleport(teleport))
+		  return null;
+		
+		return teleport;
 	}
 	
 	@Override
@@ -200,7 +204,7 @@ public class EntityManager implements Runnable {
 
 				Vector vector = e.getVelocity();
 								
-				teleport(e, new V10Location(e.getLocation()), vector);
+				teleport(e, new V10Location(e.getLocation()), vector, true);
 				plugin.funnelBridgeManager.EntityMoveCheck(e);
 			}
 		}

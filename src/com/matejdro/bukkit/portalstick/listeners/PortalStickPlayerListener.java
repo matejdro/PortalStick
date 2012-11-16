@@ -86,13 +86,13 @@ public class PortalStickPlayerListener implements Listener {
 					if ((b.getType() == Material.IRON_DOOR_BLOCK || b.getType() == Material.WOODEN_DOOR) && ((b.getData() & 4) != 4) )
 					{
 						plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
-							plugin.util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, new V10Location(b.getLocation()));
-							return;
+						plugin.util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, new V10Location(b));
+						return;
 					}
 					else if (b.getType() == Material.TRAP_DOOR && (b.getData() & 4) == 0)
 					{
 						plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
-						plugin.util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, new V10Location(b.getLocation()));
+						plugin.util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, new V10Location(b));
 						return;
 
 					}
@@ -102,7 +102,7 @@ public class PortalStickPlayerListener implements Listener {
 			boolean orange = false;
 			if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)
 				orange = true;
-			if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR ||  tb.contains((byte) event.getClickedBlock().getTypeId()))
+			if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || tb.contains((byte) event.getClickedBlock().getTypeId()))
 			{
 				Block b = targetBlocks.get(targetBlocks.size() - 1);
 				V10Location loc = new V10Location(b);
@@ -168,26 +168,27 @@ public class PortalStickPlayerListener implements Listener {
 	public void onPlayerMove(PlayerMoveEvent event)
 	{
 		Player player = event.getPlayer();
-				
-		if (player.isInsideVehicle()) return;
+		if (player.isInsideVehicle())
+		  return;
 
 		Location locTo = event.getTo();
-		if (plugin.config.DisabledWorlds.contains(locTo.getWorld().getName())) return;
+		if (plugin.config.DisabledWorlds.contains(locTo.getWorld().getName()))
+		  return;
 		
-		locTo = new Location(locTo.getWorld(), locTo.getBlockX(), locTo.getBlockY(), locTo.getBlockZ());
+		V10Location vlocTo = new V10Location(locTo);
+		locTo = vlocTo.getHandle();
 		Location locFrom = event.getFrom();
+		V10Location vlocFrom = new V10Location(locFrom);
+		if(vlocTo.equals(vlocFrom))
+		  return;
 		
 		Vector vec2 = locTo.toVector();
 	    Vector vec1 = locFrom.toVector();
 	    Vector vector = vec2.subtract(vec1);
 	    
-	    V10Location vlocTo = new V10Location(locTo);
-	    V10Location vlocFrom = new V10Location(locFrom);
-	    
 	    Region regionTo = plugin.regionManager.getRegion(vlocTo);
 		Region regionFrom = plugin.regionManager.getRegion(vlocFrom);
 		
-	    
 		//Check for changing regions
 	    plugin.portalManager.checkPlayerMove(player, regionFrom, regionTo);
 		
@@ -198,6 +199,7 @@ public class PortalStickPlayerListener implements Listener {
 				if (grill != null && !grill.disabled)
 				{
 					plugin.grillManager.emancipate(player);
+					return;
 				}
 		}
 		
@@ -207,7 +209,7 @@ public class PortalStickPlayerListener implements Listener {
 			Block blockIn = locTo.getBlock();
 			Block blockUnder = blockIn.getRelative(BlockFace.DOWN);
 			Block blockStart = null;
-			Double horPower = Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[0]);
+			double horPower = Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[0]);
 			String faithBlock = regionTo.getString(RegionSetting.FAITH_PLATE_BLOCK);
 			Vector velocity = new Vector(0, Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[1]),0);
 			
@@ -215,7 +217,6 @@ public class PortalStickPlayerListener implements Listener {
 				blockStart = blockUnder;
 			else
 				blockStart = blockIn;
-			
 			if (blockStart != null) {
 				BlockFace[] faces = new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
 				BlockFace face = plugin.blockUtil.getFaceOfMaterial(blockStart, faces, faithBlock);
@@ -240,16 +241,24 @@ public class PortalStickPlayerListener implements Listener {
 					}
 					player.setVelocity(velocity);
 					plugin.util.PlaySound(Sound.FAITHPLATE_LAUNCH, player, new V10Location(blockStart.getLocation()));
+					return;
 				}
 			}
 		
 		}
 		
-		plugin.gelManager.useGel( player, vlocTo, vector);
-		
 		//Teleport
 		if (plugin.hasPermission(player, plugin.PERM_TELEPORT))
-		  plugin.entityManager.teleport(player, vlocTo, vector.setY(player.getVelocity().getY()));
+		{
+		  Location to = plugin.entityManager.teleport(player, vlocTo, vector.setY(player.getVelocity().getY()), false);
+		  if(to != null)
+		  {
+			event.setTo(to);
+			vlocTo = new V10Location(to);
+		  }
+		}
+		
+		plugin.gelManager.useGel(player, vlocTo, vector);
 		
 		//Funnel
 		plugin.funnelBridgeManager.EntityMoveCheck(player);
@@ -290,6 +299,7 @@ public class PortalStickPlayerListener implements Listener {
 			plugin.userManager.deleteUser(player);
 		}
 		plugin.userManager.deleteDroppedItems(player);
+		plugin.gelManager.resetPlayer(player);
 	}
 		
 	@EventHandler()

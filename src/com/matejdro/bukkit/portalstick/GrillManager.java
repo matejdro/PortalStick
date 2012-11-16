@@ -178,21 +178,25 @@ public class GrillManager implements Runnable {
 		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS)) {
 			plugin.userManager.deleteDroppedItems(player);
 		}
-		
 	}
 
 	@Override
 	public void run() {
-		Block b;
-		for (Grill g : grills.toArray(new Grill[0])) {
+/*		Block b;
+		Iterator<Grill> gi = grills.iterator();
+		Grill g;
+		while(gi.hasNext())
+		{
+			g = gi.next();
 			b = g.firstBlock.getHandle().getBlock();
 			if (g.disabled || !b.getWorld().isChunkLoaded(b.getChunk())) continue;
 
 			if (!g.create()) {
 				V10Location loc = g.firstBlock;
-				g.delete();
+				g.delete(false);
+				gi.remove();
 				placeRecursiveEmancipationGrill(loc);
 			}
-		}
+		}*/
 	}
 }

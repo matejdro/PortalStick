@@ -3,6 +3,7 @@ package com.matejdro.bukkit.portalstick;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
@@ -219,7 +220,7 @@ public class PortalManager {
 	    portal.destLoc = new V10Location(block2.getRelative(portal.tpFace.getOppositeFace()));
 	    portal.vertical = false;
 	    
-	    block2.getRelative(portal.tpFace);
+	    block2 = block2.getRelative(portal.tpFace);
 	    portal.behind.add(new V10Location(block2));
 	    portal.behind.add(new V10Location(block2.getRelative(BlockFace.UP)));
 	    
@@ -264,24 +265,21 @@ public class PortalManager {
 			}
 		}
 		
-		//TODO : ALAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARM:
-//		portalc.destLoc.setX(portalc.destLoc.x + 0.5);
-//		portalc.destLoc.setZ(portalc.destLoc.z + 0.5);
-	
-		
 		Portal portal = new Portal(plugin, portalc.destLoc, portalc.block, portalc.border, portalc.inside, portalc.behind, owner, orange, vertical, portalc.tpFace);
 		
 		
 		if (orange)
 		{
-			if (owner.orangePortal != null) owner.orangePortal.delete();
+			if (owner.orangePortal != null)
+			  owner.orangePortal.delete();
 			owner.orangePortal = portal;
 			plugin.util.PlaySound(Sound.PORTAL_CREATE_ORANGE, player, block);
 			
 		}
 		else
 		{
-			if (owner.bluePortal != null) owner.bluePortal.delete();
+			if (owner.bluePortal != null)
+			  owner.bluePortal.delete();
 			owner.bluePortal = portal;
 			plugin.util.PlaySound(Sound.PORTAL_CREATE_BLUE, player, block);
 		}
@@ -305,65 +303,58 @@ public class PortalManager {
 		//Try WEST/EAST
 		if (dir < 90 || dir > 270)
 		{
-			if (placePortal(block, BlockFace.EAST, player, orange, false)) return;
+			if (placePortal(block, BlockFace.EAST, player, orange, false))
+			  return;
 		}
-		else
-		{
-			if (placePortal(block, BlockFace.WEST, player, orange, false)) return;
-		}
+		else if (placePortal(block, BlockFace.WEST, player, orange, false))
+		  return;
 		
 		//Try NORTH/SOUTH
 		if (dir < 180) 
 		{
-			if (placePortal(block, BlockFace.SOUTH, player, orange, false)) return;
+			if (placePortal(block, BlockFace.SOUTH, player, orange, false))
+			  return;
 		}
-		else
-		{
-			if (placePortal(block, BlockFace.NORTH, player, orange, false)) return;
-		}
+		else if (placePortal(block, BlockFace.NORTH, player, orange, false))
+		  return;
 		
 		//Try UP/DOWN
 		if (player.getEyeLocation().getY() >= block.y )
 		{
-			if (placePortal(block, BlockFace.UP, player, orange, false)) return;
+			if (placePortal(block, BlockFace.UP, player, orange, false))
+			  return;
 		}
-		else
-		{
-			if (placePortal(block, BlockFace.DOWN, player, orange, true)) return;
-		}
+		else if (placePortal(block, BlockFace.DOWN, player, orange, true))
+		  return;
 	
 	 }
 
 	public void setPortalInventory(Player player, Region region)
 	{
 		PlayerInventory inv = player.getInventory();
-		for (int i = 0; i < 40; i++)
+		List<?> ice = region.getList(RegionSetting.GRILL_INVENTORY_CLEAR_EXCEPTIONS);
+		ItemStack item, item2;
+		for (int i = 0; i < inv.getSize(); i++)
 		{
+			item = inv.getItem(i);
+			if(item == null || item.getTypeId() == 0)
+			  continue;
 			
-			ItemStack item = inv.getItem(i);
-			if (item == null || item.getTypeId() == 0) continue;
-			
-			boolean keep = false;
-			for (Object is : region.getList(RegionSetting.GRILL_INVENTORY_CLEAR_EXCEPTIONS))
+			for (Object is: ice)
 			{
-				ItemStack itemcheck = plugin.util.getItemData((String) is);
-				if (item.getTypeId() == itemcheck.getTypeId())
-				{
-					keep = true;
-					break;
-				}
+				item2 = plugin.util.getItemData((String)is);
+				if(item.getTypeId() != item2.getTypeId() || item.getDurability() != item2.getDurability())
+				  inv.remove(i);
 			}
-			if (!keep) inv.clear(i);
 		}
-		
 		
 		for (Object is : region.getList(RegionSetting.UNIQUE_INVENTORY_ITEMS))
 		{
-			ItemStack item = plugin.util.getItemData((String) is);
+			item = plugin.util.getItemData((String)is);
 			if (item.getTypeId() == plugin.config.PortalTool && item.getDurability() == plugin.config.portalToolData)
-				inv.setItemInHand(item);
+			  inv.setItemInHand(item);
 			else
-				inv.addItem(item);
+			  inv.addItem(item);
 		}
 	}
 	
@@ -443,13 +434,14 @@ public class PortalManager {
 				
 		BlockFace portalFace = null;
 		Portal oldPortal = null;
+		Region region = plugin.regionManager.getRegion(b);
 		//Find, where portal surface is
 		for (int i = 0; i < 6; i++)
 		{
 			BlockFace face2 = BlockFace.values()[i];
 			if (face2 == otherSide || face2.getOppositeFace() == otherSide) continue;
 			Block firstPortalBlock = firstIronBar.getRelative(otherSide).getRelative(face2);
-			if (firstPortalBlock.getType() == Material.STONE)
+			if (!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(firstPortalBlock.getTypeId()))
 			{
 				portalFace = face2;
 				break;
@@ -502,9 +494,9 @@ public class PortalManager {
 		
 		if (portalc.border.size() == 0 || portalc.inside.size() == 0) return;
 		for (V10Location tb : portalc.border)
-			if (!(tb.getHandle().getBlock().getType() == Material.STONE || borderBlocks.containsKey(tb) || insideBlocks.containsKey(tb))) return;
+			if ((!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(tb.getHandle().getBlock().getType())) || borderBlocks.containsKey(tb) || insideBlocks.containsKey(tb)) return;
 		for (V10Location tb : portalc.inside)
-			if (!(tb.getHandle().getBlock().getType() == Material.STONE || borderBlocks.containsKey(tb) || insideBlocks.containsKey(tb))) return;
+			if ((!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(tb.getHandle().getBlock().getType())) || borderBlocks.containsKey(tb) || insideBlocks.containsKey(tb)) return;
 				
 		
 		if (portalc.vertical) portalc.destLoc = new V10Location(portalc.inside.toArray(new V10Location[0])[0].getHandle().getBlock().getRelative(portalFace.getOppositeFace()));
@@ -518,16 +510,12 @@ public class PortalManager {
 					
 			portalc.destLoc = new V10Location(lBlock.getHandle().getBlock().getRelative(portalFace.getOppositeFace()));
 		}
-		//TODO: AAAALLLLLAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARM:
-//		portalc.destLoc.setX(portalc.destLoc.x + 0.5);
-//		portalc.destLoc.setZ(portalc.destLoc.z + 0.5);
 		
 		portalc.tpFace = portalFace;
 		
 		if (oldPortal != null) oldPortal.delete();
 		
-		Boolean orange = wool.getColor() == DyeColor.ORANGE;
-		Region region = plugin.regionManager.getRegion(b);
+		boolean orange = wool.getColor() == DyeColor.ORANGE;
 		
 		Portal portal = new Portal(plugin, portalc.destLoc, portalc.block, portalc.border, portalc.inside, portalc.behind, region, orange, portalc.vertical, portalc.tpFace);
 		

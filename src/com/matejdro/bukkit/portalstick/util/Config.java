@@ -69,8 +69,6 @@ public class Config {
 		regionConfig = getConfig(regionConfigFile);
 		grillConfig = getConfig(grillConfigFile);
 		bridgeConfig = getConfig(bridgeConfigFile);
-		
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){public void run(){load();}});
 	}
 	
 	public void deleteGrill(String grill) {

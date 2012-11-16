@@ -39,8 +39,16 @@ public class PortalStickEntityListener implements Listener {
 			  return;
 			Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
 			ItemStack is = player.getInventory().getBoots();
-			if (event.getCause() == DamageCause.FALL && region.getBoolean(RegionSetting.ENABLE_FALL_DAMAGE_BOOTS) && is == null ? false : region.getInt(RegionSetting.FALL_DAMAGE_BOOTS) == is.getTypeId())
+			if (event.getCause() == DamageCause.FALL && region.getBoolean(RegionSetting.ENABLE_FALL_DAMAGE_BOOTS))
+			{
+			  boolean ok;
+			  if(is == null)
+				ok = false;
+			  else
+				ok = region.getInt(RegionSetting.FALL_DAMAGE_BOOTS) == is.getTypeId();
+			  if(ok)
 				event.setCancelled(true);
+			}
 		}
 	}
 	

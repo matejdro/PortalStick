@@ -2,9 +2,11 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.ArrayList;
 
+import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.matejdro.bukkit.portalstick.commands.BaseCommand;
@@ -47,6 +49,14 @@ public class PortalStick extends JavaPlugin {
 	public final BlockUtil blockUtil = new BlockUtil();
 
 	public void onDisable() {
+		ArrayList<String> copy = new ArrayList<String>(gelManager.onRedGel.keySet());
+		Player p;
+		Server s = getServer();
+		for(String pn: copy)
+		{
+		  p = s.getPlayerExact(pn);
+		  gelManager.resetPlayer(p);
+		}
 		config.saveAll();
 		config.unLoad();
 	}
@@ -54,20 +64,24 @@ public class PortalStick extends JavaPlugin {
 	public void onEnable() {
 		config = new Config(this);
 		
-		//Register events		
-		getServer().getPluginManager().registerEvents(new PortalStickPlayerListener(this), this);
-		getServer().getPluginManager().registerEvents(new PortalStickBlockListener(this), this);
-		getServer().getPluginManager().registerEvents(new PortalStickVehicleListener(this), this);
-		getServer().getPluginManager().registerEvents(new PortalStickEntityListener(this), this);
-		getServer().getPluginManager().registerEvents(new PortalStickWorldListener(this), this);
+		//Register events
+		Server s = getServer();
+		PluginManager pm = s.getPluginManager();
+		pm.registerEvents(new PortalStickPlayerListener(this), this);
+		pm.registerEvents(new PortalStickBlockListener(this), this);
+		pm.registerEvents(new PortalStickVehicleListener(this), this);
+		pm.registerEvents(new PortalStickEntityListener(this), this);
+		pm.registerEvents(new PortalStickWorldListener(this), this);
 		
-		worldGuard = (WorldGuardPlugin) this.getServer().getPluginManager().getPlugin("WorldGuard");
+		worldGuard = (WorldGuardPlugin) pm.getPlugin("WorldGuard");
+		
+		config.load();
 
 		//Start grill checking timer
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, grillManager, 400L, 400L);
+		s.getScheduler().scheduleSyncRepeatingTask(this, grillManager, 400L, 400L);
 		
 		//Teleport all entities.
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, entityManager, 1L, 2L);
+		s.getScheduler().scheduleSyncRepeatingTask(this, entityManager, 1L, 2L);
 		
 		//Register commands
 		ArrayList<BaseCommand> tmpList = new ArrayList<BaseCommand>();

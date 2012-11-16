@@ -14,6 +14,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
@@ -126,20 +127,50 @@ public class PortalStickBlockListener implements Listener {
 	}
 	
 	@EventHandler(ignoreCancelled = true)
-	public void onBlockBurn(BlockBurnEvent event) {	
-		if (event.getBlock().getType() != Material.WOOL) return;
-		
+	public void onBlockBurn(BlockIgniteEvent event) {	
 		V10Location loc = new V10Location(event.getBlock().getLocation());
 		
 		Portal portal = plugin.portalManager.borderBlocks.get(loc);
 		if (portal == null) portal = plugin.portalManager.insideBlocks.get(loc);
 		if (portal == null) portal = plugin.portalManager.behindBlocks.get(loc);
-		if (portal != null)
+		if (plugin.portalManager.borderBlocks.containsKey(loc) ||
+				plugin.portalManager.insideBlocks.containsKey(loc) ||
+				plugin.portalManager.behindBlocks.containsKey(loc))
 		{
 			event.setCancelled(true);
 			return;
-		}		
-	}	
+		}
+		Region region = plugin.regionManager.getRegion(loc);
+		if(plugin.blockUtil.compareBlockToString(loc, (String)region.settings.get(RegionSetting.BLUE_GEL_BLOCK)) ||
+				plugin.blockUtil.compareBlockToString(loc, (String)region.settings.get(RegionSetting.RED_GEL_BLOCK)))
+		{
+			System.out.print("Ignition!");
+		  event.setCancelled(true);
+		}
+	}
+	
+	@EventHandler(ignoreCancelled = true)
+	public void onBlockBurn2(BlockBurnEvent event) {	
+		V10Location loc = new V10Location(event.getBlock().getLocation());
+		
+		Portal portal = plugin.portalManager.borderBlocks.get(loc);
+		if (portal == null) portal = plugin.portalManager.insideBlocks.get(loc);
+		if (portal == null) portal = plugin.portalManager.behindBlocks.get(loc);
+		if (plugin.portalManager.borderBlocks.containsKey(loc) ||
+				plugin.portalManager.insideBlocks.containsKey(loc) ||
+				plugin.portalManager.behindBlocks.containsKey(loc))
+		{
+			event.setCancelled(true);
+			return;
+		}
+		Region region = plugin.regionManager.getRegion(loc);
+		if(plugin.blockUtil.compareBlockToString(loc, (String)region.settings.get(RegionSetting.BLUE_GEL_BLOCK)) ||
+				plugin.blockUtil.compareBlockToString(loc, (String)region.settings.get(RegionSetting.RED_GEL_BLOCK)))
+		{
+			System.out.print("Burn!");
+		  event.setCancelled(true);
+		}
+	}
 	
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent event) {
@@ -164,8 +195,7 @@ public class PortalStickBlockListener implements Listener {
 	public void onBlockPhysics(BlockPhysicsEvent event) {
 		if (event.getBlock().getType() != Material.SUGAR_CANE_BLOCK)
 		  return;
-		Grill grill = plugin.grillManager.insideBlocks.get(new V10Location(event.getBlock().getLocation()));
-		if (grill != null)
+		if(plugin.grillManager.insideBlocks.containsKey(new V10Location(event.getBlock())))
 		  event.setCancelled(true);
 	}
 	
@@ -396,12 +426,12 @@ public class PortalStickBlockListener implements Listener {
 			 
 	 }
 	 
+	@EventHandler(ignoreCancelled = true)
 	 public void onBlockPistonExtend(BlockPistonExtendEvent event) 
 	 {
-		 if (event.isCancelled()) return;
 		 Region region = plugin.regionManager.getRegion(new V10Location(event.getBlock()));
 
-		 for (Block b : event.getBlocks())
+		 for (final Block b : event.getBlocks())
 		 {
 			 if (blockedPistonBlocks.contains(b))
 			 {
@@ -423,20 +453,17 @@ public class PortalStickBlockListener implements Listener {
 				 
 				 if (destB.isLiquid() || destB.getType() == Material.AIR)
 				 {
-					 final Block endBlock = b.getRelative(event.getDirection());
-					 
-					 blockedPistonBlocks.add(endBlock);
-					 
-					 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-
-						    public void run() {
-						    	destB.setType(endBlock.getType());
-							 	destB.setData(endBlock.getData(), false);
-							 	 
-							 	endBlock.setType(Material.AIR);
-							 	blockedPistonBlocks.remove(endBlock);
-						    }
-						}, 2L);
+					 destB.setTypeIdAndData(b.getType().getId(), b.getData(), true);
+					 final Block b2 = b.getRelative(event.getDirection());
+					 blockedPistonBlocks.add(b2);
+					 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
+					 {
+						 public void run()
+						 {
+							 b2.setType(Material.AIR);
+							 blockedPistonBlocks.remove(b2);
+						 }
+					 }, 2L);
 				 }
 				 else
 					 event.setCancelled(true);
@@ -450,9 +477,11 @@ public class PortalStickBlockListener implements Listener {
 		 }
 	 }
 	 
+	@EventHandler(ignoreCancelled = true)
 	 public void onBlockPistonRetract(BlockPistonRetractEvent event) 
 	 {
-		 if (event.isCancelled() || !event.isSticky()) return;
+		 if(!event.isSticky())
+			 return;
 		 
 		 if (blockedPistonBlocks.contains(event.getRetractLocation().getBlock()))
 		 {
@@ -467,25 +496,13 @@ public class PortalStickBlockListener implements Listener {
 		 if (portal != null && region.getBoolean(RegionSetting.ENABLE_PISTON_BLOCK_TELEPORT))
 		 {
 			 Portal destP = portal.getDestination();
-			 final Block sourceB = destP.teleport.getHandle().getBlock();
+			 Block sourceB = destP.teleport.getHandle().getBlock();
 			 
 			 if (!sourceB.isLiquid() && sourceB.getType() != Material.AIR)
 			 {
-				 final Block endBlock = event.getRetractLocation().getBlock().getRelative(event.getDirection().getOppositeFace());
-				 blockedPistonBlocks.add(endBlock);
-				 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-
-					    public void run() {
-					    	endBlock.setType(sourceB.getType());
-					    	endBlock.setData(sourceB.getData());
-							 
-							 sourceB.setType(Material.AIR);
-							 blockedPistonBlocks.remove(endBlock);
-
-					    }
-					}, 1L);
-				 
-				 
+				 Block endBlock = event.getRetractLocation().getBlock();
+				 endBlock.setTypeIdAndData(sourceB.getTypeId(), sourceB.getData(), false);
+				 sourceB.setType(Material.AIR);
 			 }
 		 }
 		 else

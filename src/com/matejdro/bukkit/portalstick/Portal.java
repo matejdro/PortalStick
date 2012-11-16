@@ -192,8 +192,6 @@ public class Portal {
 		Block rb;
     	for (V10Location loc: border)
     	{
-    		if (plugin.portalManager.borderBlocks.containsKey(loc))
-    			plugin.portalManager.borderBlocks.get(loc).delete();
     		if (plugin.portalManager.insideBlocks.containsKey(loc))
     			plugin.portalManager.insideBlocks.get(loc).delete();
     		if (plugin.portalManager.behindBlocks.containsKey(loc))
@@ -218,8 +216,6 @@ public class Portal {
         			plugin.portalManager.borderBlocks.get(loc).delete();
         		if (plugin.portalManager.insideBlocks.containsKey(loc))
         			plugin.portalManager.insideBlocks.get(loc).delete();
-        		if (plugin.portalManager.behindBlocks.containsKey(loc))
-        			plugin.portalManager.behindBlocks.get(loc).delete();
 
         		rb = loc.getHandle().getBlock();
         		oldBlocks.put(loc, plugin.blockUtil.getBlockData(rb));

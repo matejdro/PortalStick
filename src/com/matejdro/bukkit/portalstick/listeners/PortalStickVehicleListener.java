@@ -36,6 +36,6 @@ public class PortalStickVehicleListener implements Listener {
 		if (vehicle.getPassenger() != null && vehicle.getPassenger() instanceof Player && !plugin.hasPermission((Player)vehicle.getPassenger(), plugin.PERM_TELEPORT))
 			return;
 			 
-		plugin.entityManager.teleport((Entity) vehicle, locTo, vector);
+		plugin.entityManager.teleport((Entity) vehicle, locTo, vector, true);
 	}
 }

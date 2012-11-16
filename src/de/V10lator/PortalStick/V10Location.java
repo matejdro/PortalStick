@@ -48,9 +48,9 @@ public class V10Location
   public boolean equals(Object obj)
   {
 	if(this == obj)
-		return true;
+	  return true;
 	if(obj == null || !(obj instanceof V10Location))
-		return false;
+	  return false;
 	V10Location other = (V10Location)obj;
 	return x == other.x && y == other.y && z == other.z && world.equals(other.world);
   }
