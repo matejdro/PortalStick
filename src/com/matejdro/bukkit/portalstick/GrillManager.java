@@ -63,7 +63,6 @@ public class GrillManager implements Runnable {
     public boolean placeRecursiveEmancipationGrill(V10Location initial) {
     	Region region = plugin.regionManager.getRegion(initial);
     	String borderID = region.getString(RegionSetting.GRILL_MATERIAL);
-    	System.out.print(initial.getHandle().getBlock().getTypeId() + " // "+borderID);
     	if (!plugin.blockUtil.compareBlockToString(initial, borderID) || !region.getBoolean(RegionSetting.ENABLE_GRILLS))
     		return false;
     	//Check if initial is already in a grill
