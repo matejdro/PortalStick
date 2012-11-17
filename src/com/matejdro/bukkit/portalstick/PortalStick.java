@@ -6,6 +6,8 @@ import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -47,18 +49,18 @@ public class PortalStick extends JavaPlugin {
 	
 	public final Util util = new Util(this);
 	public final BlockUtil blockUtil = new BlockUtil();
+	
+	private final PortalStickPlayerListener pL = new PortalStickPlayerListener(this);
 
 	public void onDisable() {
-		ArrayList<String> copy = new ArrayList<String>(gelManager.onRedGel.keySet());
-		Player p;
-		Server s = getServer();
-		for(String pn: copy)
+		PlayerQuitEvent pqe;
+		for(Player p: getServer().getOnlinePlayers())
 		{
-		  p = s.getPlayerExact(pn);
-		  gelManager.resetPlayer(p);
+		  pqe = new PlayerQuitEvent(p, null);
+		  pL.onPlayerQuit(pqe);
 		}
-		config.saveAll();
-		config.unLoad();
+		for(User user: userManager.users.values())
+			portalManager.deletePortals(user);
 	}
 
 	public void onEnable() {
@@ -67,7 +69,7 @@ public class PortalStick extends JavaPlugin {
 		//Register events
 		Server s = getServer();
 		PluginManager pm = s.getPluginManager();
-		pm.registerEvents(new PortalStickPlayerListener(this), this);
+		pm.registerEvents(pL, this);
 		pm.registerEvents(new PortalStickBlockListener(this), this);
 		pm.registerEvents(new PortalStickVehicleListener(this), this);
 		pm.registerEvents(new PortalStickEntityListener(this), this);
@@ -96,6 +98,13 @@ public class PortalStick extends JavaPlugin {
 		tmpList.add(new FlagCommand(this));
 		tmpList.add(new RegionInfoCommand(this));
 		commands = tmpList.toArray(new BaseCommand[0]);
+		
+		PlayerJoinEvent pje;
+		for(Player p: getServer().getOnlinePlayers())
+		{
+		  pje = new PlayerJoinEvent(p, null);
+		  pL.onPlayerJoin(pje);
+		}
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[])

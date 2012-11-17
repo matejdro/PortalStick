@@ -5,6 +5,12 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
+/**
+ * This represents a block location.
+ * You can store this over time.
+ * @author V10lator
+ *
+ */
 public class V10Location
 {
   public final String world;

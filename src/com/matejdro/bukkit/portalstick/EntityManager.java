@@ -19,6 +19,7 @@ import com.matejdro.bukkit.portalstick.util.Config.Sound;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 import de.V10lator.PortalStick.V10Location;
+import de.V10lator.PortalStick.V10Teleport;
 
 public class EntityManager implements Runnable {
 	private final PortalStick plugin;
@@ -29,7 +30,7 @@ public class EntityManager implements Runnable {
 		plugin = instance;
 	}
 
-	public Location teleport(Entity entity, V10Location locTo, Vector vector, boolean really)
+	public V10Teleport teleport(Entity entity, V10Location locTo, Vector vector, boolean really)
 	{
 		if (entity == null || entity.isDead() || blockedEntities.contains(entity)) return null;
 
@@ -170,7 +171,7 @@ public class EntityManager implements Runnable {
 			teleport.setX(teleport.getX() + 0.5D);
 		
 		entity.setFallDistance(0);
-		entity.setVelocity(entity.getVelocity().zero());
+//		entity.setVelocity(entity.getVelocity().zero());
 		
 		teleport.setPitch(pitch);
 		teleport.setYaw(yaw);
@@ -178,19 +179,25 @@ public class EntityManager implements Runnable {
 		if (entity instanceof Arrow)
 			teleport.setY(teleport.getY() + 0.5);
 		
-		entity.setVelocity(outvector);
+		if(really && !entity.teleport(teleport))
+			return null;
+		
+		if(really)
+		{
+		  if(!entity.teleport(teleport))
+			return null;
+		  entity.setVelocity(outvector);
+		}
+		
 		destination.disabled = true;
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new enablePortal(destination), 10L);
-	
+		
 		if (portal.orange)
 			plugin.util.PlaySound(Sound.PORTAL_EXIT_ORANGE, entity instanceof Player ? (Player) entity : null, new V10Location(teleport));
 		else
 			plugin.util.PlaySound(Sound.PORTAL_EXIT_BLUE, entity instanceof Player ? (Player) entity : null, new V10Location(teleport));
 		
-		if(really && !entity.teleport(teleport))
-		  return null;
-		
-		return teleport;
+		return new V10Teleport(teleport, outvector);
 	}
 	
 	@Override

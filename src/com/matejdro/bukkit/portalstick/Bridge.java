@@ -58,8 +58,10 @@ public class Bridge {
 				plugin.funnelBridgeManager.involvedPortals.put(portal, this);
 				continue;
 			}
-			else if (nextBlock.getY() > 127 || (!nextBlock.isLiquid() && nextBlock.getType() != Material.AIR)) break;			
-			if (!nextBlock.getWorld().isChunkLoaded(nextBlock.getChunk())) return;
+			else if (nextBlock.getY() > nextBlock.getWorld().getMaxHeight() - 1 ||
+					(!nextBlock.isLiquid() && nextBlock.getType() != Material.AIR) ||
+					!nextBlock.getWorld().isChunkLoaded(nextBlock.getChunk()))
+			  return;
 			
 			nextBlock.setType(Material.GLASS);
 			bridgeBlocks.put(nextV10Location, 0);

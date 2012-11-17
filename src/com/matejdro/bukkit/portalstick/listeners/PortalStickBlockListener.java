@@ -43,96 +43,101 @@ public class PortalStickBlockListener implements Listener {
 	}
 
 	@EventHandler()
-	public void onBlockBreak(BlockBreakEvent event) { //TODO: Tune
-		Block block = event.getBlock();
-		V10Location loc = new V10Location(block);
-		Portal portal = plugin.portalManager.borderBlocks.get(loc);
-		if (portal == null) portal = plugin.portalManager.behindBlocks.get(loc);
-		if (portal != null)
-		{
-			portal.delete();
-			event.setCancelled(true);
-			return;
-		}
+	public void onBlockBreak(BlockBreakEvent event)
+	{
+	  Block block = event.getBlock();
+	  V10Location loc = new V10Location(block);
+	  
+	  //Update bridge if destroyed block made space.
+	  //We call this as early as possible to not be suppressed by one of the returns.
+	  //At the end it will be scheduled by one tick anyway.
+	  plugin.funnelBridgeManager.updateBridge(loc);
+	  
+	  Portal portal = null;
+	  if(plugin.portalManager.borderBlocks.containsKey(loc))
+		portal = plugin.portalManager.borderBlocks.get(loc);
+	  else if(plugin.portalManager.behindBlocks.containsKey(loc))
+		portal = plugin.portalManager.behindBlocks.get(loc);
+	  else if (plugin.portalManager.insideBlocks.containsKey(loc))
+	  {
 		portal = plugin.portalManager.insideBlocks.get(loc);
-		if (portal != null)
+		if(portal.transmitter && block.getType() == Material.REDSTONE_TORCH_ON)
 		{
-		  if(portal.transmitter && block.getType() == Material.REDSTONE_TORCH_ON)
+		  event.setCancelled(true);
+		  return;
+		}
+		if(portal.open)
+		  return;
+
+	  }
+	  if (portal != null)
+	  {
+		portal.delete();
+		event.setCancelled(true);
+		return;
+	  }
+	  
+	  // Don't destroy inner grill blocks or bridges
+	  if(plugin.grillManager.insideBlocks.containsKey(loc) ||
+			  plugin.funnelBridgeManager.bridgeBlocks.containsKey(loc))
+	  {
+		event.setCancelled(true);
+		return;
+	  }
+	  
+	  //Delete bridge
+	  if(plugin.funnelBridgeManager.bridgeMachineBlocks.containsKey(loc))
+	  {
+		if(plugin.hasPermission(event.getPlayer(), plugin.PERM_DELETE_BRIDGE))
+		  plugin.funnelBridgeManager.bridgeMachineBlocks.get(loc).delete();
+		else
+		  event.setCancelled(true);
+		return;
+	  }
+	  
+	  Region region = plugin.regionManager.getRegion(loc);
+	  if(plugin.blockUtil.compareBlockToString(block, region.getString(RegionSetting.GRILL_MATERIAL)))
+	  {
+		if (plugin.grillManager.borderBlocks.containsKey(loc))
+		{
+		  if(plugin.hasPermission(event.getPlayer(), plugin.PERM_DELETE_GRILL))
+			plugin.grillManager.borderBlocks.get(loc).delete();
+		  else
 			event.setCancelled(true);
 		  return;
 		}
-		Grill grill = plugin.grillManager.insideBlocks.get(loc);
-		if (grill != null)
-			event.setCancelled(true);
+	  }
+	  
+	  Material type = block.getType();
+	  if(type == Material.REDSTONE_WIRE && region.getBoolean(RegionSetting.ENABLE_REDSTONE_TRANSFER))
+	  {
+		Location l = block.getLocation();
 		
-		//Prevent destroying bridge
-		V10Location vb = new V10Location(block);
-		Bridge bridge = plugin.funnelBridgeManager.bridgeBlocks.get(vb);
-		if (bridge != null )
+		for (int i = 0; i < 4; i++)
 		{
-				event.setCancelled(true);
-				return;
-		}
-		//Delete bridge
-		bridge = plugin.funnelBridgeManager.bridgeMachineBlocks.get(vb);
-		if (bridge != null )
-		{
-			if (plugin.hasPermission(event.getPlayer(), plugin.PERM_DELETE_BRIDGE))
-				bridge.delete();
-			else
-				event.setCancelled(true);
-			return;
-		}
-		
-		//Update bridge if destroyed block made space
-		plugin.funnelBridgeManager.updateBridge(loc);
-		
-		Region region = plugin.regionManager.getRegion(loc);
-		if (plugin.blockUtil.compareBlockToString(block, region.getString(RegionSetting.GRILL_MATERIAL)))
-		{
-			grill = plugin.grillManager.borderBlocks.get(loc);
-			if (grill != null)
-			{
-			  if(plugin.hasPermission(event.getPlayer(), plugin.PERM_DELETE_GRILL))
-				grill.delete();
-			  else
-				event.setCancelled(true);
-			  return;
-			}
-		}
-		
-		Material type = block.getType();
-		if (type == Material.REDSTONE_WIRE && region.getBoolean(RegionSetting.ENABLE_REDSTONE_TRANSFER))
-		{
-			Location l = event.getBlock().getLocation();
+		  BlockFace face = BlockFace.values()[i];
+		  loc = new V10Location(new Location(l.getWorld(), l.getX() + face.getModX(), l.getY() + face.getModY(), l.getZ() + face.getModZ()));
+		  if (plugin.portalManager.insideBlocks.containsKey(loc)) 
+		  {
+			portal = plugin.portalManager.insideBlocks.get(loc);
+			if (!portal.open)
+			  continue;
 			
-			for (int i = 0; i < 4; i++)
-			{
-				BlockFace face = BlockFace.values()[i];
-				loc = new V10Location(new Location(l.getWorld(), l.getX() + face.getModX(), l.getY() + face.getModY(), l.getZ() + face.getModZ()));
-				if (plugin.portalManager.insideBlocks.containsKey(loc)) 
-				{
-					portal = plugin.portalManager.insideBlocks.get(loc);
-					if (!portal.open) continue;
-					
-					Portal destination = portal.getDestination();
-					if (destination == null || destination.transmitter) continue;
-					
-					for (V10Location b: destination.inside)
-						b.getHandle().getBlock().setType(Material.AIR);
-					portal.transmitter = false;
-				}
-			 }
+			Portal destination = portal.getDestination();
+			if (destination == null || destination.transmitter)
+			  continue;
+			
+			for (V10Location b: destination.inside)
+			  b.getHandle().getBlock().setType(Material.AIR);
+			portal.transmitter = false;
+		  }
 		}
+	  }
 	}
 	
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockBurn(BlockIgniteEvent event) {	
-		V10Location loc = new V10Location(event.getBlock().getLocation());
-		
-		Portal portal = plugin.portalManager.borderBlocks.get(loc);
-		if (portal == null) portal = plugin.portalManager.insideBlocks.get(loc);
-		if (portal == null) portal = plugin.portalManager.behindBlocks.get(loc);
+		V10Location loc = new V10Location(event.getBlock());
 		if (plugin.portalManager.borderBlocks.containsKey(loc) ||
 				plugin.portalManager.insideBlocks.containsKey(loc) ||
 				plugin.portalManager.behindBlocks.containsKey(loc))
@@ -151,11 +156,7 @@ public class PortalStickBlockListener implements Listener {
 	
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockBurn2(BlockBurnEvent event) {	
-		V10Location loc = new V10Location(event.getBlock().getLocation());
-		
-		Portal portal = plugin.portalManager.borderBlocks.get(loc);
-		if (portal == null) portal = plugin.portalManager.insideBlocks.get(loc);
-		if (portal == null) portal = plugin.portalManager.behindBlocks.get(loc);
+		V10Location loc = new V10Location(event.getBlock());
 		if (plugin.portalManager.borderBlocks.containsKey(loc) ||
 				plugin.portalManager.insideBlocks.containsKey(loc) ||
 				plugin.portalManager.behindBlocks.containsKey(loc))
@@ -177,18 +178,17 @@ public class PortalStickBlockListener implements Listener {
 		Material block = event.getBlock().getType();
 		
 		//Prevent obstructing funnel
-		Bridge bridge = plugin.funnelBridgeManager.bridgeBlocks.get(new V10Location(event.getBlock()));
-		if (bridge != null )
-			event.setCancelled(true);
-		
-		if (block == Material.RAILS || block == Material.POWERED_RAIL || block == Material.DETECTOR_RAIL) return;
-		 
-		Portal portal = plugin.portalManager.insideBlocks.get(new V10Location(event.getBlockPlaced()));
-		if (portal != null)
+		if (plugin.funnelBridgeManager.bridgeBlocks.containsKey(new V10Location(event.getBlock())))
 		{
 			event.setCancelled(true);
 			return;
 		}
+		
+		if (block == Material.RAILS || block == Material.POWERED_RAIL || block == Material.DETECTOR_RAIL)
+		  return;
+		
+		if (plugin.portalManager.insideBlocks.containsKey(new V10Location(event.getBlockPlaced())))
+		  event.setCancelled(true);
 	}
 	 	 
 	@EventHandler(ignoreCancelled = true)

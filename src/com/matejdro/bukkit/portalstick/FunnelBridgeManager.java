@@ -34,10 +34,12 @@ public class FunnelBridgeManager {
 
 	public boolean placeGlassBridge(Player player, V10Location first)
 	{
-		if (player != null && !plugin.hasPermission(player, plugin.PERM_CREATE_BRIDGE)) return false;
+		if (player != null && !plugin.hasPermission(player, plugin.PERM_CREATE_BRIDGE))
+		  return false;
 		
 		Region region = plugin.regionManager.getRegion(first);
-		if (!region.getBoolean(RegionSetting.ENABLE_HARD_GLASS_BRIDGES)) return false;
+		if (!region.getBoolean(RegionSetting.ENABLE_HARD_GLASS_BRIDGES))
+		  return false;
 		
 		HashSet<V10Location> machineBlocks = new HashSet<V10Location>();
 

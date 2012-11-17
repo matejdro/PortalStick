@@ -29,6 +29,7 @@ import com.matejdro.bukkit.portalstick.util.Config.Sound;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 import de.V10lator.PortalStick.V10Location;
+import de.V10lator.PortalStick.V10Teleport;
 
 public class PortalStickPlayerListener implements Listener {
 	private final PortalStick plugin;
@@ -164,10 +165,10 @@ public class PortalStickPlayerListener implements Listener {
 
 	}
  	    
-	@EventHandler()
+	@EventHandler(ignoreCancelled = false)
 	public void onPlayerMove(PlayerMoveEvent event)
 	{
-		Player player = event.getPlayer();
+		final Player player = event.getPlayer();
 		if (player.isInsideVehicle())
 		  return;
 
@@ -250,11 +251,12 @@ public class PortalStickPlayerListener implements Listener {
 		//Teleport
 		if (plugin.hasPermission(player, plugin.PERM_TELEPORT))
 		{
-		  Location to = plugin.entityManager.teleport(player, vlocTo, vector.setY(player.getVelocity().getY()), false);
+		  final V10Teleport to = plugin.entityManager.teleport(player, vlocTo, vector.setY(player.getVelocity().getY()), true);
 		  if(to != null)
 		  {
-			event.setTo(to);
-			vlocTo = new V10Location(to);
+			event.setTo(to.to);
+			vlocTo = new V10Location(to.to);
+			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){public void run(){player.setVelocity(to.velocity);}});
 		  }
 		}
 		
@@ -283,7 +285,7 @@ public class PortalStickPlayerListener implements Listener {
 		if (!plugin.config.RestoreInvOnWorldChange && !event.getFrom().getWorld().getName().equalsIgnoreCase(event.getTo().getWorld().getName()))
 			return;
 		plugin.portalManager.checkPlayerMove(event.getPlayer(), regionFrom, regionTo);
-		}
+	}
 		 
 	@EventHandler()
 	public void onPlayerQuit(PlayerQuitEvent event)
@@ -294,10 +296,8 @@ public class PortalStickPlayerListener implements Listener {
 		Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
 		if (region.name != "global" && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
 			user.revertInventory(player);
-		if (plugin.config.DeleteOnQuit) {
-			plugin.portalManager.deletePortals(user);
+		if (plugin.config.DeleteOnQuit)
 			plugin.userManager.deleteUser(player);
-		}
 		plugin.userManager.deleteDroppedItems(player);
 		plugin.gelManager.resetPlayer(player);
 	}
