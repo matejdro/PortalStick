@@ -56,31 +56,46 @@ public class GelManager {
 			for(BlockFace face: new BlockFace[] {BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST})
 			  if(plugin.blockUtil.compareBlockToString(block.getRelative(face), bg))
 			  {
-				blueGel(player, region, face == BlockFace.DOWN);
+				byte dir;
+				switch(face)
+				{
+				  case DOWN:
+					dir = 0;
+				    break;
+				  case NORTH:
+				  case SOUTH:
+					dir = 1;
+					break;
+				  default:
+					dir = 2;
+				}
+				blueGel(player, region, dir, vector);
 				break;
 			  }
 		}
 	}
 	
 	//TODO: Vertical is still bugged :(
-	private void blueGel(final Player player, Region region, boolean horizontal)
+	private void blueGel(final Player player, Region region, byte dir, Vector vector)
 	{
-		Vector vector = player.getVelocity();
-		vector = vector.multiply(region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER));
-		vector = vector.setY(-vector.getY());
-
-		double multi = region.getDouble(RegionSetting.BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER);
-		double x = vector.getX() * multi;
-		double z = vector.getZ() * multi;
-		if(horizontal)
+//		Vector vector = player.getVelocity(); //We need a self-calculated vector from the player move event as this has 0.0 everywhere.
+//		vector.multiply(region.getDouble(RegionSetting.BLUE_GEL_VELOCITY_MULTIPLIER));
+		
+		switch(dir)
 		{
-		  x = -x;
-		  z = -z;
+		  case 0:
+			double y = vector.getY();
+		  	if(y >= 0)
+			  return;
+			y = -y;
+			vector.setY(y);
+			break;
+		  case 1:
+			vector.setX(-vector.getX());
+		  	break;
+		  default:
+			vector.setZ(-vector.getZ());
 		}
-		else
-		  vector = vector.setY(-vector.getY() * multi);
-		vector.setX(x);
-		vector.setZ(z);
 		player.setVelocity(vector);
 		
 		plugin.util.PlaySound(Sound.GEL_BLUE_BOUNCE, player, new V10Location(player.getLocation()));

@@ -34,6 +34,7 @@ public class Grill {
 		
 		for (V10Location b : border)
 			plugin.grillManager.borderBlocks.remove(b);
+		System.out.print("deleted");
 	}
 	
 	public void deleteInside()

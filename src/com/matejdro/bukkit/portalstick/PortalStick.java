@@ -78,9 +78,6 @@ public class PortalStick extends JavaPlugin {
 		worldGuard = (WorldGuardPlugin) pm.getPlugin("WorldGuard");
 		
 		config.load();
-
-		//Start grill checking timer
-		s.getScheduler().scheduleSyncRepeatingTask(this, grillManager, 400L, 400L);
 		
 		//Teleport all entities.
 		s.getScheduler().scheduleSyncRepeatingTask(this, entityManager, 1L, 2L);

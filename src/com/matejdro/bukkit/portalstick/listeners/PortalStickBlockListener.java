@@ -20,6 +20,7 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
+import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.matejdro.bukkit.portalstick.Bridge;
@@ -88,27 +89,25 @@ public class PortalStickBlockListener implements Listener {
 	  //Delete bridge
 	  if(plugin.funnelBridgeManager.bridgeMachineBlocks.containsKey(loc))
 	  {
-		if(plugin.hasPermission(event.getPlayer(), plugin.PERM_DELETE_BRIDGE))
+		if(event.getPlayer() == null || plugin.hasPermission(event.getPlayer(), plugin.PERM_DELETE_BRIDGE))
 		  plugin.funnelBridgeManager.bridgeMachineBlocks.get(loc).delete();
 		else
 		  event.setCancelled(true);
 		return;
 	  }
 	  
-	  Region region = plugin.regionManager.getRegion(loc);
-	  if(plugin.blockUtil.compareBlockToString(block, region.getString(RegionSetting.GRILL_MATERIAL)))
+	  //Delete grill
+	  if (plugin.grillManager.borderBlocks.containsKey(loc))
 	  {
-		if (plugin.grillManager.borderBlocks.containsKey(loc))
-		{
-		  if(plugin.hasPermission(event.getPlayer(), plugin.PERM_DELETE_GRILL))
-			plugin.grillManager.borderBlocks.get(loc).delete();
-		  else
-			event.setCancelled(true);
-		  return;
-		}
+		if(event.getPlayer() == null || plugin.hasPermission(event.getPlayer(), plugin.PERM_DELETE_GRILL))
+		  plugin.grillManager.borderBlocks.get(loc).delete();
+		else
+		  event.setCancelled(true);
+		return;
 	  }
 	  
 	  Material type = block.getType();
+	  Region region = plugin.regionManager.getRegion(loc);
 	  if(type == Material.REDSTONE_WIRE && region.getBoolean(RegionSetting.ENABLE_REDSTONE_TRANSFER))
 	  {
 		Location l = block.getLocation();
@@ -197,6 +196,15 @@ public class PortalStickBlockListener implements Listener {
 		  return;
 		if(plugin.grillManager.insideBlocks.containsKey(new V10Location(event.getBlock())))
 		  event.setCancelled(true);
+	}
+	
+	@EventHandler(ignoreCancelled = true)
+	public void noGrowingGrills(StructureGrowEvent event) {
+		if(plugin.grillManager.insideBlocks.containsKey(new V10Location(event.getLocation())))
+		{
+		  event.setCancelled(true);
+		  System.out.print(event.getSpecies());
+		}
 	}
 	
 	@EventHandler()
@@ -359,18 +367,14 @@ public class PortalStickBlockListener implements Listener {
 			 Grill grill = null;
 			 for (int i = 0; i < 5; i++)
 			 { 
-				 grill = plugin.grillManager.borderBlocks.get(new V10Location(block.getRelative(BlockFace.values()[i])));
+				grill = plugin.grillManager.borderBlocks.get(new V10Location(block.getRelative(BlockFace.values()[i])));
 				if (grill != null)
-				  break;
-			 }
-			 
-			 if (grill != null )
-			 {
-				 
-				 if (event.getNewCurrent() > 0)
-					 grill.disable();
-			     else
-			    	 grill.enable();
+				{
+				  if (event.getNewCurrent() > 0)
+					grill.disable();
+				  else
+				    grill.enable();
+				}
 			 }
 		 }
 		 
@@ -431,8 +435,16 @@ public class PortalStickBlockListener implements Listener {
 	 {
 		 Region region = plugin.regionManager.getRegion(new V10Location(event.getBlock()));
 
+		 BlockBreakEvent bbe;
 		 for (final Block b : event.getBlocks())
 		 {
+			 bbe = new BlockBreakEvent(b, null);
+			 onBlockBreak(bbe);
+			 if(bbe.isCancelled())
+			 {
+				 event.setCancelled(true);
+				 return;
+			 }
 			 if (blockedPistonBlocks.contains(b))
 			 {
 				 event.setCancelled(true);
@@ -483,7 +495,17 @@ public class PortalStickBlockListener implements Listener {
 		 if(!event.isSticky())
 			 return;
 		 
-		 if (blockedPistonBlocks.contains(event.getRetractLocation().getBlock()))
+		 Block block = event.getRetractLocation().getBlock();
+		 
+		 BlockBreakEvent bbe = new BlockBreakEvent(block, null);
+		 onBlockBreak(bbe);
+		 if(bbe.isCancelled())
+		 {
+			 event.setCancelled(true);
+			 return;
+		 }
+		 
+		 if (blockedPistonBlocks.contains(block))
 		 {
 			 event.setCancelled(true);
 			 return;
@@ -538,9 +560,4 @@ public class PortalStickBlockListener implements Listener {
 			    		
 			}
 		}
-	 	 
-	 
-	 
-	 
-
 }

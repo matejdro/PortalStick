@@ -15,15 +15,15 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 import de.V10lator.PortalStick.V10Location;
 
-public class GrillManager implements Runnable {
+public class GrillManager {
 	
 	public final List<Grill> grills = new ArrayList<Grill>();
 	public final HashMap<V10Location, Grill> insideBlocks = new HashMap<V10Location, Grill>();
 	public final HashMap<V10Location, Grill> borderBlocks = new HashMap<V10Location, Grill>();
 	private final PortalStick plugin; 
 	
-	private HashSet<V10Location> border = new HashSet<V10Location>();
-	private HashSet<V10Location> inside = new HashSet<V10Location>();
+	private HashSet<V10Location> border;
+	private HashSet<V10Location> inside;
 	private boolean complete;
 	private int max = 0;
 	
@@ -63,13 +63,18 @@ public class GrillManager implements Runnable {
     public boolean placeRecursiveEmancipationGrill(V10Location initial) {
     	Region region = plugin.regionManager.getRegion(initial);
     	String borderID = region.getString(RegionSetting.GRILL_MATERIAL);
+    	System.out.print("A");
     	if (!plugin.blockUtil.compareBlockToString(initial, borderID) || !region.getBoolean(RegionSetting.ENABLE_GRILLS))
     		return false;
+    	System.out.print("B");
     	//Check if initial is already in a grill
     	for (Grill grill : grills)
     		if (grill.border.contains(initial))
     			return false;
+    	System.out.print("C");
     	//Attempt to get complete border
+    	border = new HashSet<V10Location>();
+    	inside = new HashSet<V10Location>();
     	startRecurse(initial, borderID, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.DOWN, BlockFace.UP);
     	if (!complete)
     		startRecurse(initial, borderID, BlockFace.UP, BlockFace.WEST, BlockFace.EAST, BlockFace.DOWN, BlockFace.SOUTH, BlockFace.NORTH);
@@ -79,6 +84,7 @@ public class GrillManager implements Runnable {
     		return false;
     	//Create grill
     	Grill grill = new Grill(plugin, border, inside, initial);
+    	border = inside = null;
     	grills.add(grill);
     	grill.create();
     	return true;
@@ -176,25 +182,5 @@ public class GrillManager implements Runnable {
 		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS)) {
 			plugin.userManager.deleteDroppedItems(player);
 		}
-	}
-
-	@Override
-	public void run() {
-/*		Block b;
-		Iterator<Grill> gi = grills.iterator();
-		Grill g;
-		while(gi.hasNext())
-		{
-			g = gi.next();
-			b = g.firstBlock.getHandle().getBlock();
-			if (g.disabled || !b.getWorld().isChunkLoaded(b.getChunk())) continue;
-
-			if (!g.create()) {
-				V10Location loc = g.firstBlock;
-				g.delete(false);
-				gi.remove();
-				placeRecursiveEmancipationGrill(loc);
-			}
-		}*/
 	}
 }

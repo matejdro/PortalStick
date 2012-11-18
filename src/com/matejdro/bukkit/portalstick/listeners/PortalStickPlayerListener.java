@@ -121,11 +121,11 @@ public class PortalStickPlayerListener implements Listener {
 			switch (event.getAction()) {
 				case RIGHT_CLICK_BLOCK:
 					user.pointTwo = new V10Location(event.getClickedBlock());
+					plugin.util.sendMessage(player, "&aRegion point two set`nType /portal setregion to save the region");
 					break;
 				case LEFT_CLICK_BLOCK:
 					user.pointOne = new V10Location(event.getClickedBlock());
 					plugin.util.sendMessage(player, "&aRegion point one set`nType /portal setregion to save the region");
-					break;
 			}
 		}
 		//Flint and steel
@@ -176,16 +176,17 @@ public class PortalStickPlayerListener implements Listener {
 		if (plugin.config.DisabledWorlds.contains(locTo.getWorld().getName()))
 		  return;
 		
+		Vector vec2 = locTo.toVector();
 		V10Location vlocTo = new V10Location(locTo);
 		locTo = vlocTo.getHandle();
 		Location locFrom = event.getFrom();
+		Vector vec1 = locFrom.toVector();
 		V10Location vlocFrom = new V10Location(locFrom);
 		if(vlocTo.equals(vlocFrom))
 		  return;
 		
-		Vector vec2 = locTo.toVector();
-	    Vector vec1 = locFrom.toVector();
 	    Vector vector = vec2.subtract(vec1);
+	    vector.setY(player.getVelocity().getY());
 	    
 	    Region regionTo = plugin.regionManager.getRegion(vlocTo);
 		Region regionFrom = plugin.regionManager.getRegion(vlocFrom);
@@ -196,12 +197,12 @@ public class PortalStickPlayerListener implements Listener {
 		//Emancipation grill
 		if (regionTo.getBoolean(RegionSetting.ENABLE_GRILLS))
 		{
-				Grill grill = plugin.grillManager.insideBlocks.get(vlocTo);
-				if (grill != null && !grill.disabled)
-				{
-					plugin.grillManager.emancipate(player);
-					return;
-				}
+			Grill grill = plugin.grillManager.insideBlocks.get(vlocTo);
+			if (grill != null && !grill.disabled)
+			{
+				plugin.grillManager.emancipate(player);
+				return;
+			}
 		}
 		
 		//Aerial faith plate
@@ -251,7 +252,7 @@ public class PortalStickPlayerListener implements Listener {
 		//Teleport
 		if (plugin.hasPermission(player, plugin.PERM_TELEPORT))
 		{
-		  final V10Teleport to = plugin.entityManager.teleport(player, vlocTo, vector.setY(player.getVelocity().getY()), true);
+		  final V10Teleport to = plugin.entityManager.teleport(player, vlocTo, vector, true);
 		  if(to != null)
 		  {
 			event.setTo(to.to);
