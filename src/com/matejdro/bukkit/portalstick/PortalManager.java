@@ -498,13 +498,6 @@ public class PortalManager {
 			}
 		}
 		
-		if (wool.getColor() == DyeColor.BLACK)
-		{
-			if (oldPortal != null)
-			  oldPortal.delete();
-			return;
-		}
-		
 		if (portalFace == null)
 		return;
 		//Is portal generator right size?
@@ -515,6 +508,13 @@ public class PortalManager {
 		(((portalFace == BlockFace.UP || portalFace == BlockFace.DOWN) && ironBars.size() != 2 ) ||
 		(portalFace != BlockFace.UP && portalFace != BlockFace.DOWN && ironBars.size() != 4 ))))
 			return;
+		
+		if (wool.getColor() == DyeColor.BLACK)
+		{
+			if (oldPortal != null)
+			  oldPortal.delete();
+			return;
+		}
 				
 		//Check if portal is big enough and start making a portal
 		PortalCoord portalc = new PortalCoord();
