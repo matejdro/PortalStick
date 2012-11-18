@@ -36,6 +36,7 @@ public class EntityManager implements Runnable {
 
 		Region regionTo = plugin.regionManager.getRegion(locTo);
 		Portal portal = plugin.portalManager.insideBlocks.get(locTo);
+		
 		if (portal == null && ((Math.abs(vector.getX()) > 0.5 || (Math.abs(vector.getY()) > 1 || (Math.abs(vector.getZ()) > 0.5))) || entity instanceof Boat)) 
 		{
 			portal = plugin.portalManager.awayBlocksGeneral.get(locTo);
@@ -45,6 +46,7 @@ public class EntityManager implements Runnable {
 		}
 		if (portal == null && (entity instanceof FallingBlock || entity instanceof TNTPrimed))
 		  portal = plugin.portalManager.awayBlocksY.get(locTo);
+		
 		if (portal == null || !portal.open || portal.disabled || (Math.abs(vector.getY()) > 1 && !portal.vertical))
 		  return null;
 		
@@ -56,7 +58,7 @@ public class EntityManager implements Runnable {
 			y = b.y;
 			z = b.z;
 			
-			if (!portal.vertical)
+/*			if (!portal.vertical)
 			{
 				if (x + 0.5 < entity.getLocation().getX() && vector.getX() > 0) return null;
 				else if (x - 0.5 > entity.getLocation().getX() && vector.getX() < 0) return null;
@@ -67,8 +69,9 @@ public class EntityManager implements Runnable {
 			{
 				if (y + 0.5 < entity.getLocation().getY() && vector.getY() > 0) return null;
 				if (y - 0.5 > entity.getLocation().getY() && vector.getY() < -0.1) return null;
-			}
+			}*/
 		}
+		plugin.getServer().broadcastMessage("Velocity Y: "+vector.getY());
 		
 		
 		Portal destination = portal.getDestination();	 
@@ -136,7 +139,7 @@ public class EntityManager implements Runnable {
         		outvector = outvector.setX(-momentum);
         		break;
         	case WEST:
-        		yaw += 430;
+        		yaw += 450;
         		outvector = outvector.setZ(-momentum);
         		break;
         	case DOWN:
@@ -178,10 +181,6 @@ public class EntityManager implements Runnable {
 		
 		if (entity instanceof Arrow)
 			teleport.setY(teleport.getY() + 0.5);
-		
-		if(really && !entity.teleport(teleport))
-			return null;
-		
 		if(really)
 		{
 		  if(!entity.teleport(teleport))

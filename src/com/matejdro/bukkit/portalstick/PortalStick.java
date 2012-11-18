@@ -53,14 +53,23 @@ public class PortalStick extends JavaPlugin {
 	private final PortalStickPlayerListener pL = new PortalStickPlayerListener(this);
 
 	public void onDisable() {
+		// Lazy clean:
 		PlayerQuitEvent pqe;
 		for(Player p: getServer().getOnlinePlayers())
 		{
 		  pqe = new PlayerQuitEvent(p, null);
 		  pL.onPlayerQuit(pqe);
 		}
-		for(User user: userManager.users.values())
-			portalManager.deletePortals(user);
+		
+		//Remove all portals:
+		for(Region region: regionManager.regions.values())
+		{
+		  for(Portal p: region.portals)
+			p.delete();
+		}
+		
+		//Disable bridges:
+		funnelBridgeManager.deleteAll();
 	}
 
 	public void onEnable() {
@@ -80,7 +89,7 @@ public class PortalStick extends JavaPlugin {
 		config.load();
 		
 		//Teleport all entities.
-		s.getScheduler().scheduleSyncRepeatingTask(this, entityManager, 1L, 2L);
+		s.getScheduler().scheduleSyncRepeatingTask(this, entityManager, 1L, 1L);
 		
 		//Register commands
 		ArrayList<BaseCommand> tmpList = new ArrayList<BaseCommand>();

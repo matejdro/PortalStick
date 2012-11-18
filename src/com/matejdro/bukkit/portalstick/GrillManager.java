@@ -63,15 +63,15 @@ public class GrillManager {
     public boolean placeRecursiveEmancipationGrill(V10Location initial) {
     	Region region = plugin.regionManager.getRegion(initial);
     	String borderID = region.getString(RegionSetting.GRILL_MATERIAL);
-    	System.out.print("A");
+    	
     	if (!plugin.blockUtil.compareBlockToString(initial, borderID) || !region.getBoolean(RegionSetting.ENABLE_GRILLS))
     		return false;
-    	System.out.print("B");
+    	
     	//Check if initial is already in a grill
     	for (Grill grill : grills)
     		if (grill.border.contains(initial))
     			return false;
-    	System.out.print("C");
+    	
     	//Attempt to get complete border
     	border = new HashSet<V10Location>();
     	inside = new HashSet<V10Location>();

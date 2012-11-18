@@ -14,13 +14,13 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
-import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.matejdro.bukkit.portalstick.Bridge;
@@ -37,6 +37,7 @@ public class PortalStickBlockListener implements Listener {
 	
 	private PortalStick plugin;
 	private HashSet<Block> blockedPistonBlocks = new HashSet<Block>();	
+	private boolean fakeBBE;
 	
 	public PortalStickBlockListener(PortalStick instance)
 	{
@@ -65,11 +66,11 @@ public class PortalStickBlockListener implements Listener {
 		if(portal.transmitter && block.getType() == Material.REDSTONE_TORCH_ON)
 		{
 		  event.setCancelled(true);
+		  fakeBBE = false;
 		  return;
 		}
 		if(portal.open)
 		  return;
-
 	  }
 	  if (portal != null)
 	  {
@@ -83,6 +84,7 @@ public class PortalStickBlockListener implements Listener {
 			  plugin.funnelBridgeManager.bridgeBlocks.containsKey(loc))
 	  {
 		event.setCancelled(true);
+		fakeBBE = false;
 		return;
 	  }
 	  
@@ -92,7 +94,10 @@ public class PortalStickBlockListener implements Listener {
 		if(event.getPlayer() == null || plugin.hasPermission(event.getPlayer(), plugin.PERM_DELETE_BRIDGE))
 		  plugin.funnelBridgeManager.bridgeMachineBlocks.get(loc).delete();
 		else
+		{
 		  event.setCancelled(true);
+		  fakeBBE = false;
+		}
 		return;
 	  }
 	  
@@ -102,7 +107,10 @@ public class PortalStickBlockListener implements Listener {
 		if(event.getPlayer() == null || plugin.hasPermission(event.getPlayer(), plugin.PERM_DELETE_GRILL))
 		  plugin.grillManager.borderBlocks.get(loc).delete();
 		else
+		{
 		  event.setCancelled(true);
+		  fakeBBE = false;
+		}
 		return;
 	  }
 	  
@@ -147,10 +155,7 @@ public class PortalStickBlockListener implements Listener {
 		Region region = plugin.regionManager.getRegion(loc);
 		if(plugin.blockUtil.compareBlockToString(loc, (String)region.settings.get(RegionSetting.BLUE_GEL_BLOCK)) ||
 				plugin.blockUtil.compareBlockToString(loc, (String)region.settings.get(RegionSetting.RED_GEL_BLOCK)))
-		{
-			System.out.print("Ignition!");
 		  event.setCancelled(true);
-		}
 	}
 	
 	@EventHandler(ignoreCancelled = true)
@@ -166,10 +171,7 @@ public class PortalStickBlockListener implements Listener {
 		Region region = plugin.regionManager.getRegion(loc);
 		if(plugin.blockUtil.compareBlockToString(loc, (String)region.settings.get(RegionSetting.BLUE_GEL_BLOCK)) ||
 				plugin.blockUtil.compareBlockToString(loc, (String)region.settings.get(RegionSetting.RED_GEL_BLOCK)))
-		{
-			System.out.print("Burn!");
 		  event.setCancelled(true);
-		}
 	}
 	
 	@EventHandler(ignoreCancelled = true)
@@ -192,6 +194,7 @@ public class PortalStickBlockListener implements Listener {
 	 	 
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event) {
+		
 		if (event.getBlock().getType() != Material.SUGAR_CANE_BLOCK)
 		  return;
 		if(plugin.grillManager.insideBlocks.containsKey(new V10Location(event.getBlock())))
@@ -199,12 +202,11 @@ public class PortalStickBlockListener implements Listener {
 	}
 	
 	@EventHandler(ignoreCancelled = true)
-	public void noGrowingGrills(StructureGrowEvent event) {
-		if(plugin.grillManager.insideBlocks.containsKey(new V10Location(event.getLocation())))
-		{
+	public void noGrowingGrills(BlockGrowEvent event) {
+		if (event.getBlock().getType() != Material.SUGAR_CANE_BLOCK)
+		  return;
+		if(plugin.grillManager.insideBlocks.containsKey(new V10Location(event.getBlock())))
 		  event.setCancelled(true);
-		  System.out.print(event.getSpecies());
-		}
 	}
 	
 	@EventHandler()
@@ -382,18 +384,15 @@ public class PortalStickBlockListener implements Listener {
 		 if (region.getBoolean(RegionSetting.ENABLE_BRIDGE_REDSTONE_DISABLING) && block.getType() != Material.REDSTONE_TORCH_ON && block.getType() != Material.REDSTONE_TORCH_OFF) 
 		 {
 			 Bridge bridge = null;
-			 Boolean cblock = false;
+			 boolean cblock = false;
 			 for (int i = 0; i < 5; i++)
 			 {
-				 if (bridge == null) 
-					 {
-					 	bridge = plugin.funnelBridgeManager.bridgeMachineBlocks.get(block.getRelative(BlockFace.values()[i]));
-					 	if (bridge != null) 
-					 	{
-					 		cblock = block.getRelative(BlockFace.values()[i]) == bridge.creationBlock;
-					 		break;
-					 	}
-					 }
+				 bridge = plugin.funnelBridgeManager.bridgeMachineBlocks.get(new V10Location(block.getRelative(BlockFace.values()[i])));
+				 if (bridge != null) 
+				 {
+					 cblock = new V10Location(block.getRelative(BlockFace.values()[i])).equals(bridge.creationBlock);
+					 break;
+				 }
 			 }
 			 
 			 if (bridge != null)
@@ -409,25 +408,14 @@ public class PortalStickBlockListener implements Listener {
 				     else
 				    	 bridge.activate(); 
 				 }
-				 
 			 }
 		 }
 		 
 		 //Portal Generators
 		 if (event.getOldCurrent()  == 0 && event.getNewCurrent() > 0)
-		 {
 			 for (int i = 0; i < 5; i++)
-			 {
 				 if (block.getRelative(BlockFace.values()[i]).getType() == Material.WOOL)
-				 {
-					 plugin.portalManager.tryPlacingAutomatedPortal(new V10Location(block.getRelative(BlockFace.values()[i])));
-				 }
-			 }
-		 }
-		 
-
-		 
-			 
+					 plugin.portalManager.tryPlacingAutomatedPortal(new V10Location(block.getRelative(BlockFace.values()[i])));	 
 	 }
 	 
 	@EventHandler(ignoreCancelled = true)
@@ -438,13 +426,19 @@ public class PortalStickBlockListener implements Listener {
 		 BlockBreakEvent bbe;
 		 for (final Block b : event.getBlocks())
 		 {
+			 fakeBBE = true;
 			 bbe = new BlockBreakEvent(b, null);
 			 onBlockBreak(bbe);
 			 if(bbe.isCancelled())
 			 {
-				 event.setCancelled(true);
+				 if(!fakeBBE)
+					 event.setCancelled(true);
+				 else
+					 fakeBBE = false;
 				 return;
 			 }
+			 else
+				 fakeBBE = false;
 			 if (blockedPistonBlocks.contains(b))
 			 {
 				 event.setCancelled(true);
@@ -497,13 +491,19 @@ public class PortalStickBlockListener implements Listener {
 		 
 		 Block block = event.getRetractLocation().getBlock();
 		 
+		 fakeBBE = true;
 		 BlockBreakEvent bbe = new BlockBreakEvent(block, null);
 		 onBlockBreak(bbe);
 		 if(bbe.isCancelled())
 		 {
-			 event.setCancelled(true);
+			 if(!fakeBBE)
+				 event.setCancelled(true);
+			 else
+				 fakeBBE = false;
 			 return;
 		 }
+		 else
+			 fakeBBE = false;
 		 
 		 if (blockedPistonBlocks.contains(block))
 		 {

@@ -64,28 +64,66 @@ public class PortalManager {
 	{
 		Region region;
 		int id;
+		ArrayList<Portal> overlap = new ArrayList<Portal>();
+		boolean ol;
 		for (V10Location loc: portal.border)
 		{
-			region = plugin.regionManager.getRegion(loc);
-			if (!borderBlocks.containsKey(loc) && !insideBlocks.containsKey(loc) && !behindBlocks.containsKey(loc))
+			if(borderBlocks.containsKey(loc))
+			{
+			  overlap.add(borderBlocks.get(loc));
+			  ol = true;
+			}
+			else if(insideBlocks.containsKey(loc))
+			{
+			  overlap.add(insideBlocks.get(loc));
+			  ol = true;
+			}
+			else if(behindBlocks.containsKey(loc))
+			{
+			  overlap.add(behindBlocks.get(loc));
+			  ol = false;
+			}
+			else
+			  ol = false;
+			
+			if(!ol)
 			{
 			  id = loc.getHandle().getBlock().getTypeId();
+			  region = plugin.regionManager.getRegion(loc);
 			  if(region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(id) || (!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(id)))
 				return false;
 			}
 		}
 		for (V10Location loc: portal.inside)
 		{
-			region = plugin.regionManager.getRegion(loc);
-			if (!borderBlocks.containsKey(loc) && !insideBlocks.containsKey(loc) && !behindBlocks.containsKey(loc))
+			if(borderBlocks.containsKey(loc))
+			{
+			  overlap.add(borderBlocks.get(loc));
+			  ol = true;
+			}
+			else if(insideBlocks.containsKey(loc))
+			{
+			  overlap.add(insideBlocks.get(loc));
+			  ol = true;
+			}
+			else if(behindBlocks.containsKey(loc))
+			{
+			  overlap.add(behindBlocks.get(loc));
+			  ol = false;
+			}
+			else
+			  ol = false;
+			
+			if(!ol)
 			{
 			  id = loc.getHandle().getBlock().getTypeId();
+			  region = plugin.regionManager.getRegion(loc);
 			  if(region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(id) || (!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(id)))
-			  {
 				return false;
-			  }
 			}
 		}
+		for(Portal p: overlap)
+		  p.delete();
 		return true;
 	}
 
@@ -334,28 +372,29 @@ public class PortalManager {
 		PlayerInventory inv = player.getInventory();
 		List<?> ice = region.getList(RegionSetting.GRILL_INVENTORY_CLEAR_EXCEPTIONS);
 		ItemStack item, item2;
+		System.out.print(inv.getSize());
 		for (int i = 0; i < inv.getSize(); i++)
 		{
 			item = inv.getItem(i);
 			if(item == null || item.getTypeId() == 0)
 			  continue;
-			
 			for (Object is: ice)
 			{
 				item2 = plugin.util.getItemData((String)is);
 				if(item.getTypeId() != item2.getTypeId() || item.getDurability() != item2.getDurability())
+				{
 				  inv.remove(i);
+				  break;
+				}
 			}
 		}
 		
-		for (Object is : region.getList(RegionSetting.UNIQUE_INVENTORY_ITEMS))
-		{
+		if(region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
+		  for (Object is : region.getList(RegionSetting.UNIQUE_INVENTORY_ITEMS))
+		  {
 			item = plugin.util.getItemData((String)is);
-			if (item.getTypeId() == plugin.config.PortalTool && item.getDurability() == plugin.config.portalToolData)
-			  inv.setItemInHand(item);
-			else
-			  inv.addItem(item);
-		}
+			inv.addItem(item);
+		  }
 	}
 	
 	public void tryPlacingAutomatedPortal(V10Location b)
@@ -364,7 +403,6 @@ public class PortalManager {
 		//Check if wool is correct
 		Wool wool = (Wool) Material.WOOL.getNewData(rb.getData());
 		if (wool.getColor() != DyeColor.BLACK && wool.getColor() != DyeColor.BLUE && wool.getColor() != DyeColor.ORANGE) return;
-		
 		//Check for first iron bar
 		Block firstIronBar = null;
 		for (int i = 0; i < 6; i++)
@@ -380,8 +418,8 @@ public class PortalManager {
 				break;
 			 }
 		 }
-		if (firstIronBar == null) return;
-		
+		if (firstIronBar == null)
+		  return;
 		//Find other iron bars at same side of portal generator
 		ArrayList<Block> ironBars = new ArrayList<Block>();
 		
@@ -422,8 +460,8 @@ public class PortalManager {
 				break;
 			}
 		 }
-		if (otherSide == null) return;
-		
+		if (otherSide == null)
+		  return;
 		//Search for iron bars on other side of portal generator
 		for (Block ironBar : ironBars.toArray(new Block[0]))
 		{
@@ -439,9 +477,10 @@ public class PortalManager {
 		for (int i = 0; i < 6; i++)
 		{
 			BlockFace face2 = BlockFace.values()[i];
-			if (face2 == otherSide || face2.getOppositeFace() == otherSide) continue;
+			if (face2 == otherSide || face2.getOppositeFace() == otherSide)
+				continue;
 			Block firstPortalBlock = firstIronBar.getRelative(otherSide).getRelative(face2);
-			if (!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(firstPortalBlock.getTypeId()))
+			if (region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && region.getList(RegionSetting.PORTAL_BLOCKS).contains(firstPortalBlock.getTypeId()))
 			{
 				portalFace = face2;
 				break;
@@ -449,18 +488,25 @@ public class PortalManager {
 			else
 			{
 				V10Location loc = new V10Location(firstPortalBlock);
-				if (borderBlocks.containsKey(loc) || insideBlocks.containsKey(loc))
-			
-				oldPortal = borderBlocks.get(loc);
-				if (oldPortal == null) oldPortal = insideBlocks.get(firstPortalBlock.getLocation());
+				if(borderBlocks.containsKey(loc))
+					oldPortal = borderBlocks.get(loc);
+				else
+					oldPortal = insideBlocks.get(loc);
 				portalFace = face2;
 				break;
 
 			}
 		}
 		
-		if (portalFace == null) return;
-				
+		if (wool.getColor() == DyeColor.BLACK)
+		{
+			if (oldPortal != null)
+			  oldPortal.delete();
+			return;
+		}
+		
+		if (portalFace == null)
+		return;
 		//Is portal generator right size?
 		if ((!plugin.config.CompactPortal &&
 		(((portalFace == BlockFace.UP || portalFace == BlockFace.DOWN) && ironBars.size() != 6 ) ||
@@ -469,12 +515,6 @@ public class PortalManager {
 		(((portalFace == BlockFace.UP || portalFace == BlockFace.DOWN) && ironBars.size() != 2 ) ||
 		(portalFace != BlockFace.UP && portalFace != BlockFace.DOWN && ironBars.size() != 4 ))))
 			return;
-		if (wool.getColor() == DyeColor.BLACK)
-		{
-			if (oldPortal != null) oldPortal.delete();
-			return;
-		}
-			
 				
 		//Check if portal is big enough and start making a portal
 		PortalCoord portalc = new PortalCoord();
@@ -492,12 +532,14 @@ public class PortalManager {
 		portalc.vertical = portalFace == BlockFace.UP || portalFace == BlockFace.DOWN;
 		portalc.block = portalc.inside.toArray(new V10Location[0])[0];
 		
+		if (oldPortal != null)
+		  oldPortal.delete();
+		
 		if (portalc.border.size() == 0 || portalc.inside.size() == 0) return;
 		for (V10Location tb : portalc.border)
-			if ((!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(tb.getHandle().getBlock().getType())) || borderBlocks.containsKey(tb) || insideBlocks.containsKey(tb)) return;
+			if ((!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(tb.getHandle().getBlock().getTypeId())) || borderBlocks.containsKey(tb) || insideBlocks.containsKey(tb)) return;
 		for (V10Location tb : portalc.inside)
-			if ((!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(tb.getHandle().getBlock().getType())) || borderBlocks.containsKey(tb) || insideBlocks.containsKey(tb)) return;
-				
+			if ((!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(tb.getHandle().getBlock().getTypeId())) || borderBlocks.containsKey(tb) || insideBlocks.containsKey(tb)) return;
 		
 		if (portalc.vertical) portalc.destLoc = new V10Location(portalc.inside.toArray(new V10Location[0])[0].getHandle().getBlock().getRelative(portalFace.getOppositeFace()));
 		else
@@ -512,8 +554,6 @@ public class PortalManager {
 		}
 		
 		portalc.tpFace = portalFace;
-		
-		if (oldPortal != null) oldPortal.delete();
 		
 		boolean orange = wool.getColor() == DyeColor.ORANGE;
 		

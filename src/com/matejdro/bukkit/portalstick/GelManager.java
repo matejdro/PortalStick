@@ -96,6 +96,7 @@ public class GelManager {
 		  default:
 			vector.setZ(-vector.getZ());
 		}
+		
 		player.setVelocity(vector);
 		
 		plugin.util.PlaySound(Sound.GEL_BLUE_BOUNCE, player, new V10Location(player.getLocation()));

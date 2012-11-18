@@ -22,7 +22,7 @@ public class User {
 	public boolean usingTool = false;
 	public int colorPreset = 0;
 	public final HashSet<Item> droppedItems = new HashSet<Item>();
-	public String name;
+	public final String name;
 	
 	public User(String Name)
 	{

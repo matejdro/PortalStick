@@ -15,7 +15,6 @@ public class Region extends User {
 	
 	public HashMap<RegionSetting, Object> settings = new HashMap<RegionSetting, Object>();
 	
-	public final String name;
 	public final Vector min = new Vector();
 	public final Vector max = new Vector();
 	public String world;
@@ -26,7 +25,6 @@ public class Region extends User {
 	
 	Region(String name) {
 		super("region_" + name);
-		this.name = name;
 	}
 	
 	public void updateLocation() {

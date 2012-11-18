@@ -37,7 +37,6 @@ public class Config {
 	private final File bridgeConfigFile;
 	
 	public HashSet<String> DisabledWorlds;
-	public boolean DeleteOnQuit;
 	public int PortalTool;
 	public short portalToolData; //Short for spout compatiblity!
 	public boolean CompactPortal;
@@ -112,7 +111,6 @@ public class Config {
         
         //Load main settings
         DisabledWorlds = new HashSet<String>(getStringList("main.disabled-worlds", new ArrayList<String>()));
-        DeleteOnQuit = getBoolean("main.delete-on-quit", false);
         String[] split = getString("main.portal-tool", "280:0").split(":");
         PortalTool = Integer.parseInt(split[0]);
         if(split.length > 1)

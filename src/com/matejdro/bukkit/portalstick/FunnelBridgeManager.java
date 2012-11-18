@@ -25,7 +25,7 @@ public class FunnelBridgeManager {
 	}
 	
 	public HashSet<Bridge> bridges = new HashSet<Bridge>();
-	HashMap<Portal, Bridge> involvedPortals = new HashMap<Portal, Bridge>();
+	public HashMap<Portal, Bridge> involvedPortals = new HashMap<Portal, Bridge>();
 	public HashMap<V10Location, Bridge> bridgeBlocks = new HashMap<V10Location, Bridge>();
 	public HashMap<V10Location, Bridge> bridgeMachineBlocks = new HashMap<V10Location, Bridge>();
 	private HashSet<Entity> inFunnel = new HashSet<Entity>();
@@ -58,8 +58,8 @@ public class FunnelBridgeManager {
 		
 		if (face == null) return false;
 		
-		Block secondIron = firstIron.getRelative(face).getRelative(face);
 		Block startingBlock = firstIron.getRelative(face);
+		Block secondIron = startingBlock.getRelative(face);
 		
 		machineBlocks.add(new V10Location(firstIron));
 		machineBlocks.add(new V10Location(secondIron));

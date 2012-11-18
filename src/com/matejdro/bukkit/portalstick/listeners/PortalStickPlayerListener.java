@@ -6,6 +6,7 @@ import java.util.List;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -173,7 +174,12 @@ public class PortalStickPlayerListener implements Listener {
 		  return;
 
 		Location locTo = event.getTo();
-		if (plugin.config.DisabledWorlds.contains(locTo.getWorld().getName()))
+		World world = locTo.getWorld();
+		if (plugin.config.DisabledWorlds.contains(world.getName()))
+		  return;
+		
+		double d = locTo.getBlockY();
+		if(d > world.getMaxHeight() - 1 || d < 0)
 		  return;
 		
 		Vector vec2 = locTo.toVector();
@@ -211,7 +217,7 @@ public class PortalStickPlayerListener implements Listener {
 			Block blockIn = locTo.getBlock();
 			Block blockUnder = blockIn.getRelative(BlockFace.DOWN);
 			Block blockStart = null;
-			double horPower = Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[0]);
+			d = Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[0]);
 			String faithBlock = regionTo.getString(RegionSetting.FAITH_PLATE_BLOCK);
 			Vector velocity = new Vector(0, Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[1]),0);
 			
@@ -225,16 +231,16 @@ public class PortalStickPlayerListener implements Listener {
 				if (face != null) {
 					switch (face) {
 						case NORTH:
-							velocity.setX(horPower);
+							velocity.setX(d);
 							break;
 						case SOUTH:
-							velocity.setX(-horPower);
+							velocity.setX(-d);
 							break;
 						case EAST:
-							velocity.setZ(horPower);
+							velocity.setZ(d);
 							break;
 						case WEST:
-							velocity.setZ(-horPower);
+							velocity.setZ(-d);
 							break;
 					}
 					if (blockStart == blockUnder) {
@@ -297,8 +303,7 @@ public class PortalStickPlayerListener implements Listener {
 		Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
 		if (region.name != "global" && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
 			user.revertInventory(player);
-		if (plugin.config.DeleteOnQuit)
-			plugin.userManager.deleteUser(player);
+		plugin.userManager.deleteUser(player);
 		plugin.userManager.deleteDroppedItems(player);
 		plugin.gelManager.resetPlayer(player);
 	}
