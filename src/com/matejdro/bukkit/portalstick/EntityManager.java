@@ -3,7 +3,6 @@ package com.matejdro.bukkit.portalstick;
 import java.util.HashSet;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -60,17 +59,21 @@ public class EntityManager implements Runnable {
 			  if(face != BlockFace.SELF)
 			  {
 				double x = 1.0D, z = 1.0D;
+				boolean nef = false;
+				boolean nwf = false;
 				switch(face)
 				{
 			  	  case NORTH_WEST:
 			  		z = 0.5D;
 			  	  case NORTH:
-			  		x = 1.5D;
+			  		x = 0.5D;
+			  		nwf = true;
 				  break;
 			  	  case NORTH_EAST:
 			  		x = 1.5D;
 			  	  case EAST:
-			  		z = 1.5D;
+			  		z = 0.5D;
+			  		nef = true;
 			  		break;
 			  	  case SOUTH_EAST:
 			  		z = 1.5D;
@@ -82,14 +85,21 @@ public class EntityManager implements Runnable {
 			  	  default:
 			  		z = 0.5D;
 				}
-				if(oloc.getX() - locTo.x > x || oloc.getZ() - locTo.z > z)
+				if(nef)
+				{
+				  if(oloc.getX() - locTo.x > x || oloc.getZ() - locTo.z < z)
+					return null;
+				}
+				else if(nwf)
+				{
+				  if(oloc.getX() - locTo.x < x || oloc.getZ() - locTo.z > z)
+					return null;
+				}
+				else if(oloc.getX() - locTo.x > x || oloc.getZ() - locTo.z > z)
 				  return null; 
 			  }
 			  else
-			  {
-				System.out.print("Self!");
 				break;
-			  }
 			}
 		  }
 		  else
