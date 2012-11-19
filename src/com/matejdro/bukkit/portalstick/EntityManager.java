@@ -3,7 +3,9 @@ package com.matejdro.bukkit.portalstick;
 import java.util.HashSet;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Boat;
@@ -30,27 +32,74 @@ public class EntityManager implements Runnable {
 		plugin = instance;
 	}
 
-	public V10Teleport teleport(Entity entity, V10Location locTo, Vector vector, boolean really)
+	public V10Teleport teleport(Entity entity, Location oloc, V10Location locTo, Vector vector, boolean really)
 	{
-		if (entity == null || entity.isDead() || blockedEntities.contains(entity)) return null;
+		if (entity == null || entity.isDead() || blockedEntities.contains(entity))
+		  return null;
 
 		Region regionTo = plugin.regionManager.getRegion(locTo);
 		Portal portal = plugin.portalManager.insideBlocks.get(locTo);
 		
-		if (portal == null && ((Math.abs(vector.getX()) > 0.5 || (Math.abs(vector.getY()) > 1 || (Math.abs(vector.getZ()) > 0.5))) || entity instanceof Boat)) 
+		if(portal == null)
 		{
-			portal = plugin.portalManager.awayBlocksGeneral.get(locTo);
-			if (portal == null && (Math.abs(vector.getX()) > 0.5)) portal = plugin.portalManager.awayBlocksX.get(locTo);
-			if (portal == null && (Math.abs(vector.getY()) > 1)) portal = plugin.portalManager.awayBlocksY.get(locTo);
-			if (portal == null && (Math.abs(vector.getZ()) > 0.5)) portal = plugin.portalManager.awayBlocksZ.get(locTo);
+		  if((entity instanceof FallingBlock || entity instanceof TNTPrimed) && vector.getX() == 0.0D && vector.getZ() == 0.0D)
+		  {
+			portal = plugin.portalManager.awayBlocksY.get(locTo);
+		  }
+		  else if((Math.abs(vector.getX()) > 0.5 || (Math.abs(vector.getY()) > 1 || (Math.abs(vector.getZ()) > 0.5))) || entity instanceof Boat)
+		  {
+			portal = plugin.portalManager.awayBlocks.get(locTo); //TODO: Improve. This seems to be still to much.
+			if(portal == null)
+			  return null;
+			Block to = locTo.getHandle().getBlock();
+			for(int i = 0; i < 2; i++)
+			{
+			  BlockFace face = portal.awayBlocksY[i].getHandle().getBlock().getFace(to);
+			  if(face == null)
+				continue;
+			  if(face != BlockFace.SELF)
+			  {
+				double x = 1.0D, z = 1.0D;
+				switch(face)
+				{
+			  	  case NORTH_WEST:
+			  		z = 0.5D;
+			  	  case NORTH:
+			  		x = 1.5D;
+				  break;
+			  	  case NORTH_EAST:
+			  		x = 1.5D;
+			  	  case EAST:
+			  		z = 1.5D;
+			  		break;
+			  	  case SOUTH_EAST:
+			  		z = 1.5D;
+			  	  case SOUTH:
+			  		x = 0.5D;
+			  		break;
+			  	  case SOUTH_WEST:
+			  		x = 0.5D;
+			  	  default:
+			  		z = 0.5D;
+				}
+				if(oloc.getX() - locTo.x > x || oloc.getZ() - locTo.z > z)
+				  return null; 
+			  }
+			  else
+			  {
+				System.out.print("Self!");
+				break;
+			  }
+			}
+		  }
+		  else
+			return null;
 		}
-		if (portal == null && (entity instanceof FallingBlock || entity instanceof TNTPrimed))
-		  portal = plugin.portalManager.awayBlocksY.get(locTo);
 		
-		if (portal == null || !portal.open || portal.disabled || (Math.abs(vector.getY()) > 1 && !portal.vertical))
+		if(!portal.open || portal.disabled || (Math.abs(vector.getY()) > 1 && !portal.vertical))
 		  return null;
 		
-		double x, y, z;
+/*		double x, y, z;
 		
 		for (V10Location b : portal.inside)
 		{
@@ -58,7 +107,7 @@ public class EntityManager implements Runnable {
 			y = b.y;
 			z = b.z;
 			
-/*			if (!portal.vertical)
+			if (!portal.vertical)
 			{
 				if (x + 0.5 < entity.getLocation().getX() && vector.getX() > 0) return null;
 				else if (x - 0.5 > entity.getLocation().getX() && vector.getX() < 0) return null;
@@ -69,10 +118,10 @@ public class EntityManager implements Runnable {
 			{
 				if (y + 0.5 < entity.getLocation().getY() && vector.getY() > 0) return null;
 				if (y - 0.5 > entity.getLocation().getY() && vector.getY() < -0.1) return null;
-			}*/
+			}
 		}
 		plugin.getServer().broadcastMessage("Velocity Y: "+vector.getY());
-		
+		*/
 		
 		Portal destination = portal.getDestination();	 
 		Location teleport = destination.teleport.getHandle();
@@ -201,6 +250,8 @@ public class EntityManager implements Runnable {
 	
 	@Override
 	public void run() {
+		Location oloc;
+		Vector vector;
 		for (World w : plugin.getServer().getWorlds())
 		{
 			for(Entity e: w.getEntities())
@@ -208,9 +259,9 @@ public class EntityManager implements Runnable {
 				if (e instanceof Player || e instanceof Vehicle || e.isDead())
 				  continue;
 
-				Vector vector = e.getVelocity();
-								
-				teleport(e, new V10Location(e.getLocation()), vector, true);
+				vector = e.getVelocity();
+				oloc = e.getLocation();
+				teleport(e, oloc, new V10Location(oloc), vector, true);
 				plugin.funnelBridgeManager.EntityMoveCheck(e);
 			}
 		}

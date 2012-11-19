@@ -1,5 +1,6 @@
 package com.matejdro.bukkit.portalstick.listeners;
 
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Vehicle;
@@ -26,7 +27,8 @@ public class PortalStickVehicleListener implements Listener {
 	public void onVehicleMove(VehicleMoveEvent event) {
 		Vehicle vehicle = event.getVehicle();
 		Vector vector = vehicle.getVelocity();
-		V10Location locTo = new V10Location(event.getTo());
+		Location oloc = event.getTo();
+		V10Location locTo = new V10Location(oloc);
 		Region regionTo = plugin.regionManager.getRegion(locTo);
 		
 		if (!regionTo.getBoolean(RegionSetting.TELEPORT_VEHICLES))
@@ -36,6 +38,6 @@ public class PortalStickVehicleListener implements Listener {
 		if (vehicle.getPassenger() != null && vehicle.getPassenger() instanceof Player && !plugin.hasPermission((Player)vehicle.getPassenger(), plugin.PERM_TELEPORT))
 			return;
 			 
-		plugin.entityManager.teleport((Entity) vehicle, locTo, vector, true);
+		plugin.entityManager.teleport((Entity) vehicle, oloc, locTo, vector, true);
 	}
 }

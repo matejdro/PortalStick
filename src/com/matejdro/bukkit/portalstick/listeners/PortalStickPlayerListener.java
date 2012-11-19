@@ -184,6 +184,7 @@ public class PortalStickPlayerListener implements Listener {
 		
 		Vector vec2 = locTo.toVector();
 		V10Location vlocTo = new V10Location(locTo);
+		Location oloc = locTo;
 		locTo = vlocTo.getHandle();
 		Location locFrom = event.getFrom();
 		Vector vec1 = locFrom.toVector();
@@ -258,7 +259,7 @@ public class PortalStickPlayerListener implements Listener {
 		//Teleport
 		if (plugin.hasPermission(player, plugin.PERM_TELEPORT))
 		{
-		  final V10Teleport to = plugin.entityManager.teleport(player, vlocTo, vector, true);
+		  final V10Teleport to = plugin.entityManager.teleport(player, oloc, vlocTo, vector, true);
 		  if(to != null)
 		  {
 			event.setTo(to.to);

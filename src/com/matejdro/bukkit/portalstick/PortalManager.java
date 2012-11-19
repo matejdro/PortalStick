@@ -32,10 +32,11 @@ public class PortalManager {
 	public final HashMap<V10Location, Portal> borderBlocks = new HashMap<V10Location, Portal>();
 	public final HashMap<V10Location, Portal> behindBlocks = new HashMap<V10Location, Portal>();
 	public final HashMap<V10Location, Portal> insideBlocks = new HashMap<V10Location, Portal>();
-	final HashMap<V10Location, Portal> awayBlocksGeneral = new HashMap<V10Location, Portal>();
-	final HashMap<V10Location, Portal> awayBlocksX = new HashMap<V10Location, Portal>();
+	final HashMap<V10Location, Portal> awayBlocks = new HashMap<V10Location, Portal>();
 	final HashMap<V10Location, Portal> awayBlocksY = new HashMap<V10Location, Portal>();
-	final HashMap<V10Location, Portal> awayBlocksZ = new HashMap<V10Location, Portal>();
+//	final HashMap<V10Location, Portal> awayBlocksX = new HashMap<V10Location, Portal>();
+//	final HashMap<V10Location, Portal> awayBlocksY = new HashMap<V10Location, Portal>();
+//	final HashMap<V10Location, Portal> awayBlocksZ = new HashMap<V10Location, Portal>();
 
 	public void checkPlayerMove(Player player, Region regionFrom, Region regionTo)
 	{
