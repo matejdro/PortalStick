@@ -14,6 +14,7 @@ import org.bukkit.entity.Boat;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.entity.Vehicle;
@@ -273,9 +274,8 @@ public class EntityManager implements Runnable {
 			  continue;
 			for(Entity e: w.getEntities())
 			{
-				if (e instanceof Player || e instanceof Vehicle || e.isDead())
+				if (e instanceof Player || (e instanceof Vehicle && !(e instanceof Pig)) || e.isDead())
 				  continue;
-				
 				uuid = e.getUniqueId();
 				loc = oldLocations.get(e.getUniqueId());
 				to = onEntityMove(e, oldLocations.get(e.getUniqueId()), e.getLocation(), true);
