@@ -13,7 +13,7 @@ public enum RegionSetting {
 	DELETE_ON_EXITENTRANCE("delete-portals-on-exitentrance", true, true),
 	GRILLS_CLEAR_INVENTORY("grills-clear-inventory", true, true),
 	GRILLS_CLEAR_ITEM_DROPS("grills-clear-item-drops", true, true),
-	GRILL_INVENTORY_CLEAR_EXCEPTIONS("grill-inventory-clear-exceptions", Arrays.asList(new String[]{"218,313"}), false),
+	GRILL_INVENTORY_CLEAR_EXCEPTIONS("grill-inventory-clear-exceptions", Arrays.asList(new String[]{"280,313"}), false),
 	GRILL_MATERIAL("emancipation-grill-material", "48", true),
 	ENABLE_GRILL_REDSTONE_DISABLING("enable-disabling-grill-with-redstone", true, true),
 	ENABLE_HARD_GLASS_BRIDGES("enable-hard-glass-bridges", true, true),

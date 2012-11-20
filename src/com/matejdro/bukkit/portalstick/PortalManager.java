@@ -373,7 +373,6 @@ public class PortalManager {
 		PlayerInventory inv = player.getInventory();
 		List<?> ice = region.getList(RegionSetting.GRILL_INVENTORY_CLEAR_EXCEPTIONS);
 		ItemStack item, item2;
-		System.out.print(inv.getSize());
 		for (int i = 0; i < inv.getSize(); i++)
 		{
 			item = inv.getItem(i);
@@ -384,7 +383,7 @@ public class PortalManager {
 				item2 = plugin.util.getItemData((String)is);
 				if(item.getTypeId() != item2.getTypeId() || item.getDurability() != item2.getDurability())
 				{
-				  inv.remove(i);
+				  inv.clear(i);
 				  break;
 				}
 			}
