@@ -13,10 +13,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import com.matejdro.bukkit.portalstick.Portal;
@@ -171,30 +169,6 @@ public class PortalStickPlayerListener implements Listener {
 	  Location to = plugin.entityManager.onEntityMove(event.getPlayer(), event.getFrom(), event.getTo(), false);
 	  if(to != null)
 		event.setTo(to);
-	}
-		 
-	@EventHandler()
-	public void onPlayerQuit(PlayerQuitEvent event)
-	{
-		Player player = event.getPlayer();
-		User user = plugin.userManager.getUser(player);
-		
-		Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
-		if (region.name != "global" && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
-			user.revertInventory(player);
-		plugin.userManager.deleteUser(player);
-		plugin.gelManager.resetPlayer(player);
-	}
-		
-	@EventHandler()
-	public void onPlayerJoin(PlayerJoinEvent event)
-	{
-		Player player = event.getPlayer();
-		User user = new User(player);
-		plugin.userManager.createUser(player);
-		Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
-		if (!region.name.equals("global") && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
-			user.saveInventory(player);
 	}
 	
 	@EventHandler()

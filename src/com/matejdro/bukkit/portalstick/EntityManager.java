@@ -10,6 +10,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Bat;
 import org.bukkit.entity.Boat;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Entity;
@@ -235,7 +236,7 @@ public class EntityManager implements Runnable {
         		break;
         }
 		
-		if (!(entity instanceof Player) && !(entity instanceof Chicken) && momentum < 0.5 && (portal.teleportFace == BlockFace.UP || portal.teleportFace == BlockFace.DOWN) && (destination.teleportFace == BlockFace.UP || destination.teleportFace == BlockFace.DOWN))
+		if (!(entity instanceof Player) && !(entity instanceof Chicken) && (entity instanceof Bat) && momentum < 0.5 && (portal.teleportFace == BlockFace.UP || portal.teleportFace == BlockFace.DOWN) && (destination.teleportFace == BlockFace.UP || destination.teleportFace == BlockFace.DOWN))
 			teleport.setX(teleport.getX() + 0.5D);
 		
 		entity.setFallDistance(0);
@@ -278,7 +279,7 @@ public class EntityManager implements Runnable {
 				  continue;
 				uuid = e.getUniqueId();
 				loc = oldLocations.get(e.getUniqueId());
-				to = onEntityMove(e, oldLocations.get(e.getUniqueId()), e.getLocation(), true);
+				to = onEntityMove(e, loc, e.getLocation(), true);
 				if(to != null)
 				  oldLocations.put(uuid, to);
 				else

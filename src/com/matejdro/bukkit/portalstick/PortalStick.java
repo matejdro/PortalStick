@@ -9,12 +9,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.bergerkiller.bukkit.common.events.EntityAddEvent;
+import com.bergerkiller.bukkit.common.events.EntityRemoveEvent;
 import com.matejdro.bukkit.portalstick.commands.BaseCommand;
 import com.matejdro.bukkit.portalstick.commands.DeleteAllCommand;
 import com.matejdro.bukkit.portalstick.commands.DeleteCommand;
@@ -53,16 +52,17 @@ public class PortalStick extends JavaPlugin {
 	public final Util util = new Util(this);
 	public final BlockUtil blockUtil = new BlockUtil();
 	
-	private final PortalStickPlayerListener pL = new PortalStickPlayerListener(this);
+	private final PortalStickEntityListener eL = new PortalStickEntityListener(this);
 
 	public void onDisable() {
 		// Lazy clean:
-		PlayerQuitEvent pqe;
-		for(Player p: getServer().getOnlinePlayers())
-		{
-		  pqe = new PlayerQuitEvent(p, null);
-		  pL.onPlayerQuit(pqe);
-		}
+		EntityRemoveEvent ere;
+		for(World w: getServer().getWorlds())
+		  for(Entity e: w.getEntities())
+		  {
+			ere = new EntityRemoveEvent(e);
+			eL.despawn(ere);
+		  }
 		
 		//Remove all portals:
 		for(Region region: regionManager.regions.values())
@@ -81,10 +81,9 @@ public class PortalStick extends JavaPlugin {
 		//Register events
 		Server s = getServer();
 		PluginManager pm = s.getPluginManager();
-		pm.registerEvents(pL, this);
+		pm.registerEvents(new PortalStickPlayerListener(this), this);
 		pm.registerEvents(new PortalStickBlockListener(this), this);
 		pm.registerEvents(new PortalStickVehicleListener(this), this);
-		PortalStickEntityListener eL = new PortalStickEntityListener(this);
 		pm.registerEvents(eL, this);
 		
 		worldGuard = (WorldGuardPlugin) pm.getPlugin("WorldGuard");
@@ -108,22 +107,14 @@ public class PortalStick extends JavaPlugin {
 		tmpList.add(new RegionInfoCommand(this));
 		commands = tmpList.toArray(new BaseCommand[0]);
 		
-		PlayerJoinEvent pje;
-		for(Player p: getServer().getOnlinePlayers())
-		{
-		  pje = new PlayerJoinEvent(p, null);
-		  pL.onPlayerJoin(pje);
-		}
-		
 		EntityAddEvent eae;
 		for(World w: s.getWorlds())
 		  for(Chunk c: w.getLoadedChunks())
 			for(Entity e: c.getEntities())
-			  if(!(e instanceof Player))
-			  {
-				eae = new EntityAddEvent(e);
-				eL.spawn(eae);
-			  }
+			{
+			  eae = new EntityAddEvent(e);
+			  eL.spawn(eae);
+			}
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[])

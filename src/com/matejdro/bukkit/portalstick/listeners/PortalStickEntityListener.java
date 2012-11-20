@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -11,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import com.bergerkiller.bukkit.common.events.EntityAddEvent;
@@ -19,6 +21,7 @@ import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.Portal;
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
+import com.matejdro.bukkit.portalstick.User;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 import de.V10lator.PortalStick.V10Location;
@@ -101,12 +104,29 @@ public class PortalStickEntityListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void spawn(EntityAddEvent event)
 	{
-	  plugin.userManager.createUser(event.getEntity());
+//	  plugin.userManager.createUser(event.getEntity());
+	  
+	  Entity entity = event.getEntity();
+	  plugin.userManager.createUser(entity);
+	  User user = plugin.userManager.getUser(entity);
+	  Region region = plugin.regionManager.getRegion(new V10Location(entity.getLocation()));
+	  if(entity instanceof InventoryHolder && !region.name.equals("global") && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
+		user.saveInventory((InventoryHolder)entity);
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void despawn(EntityRemoveEvent event)
 	{
-	  plugin.userManager.deleteUser(event.getEntity());
+//	  plugin.userManager.deleteUser(event.getEntity());
+	  
+	  Entity entity = event.getEntity();
+	  User user = plugin.userManager.getUser(entity);
+	  
+	  Region region = plugin.regionManager.getRegion(new V10Location(entity.getLocation()));
+	  if(entity instanceof InventoryHolder && region.name != "global" && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
+		user.revertInventory((InventoryHolder)entity);
+	  plugin.userManager.deleteUser(entity);
+	  if(entity instanceof Player) //TODO
+		plugin.gelManager.resetPlayer((Player)entity);
 	}
 }
