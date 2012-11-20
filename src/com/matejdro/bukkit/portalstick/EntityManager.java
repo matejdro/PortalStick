@@ -278,11 +278,6 @@ public class EntityManager implements Runnable {
 				
 				uuid = e.getUniqueId();
 				loc = oldLocations.get(e.getUniqueId());
-				if(loc == null) //TODO: This shouldn't be
-				{
-				  oldLocations.put(uuid, e.getLocation());
-				  return;
-				}
 				to = onEntityMove(e, oldLocations.get(e.getUniqueId()), e.getLocation(), true);
 				if(to != null)
 				  oldLocations.put(uuid, to);

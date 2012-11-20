@@ -46,61 +46,59 @@ public class Portal {
 	
 	public void delete()
 	{
-		if (owner != null) { //TODO: What was the null check for?
-			for (V10Location loc: border)
+		for (V10Location loc: border)
+		{
+			if (oldBlocks.containsKey(loc))
+				plugin.blockUtil.setBlockData(loc, oldBlocks.get(loc));
+			plugin.portalManager.borderBlocks.remove(loc);
+		}
+		for (V10Location loc: inside)
+		{
+		  if(loc == null)
+			continue;
+		  if (oldBlocks.containsKey(loc))
+			plugin.blockUtil.setBlockData(loc, oldBlocks.get(loc));
+		  plugin.portalManager.insideBlocks.remove(loc);
+		}
+		if (plugin.config.FillPortalBack > -1)
+		{
+			for (V10Location loc: behind)
 			{
 				if (oldBlocks.containsKey(loc))
 					plugin.blockUtil.setBlockData(loc, oldBlocks.get(loc));
-				plugin.portalManager.borderBlocks.remove(loc);
+				plugin.portalManager.behindBlocks.remove(loc);
 			}
-			for (V10Location loc: inside)
-			{
-			  if(loc == null)
-				continue;
-			  if (oldBlocks.containsKey(loc))
-				plugin.blockUtil.setBlockData(loc, oldBlocks.get(loc));
-			  plugin.portalManager.insideBlocks.remove(loc);
-			}
-			if (plugin.config.FillPortalBack > -1)
-			{
-				for (V10Location loc: behind)
-				{
-					if (oldBlocks.containsKey(loc))
-						plugin.blockUtil.setBlockData(loc, oldBlocks.get(loc));
-					plugin.portalManager.behindBlocks.remove(loc);
-				}
-			}
-			for (V10Location l : awayBlocks)
-			{
-				plugin.portalManager.awayBlocks.remove(l);
-				plugin.portalManager.awayBlocksY.remove(l);
-			}
-			
-			
-			if (orange)
-				owner.orangePortal = null;
-			else
-				owner.bluePortal = null;
-			
-			open = false;
-			
-			plugin.portalManager.portals.remove(this);
-			plugin.regionManager.getRegion(centerBlock).portals.remove(this);
-						
-	    	if (getDestination() != null && getDestination().open)
+		}
+		for (V10Location l : awayBlocks)
+		{
+			plugin.portalManager.awayBlocks.remove(l);
+			plugin.portalManager.awayBlocksY.remove(l);
+		}
+		
+		
+		if (orange)
+			owner.orangePortal = null;
+		else
+			owner.bluePortal = null;
+		
+		open = false;
+		
+		plugin.portalManager.portals.remove(this);
+		plugin.regionManager.getRegion(centerBlock).portals.remove(this);
+					
+	    if (getDestination() != null && getDestination().open)
+	    {
+	    	if (getDestination().isRegionPortal())
 	    	{
-	    		if (getDestination().isRegionPortal())
-	    		{
-	    			V10Location loc = getDestination().centerBlock;
-	    			plugin.regionManager.getRegion(loc).regionPortalClosed(orange);
-	    		}
-	    		else
-	    			getDestination().close();
+	    		V10Location loc = getDestination().centerBlock;
+	    		plugin.regionManager.getRegion(loc).regionPortalClosed(orange);
 	    	}
-	    		    	
-    		if (isRegionPortal())
-    			plugin.regionManager.getRegion(centerBlock).regionPortalDeleted(this);
-		}				
+	    	else
+	    		getDestination().close();
+	    }
+	    	    	
+    	if (isRegionPortal())
+    		plugin.regionManager.getRegion(centerBlock).regionPortalDeleted(this);				
 	}
 	
 	public void open()
