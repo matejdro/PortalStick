@@ -109,8 +109,14 @@ public class Util {
           	  pitch = 1.0F;
           	}
           }
-          org.bukkit.Sound s = org.bukkit.Sound.valueOf(split[0]);
-          loc.getHandle().getWorld().playSound(loc.getHandle(), s, volume, pitch);
+          try
+          {
+        	org.bukkit.Sound s = org.bukkit.Sound.valueOf(split[0]);
+        	loc.getHandle().getWorld().playSound(loc.getHandle(), s, volume, pitch);
+          }
+          catch(IllegalArgumentException e)
+          {
+          }
         }
       }
       else
