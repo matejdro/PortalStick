@@ -252,6 +252,12 @@ public class PortalStickPlayerListener implements Listener {
 	    	continue;
 	      event.setCancelled(true);
 	      item.remove();
+	      Location el = item.getLocation();
+	      if(x)
+		    el.setX(a);
+	      else
+	    	el.setZ(a);
+	      plugin.grillManager.playGrillAnimation(el);
 	      return;
 	    }
 	  }

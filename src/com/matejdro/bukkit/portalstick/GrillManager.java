@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import org.bukkit.Effect;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -192,6 +194,7 @@ public class GrillManager {
 			  return;
 		  }
 		  entity.remove();
+		  playGrillAnimation(entity.getLocation());
 		}
 		return;
 	  }
@@ -199,6 +202,16 @@ public class GrillManager {
 	  plugin.portalManager.deletePortals(user);
 	  
 	  if (clear)
+	  {
 		plugin.portalManager.setPortalInventory(ih, region);
+		playGrillAnimation(entity.getLocation());
+	  }
+	}
+	
+	public void playGrillAnimation(Location loc)
+	{
+	  World world = loc.getWorld();
+	  for(int i = 0; i < 9; i++)
+		world.playEffect(loc, Effect.SMOKE, i, 16);
 	}
 }
