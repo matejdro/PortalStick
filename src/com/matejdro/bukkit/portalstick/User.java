@@ -24,28 +24,26 @@ public class User {
 	public final UUID uuid;
 	public final boolean isPlayer;
 	
+	public User(String name)
+	{
+	  this.name = name;
+	  uuid = null;
+	  isPlayer = false;
+	}
+	
 	public User(Entity entity)
 	{
-	  if(entity == null)
+	  if(entity instanceof Player)
 	  {
-		name = null;
-		uuid = null;
-		isPlayer = false;
+		name = ((Player)entity).getName();
+		isPlayer = true;
 	  }
 	  else
 	  {
-		if(entity instanceof Player)
-		{
-		  name = ((Player)entity).getName();
-		  isPlayer = true;
-		}
-		else
-		{
-		  name = null;
-		  isPlayer = false;
-		}
-		uuid = entity.getUniqueId();
+		name = null;
+		isPlayer = false;
 	  }
+	  uuid = entity.getUniqueId();
 	}
 	
 	public void recreatePortals()
