@@ -7,16 +7,17 @@ import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 
 import com.matejdro.bukkit.portalstick.Portal;
 import com.matejdro.bukkit.portalstick.PortalStick;
@@ -172,17 +173,6 @@ public class PortalStickPlayerListener implements Listener {
 		event.setTo(to);
 	}
 		 
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onPlayerDropItem(PlayerDropItemEvent event)
-	{
-		Player player = event.getPlayer();
-		User user = plugin.userManager.getUser(player);
-		Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
-		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS))
-			user.droppedItems.add(event.getItemDrop());
-		
-	}
-		 
 	@EventHandler()
 	public void onPlayerQuit(PlayerQuitEvent event)
 	{
@@ -193,7 +183,6 @@ public class PortalStickPlayerListener implements Listener {
 		if (region.name != "global" && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
 			user.revertInventory(player);
 		plugin.userManager.deleteUser(player);
-		plugin.userManager.deleteDroppedItems(player);
 		plugin.gelManager.resetPlayer(player);
 	}
 		
@@ -207,5 +196,64 @@ public class PortalStickPlayerListener implements Listener {
 		if (!region.name.equals("global") && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
 			user.saveInventory(player);
 	}
-		 		 
+	
+	@EventHandler()
+	public void noPickup(PlayerPickupItemEvent event)
+	{
+	  Item item = event.getItem();
+	  if(plugin.config.DisabledWorlds.contains(item.getWorld().getName()))
+		return;
+	  V10Location iloc = new V10Location(item.getLocation());
+	  Region region = plugin.regionManager.getRegion(iloc);
+	  Player player = event.getPlayer();
+	  User user = plugin.userManager.getUser(player);
+	  if(!region.getBoolean(RegionSetting.GRILLS_REMOVE_ITEMS) || user.usingTool)
+		return;
+	  ItemStack is = item.getItemStack();
+	  ItemStack item2;
+	  for(Object iss: region.getList(RegionSetting.GRILL_REMOVE_EXCEPTIONS))
+	  {
+		item2 = plugin.util.getItemData((String)iss);
+		if(is.getTypeId() == item2.getTypeId() && is.getDurability() == item2.getDurability())
+		  return;
+	  }
+	  V10Location ploc = new V10Location(player.getLocation());
+	  int a, b;
+	  boolean x;
+	  if(ploc.x != iloc.x)
+	  {
+		a = ploc.x;
+		b = iloc.x;
+		x = true;
+	  }
+	  else if(ploc.z != iloc.z)
+	  {
+		a = ploc.z;
+		b = iloc.z;
+		x = false;
+	  }
+	  else
+		return;
+	  if(a > b)
+	  {
+		int tmp = a;
+		a = b;
+		b = tmp;
+	  }
+	  for(; a < b; a++)
+	  {
+		if(x)
+		  iloc = new V10Location(iloc.world, a, iloc.y, iloc.z);
+		else
+		  iloc = new V10Location(iloc.world, iloc.x, iloc.y, a);
+	    if(plugin.grillManager.insideBlocks.containsKey(iloc))
+	    {
+	      if(plugin.grillManager.insideBlocks.get(iloc).disabled)
+	    	continue;
+	      event.setCancelled(true);
+	      item.remove();
+	      return;
+	    }
+	  }
+	}
 }

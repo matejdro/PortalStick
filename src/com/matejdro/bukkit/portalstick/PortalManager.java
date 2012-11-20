@@ -50,10 +50,7 @@ public class PortalManager {
 		return;
 	  if (!regionTo.name.equals(regionFrom.name)) {
 		if(ih instanceof Player && (regionFrom.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE) || regionTo.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE)))
-		{
 		  deletePortals(user);
-		  plugin.userManager.deleteDroppedItems((Player)ih);
-		}
 		
 		if (regionFrom.getBoolean(RegionSetting.UNIQUE_INVENTORY) || regionTo.getBoolean(RegionSetting.UNIQUE_INVENTORY))
 		{
@@ -383,7 +380,7 @@ public class PortalManager {
 	public void setPortalInventory(InventoryHolder ih, Region region)
 	{
 		Inventory inv = ih.getInventory();
-		List<?> ice = region.getList(RegionSetting.GRILL_INVENTORY_CLEAR_EXCEPTIONS);
+		List<?> ice = region.getList(RegionSetting.GRILL_REMOVE_EXCEPTIONS);
 		ItemStack item, item2;
 		for (int i = 0; i < inv.getSize(); i++)
 		{

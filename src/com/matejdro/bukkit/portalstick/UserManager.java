@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 
 public class UserManager {
@@ -57,22 +56,8 @@ public class UserManager {
 	
 	public void deleteUser(User user) {
 		plugin.portalManager.deletePortals(user);
-		deleteDroppedItems(user);
 		playerUsers.values().remove(user);
 		entityUsers.values().remove(user);
-	}
-
-	public void deleteDroppedItems(Player player) {
-		deleteDroppedItems(getUser(player));
-	}
-	
-	public void deleteDroppedItems(User user) {
-		if (user != null && user.droppedItems != null) {
-			for (Item item : user.droppedItems)
-				if (item != null)
-					item.remove();
-			user.droppedItems.clear();
-		}
 	}
 
 	public List<User> getUsers()

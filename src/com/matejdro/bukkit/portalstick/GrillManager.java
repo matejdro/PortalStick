@@ -177,13 +177,15 @@ public class GrillManager {
 	public void emancipate(Entity entity)
 	{
 	  Region region = plugin.regionManager.getRegion(new V10Location(entity.getLocation()));
-	  if(!(entity instanceof InventoryHolder))
+	  User user = plugin.userManager.getUser(entity);
+	  boolean clear = region.getBoolean(RegionSetting.GRILLS_REMOVE_ITEMS) && !user.usingTool;
+	  if(clear && !(entity instanceof InventoryHolder))
 	  {
 		if(entity instanceof Item)
 		{
 		  ItemStack item = ((Item)entity).getItemStack();
 		  ItemStack item2;
-		  for(Object is: region.getList(RegionSetting.GRILL_INVENTORY_CLEAR_EXCEPTIONS))
+		  for(Object is: region.getList(RegionSetting.GRILL_REMOVE_EXCEPTIONS))
 		  {
 			item2 = plugin.util.getItemData((String)is);
 			if(item.getTypeId() == item2.getTypeId() && item.getDurability() == item2.getDurability())
@@ -194,14 +196,9 @@ public class GrillManager {
 		return;
 	  }
 	  InventoryHolder ih = (InventoryHolder)entity;
-	  User user = plugin.userManager.getUser(entity);
 	  plugin.portalManager.deletePortals(user);
 	  
-	  if (region.getBoolean(RegionSetting.GRILLS_CLEAR_INVENTORY) && !user.usingTool)
+	  if (clear)
 		plugin.portalManager.setPortalInventory(ih, region);
-	  
-	  if (entity instanceof Player && region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS)) {
-		plugin.userManager.deleteDroppedItems((Player)entity);
-	  }
 	}
 }
