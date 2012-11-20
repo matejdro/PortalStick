@@ -62,6 +62,8 @@ public class EntityManager implements Runnable {
 			if(!plugin.portalManager.awayBlocksY.containsKey(locTo))
 			  return null;
 			portal = plugin.portalManager.awayBlocksY.get(locTo);
+			if(!portal.open)
+			  return null;
 			destination = portal.getDestination();
 			teleport = destination.teleport[0].getHandle();
 		  }

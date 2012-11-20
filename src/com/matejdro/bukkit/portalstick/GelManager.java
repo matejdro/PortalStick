@@ -26,25 +26,6 @@ public class GelManager {
 	
 	public void useGel(Entity entity, V10Location locTo, Vector vector)
 	{
-		V10Location vl = new V10Location(locTo.world, locTo.x, locTo.y - 1, locTo.z);
-		for(V10Location loc: plugin.portalManager.borderBlocks.keySet())
-		{
-		  if(loc.equals(vl))
-		  {
-			if(entity instanceof Player) //TODO
-			  resetPlayer(((Player)entity));
-			return;
-		  }
-		}
-		for(V10Location loc: plugin.portalManager.insideBlocks.keySet())
-		{
-		  if(loc.equals(vl))
-		  {
-			if(entity instanceof Player) //TODO
-			  resetPlayer(((Player)entity));
-			return;
-		  }
-		}
 		Region region = plugin.regionManager.getRegion(locTo);
 		Block block = locTo.getHandle().getBlock();
 		
@@ -56,9 +37,14 @@ public class GelManager {
 			if(ignore.contains(entity) || (entity instanceof Player && ((Player)entity).isSneaking()))
 			  return;
 			String bg = region.getString(RegionSetting.BLUE_GEL_BLOCK);
+			Block block2;
 			for(BlockFace face: new BlockFace[] {BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST})
-			  if(plugin.blockUtil.compareBlockToString(block.getRelative(face), bg))
+			{
+			  block2 = block.getRelative(face);
+			  if(plugin.blockUtil.compareBlockToString(block2, bg))
 			  {
+				if(isPortal(new V10Location(block2)))
+				  continue;
 				byte dir;
 				switch(face)
 				{
@@ -75,10 +61,21 @@ public class GelManager {
 				blueGel(entity, region, dir, vector);
 				break;
 			  }
+			}
 		}
 	}
 	
-	//TODO: Vertical is still bugged :(
+	private boolean isPortal(V10Location vl)
+	{
+	  for(V10Location loc: plugin.portalManager.borderBlocks.keySet())
+		if(loc.equals(vl))
+		  return true;
+	  for(V10Location loc: plugin.portalManager.insideBlocks.keySet())
+		if(loc.equals(vl))
+		  return true;
+	  return false;
+	}
+	
 	private void blueGel(final Entity entity, Region region, byte dir, Vector vector)
 	{
 //		Vector vector = player.getVelocity(); //We need a self-calculated vector from the player move event as this has 0.0 everywhere.
@@ -112,7 +109,14 @@ public class GelManager {
 	{
 	  if(!(entity instanceof Player)) // TODO
 		return false;
+	  
 	  Player player = (Player)entity;
+	  if(isPortal(new V10Location(under)))
+	  {
+		resetPlayer(player);
+		return false;
+	  }
+	  
 	  String pn = player.getName();
 	  String rg = region.getString(RegionSetting.RED_GEL_BLOCK);
 	  if(onRedGel.containsKey(pn))
