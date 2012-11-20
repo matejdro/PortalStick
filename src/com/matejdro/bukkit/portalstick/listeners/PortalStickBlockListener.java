@@ -437,7 +437,7 @@ public class PortalStickBlockListener implements Listener {
 					 event.setCancelled(true);
 				 else
 					 fakeBBE = false;
-				 return;
+				 continue;
 			 }
 			 else
 				 fakeBBE = false;
@@ -447,16 +447,16 @@ public class PortalStickBlockListener implements Listener {
 				 return;
 			 }
 			 
-			 if(region.getBoolean(RegionSetting.ENABLE_PISTON_BLOCK_TELEPORT))
+			 if(!region.getBoolean(RegionSetting.ENABLE_PISTON_BLOCK_TELEPORT))
 				 return;
 			 
-			 loc = new V10Location(b.getRelative(event.getDirection()).getLocation());
+			 loc = new V10Location(b.getRelative(event.getDirection()));
 			 if(!plugin.portalManager.insideBlocks.containsKey(loc))
-				 return;
+				 continue;
 			 
 			 Portal portal = plugin.portalManager.insideBlocks.get(loc);
 			 if(!portal.open)
-				 return;
+				 continue;
 			 
 			 Portal destP = portal.getDestination();
 			 V10Location dest;
@@ -516,11 +516,14 @@ public class PortalStickBlockListener implements Listener {
 		 }
 		 
 		 Region region = plugin.regionManager.getRegion(new V10Location(event.getBlock()));
+		 
+		 if(!region.getBoolean(RegionSetting.ENABLE_PISTON_BLOCK_TELEPORT))
+			 return;
 
 		 V10Location loc = new V10Location(event.getRetractLocation());
 		 Portal portal = plugin.portalManager.insideBlocks.get(loc);
 		 
-		 if (portal != null && region.getBoolean(RegionSetting.ENABLE_PISTON_BLOCK_TELEPORT))
+		 if (portal != null)
 		 {
 			 Portal destP = portal.getDestination();
 			 V10Location dest;
