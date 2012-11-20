@@ -9,8 +9,10 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
@@ -174,11 +176,25 @@ public class GrillManager {
 
 	public void emancipate(Entity entity)
 	{
+	  Region region = plugin.regionManager.getRegion(new V10Location(entity.getLocation()));
 	  if(!(entity instanceof InventoryHolder))
+	  {
+		if(entity instanceof Item)
+		{
+		  ItemStack item = ((Item)entity).getItemStack();
+		  ItemStack item2;
+		  for(Object is: region.getList(RegionSetting.GRILL_INVENTORY_CLEAR_EXCEPTIONS))
+		  {
+			item2 = plugin.util.getItemData((String)is);
+			if(item.getTypeId() == item2.getTypeId() && item.getDurability() == item2.getDurability())
+			  return;
+		  }
+		  entity.remove();
+		}
 		return;
+	  }
 	  InventoryHolder ih = (InventoryHolder)entity;
 	  User user = plugin.userManager.getUser(entity);
-	  Region region = plugin.regionManager.getRegion(new V10Location(entity.getLocation()));
 	  plugin.portalManager.deletePortals(user);
 	  
 	  if (region.getBoolean(RegionSetting.GRILLS_CLEAR_INVENTORY) && !user.usingTool)
