@@ -192,7 +192,7 @@ public class PortalStickBlockListener implements Listener
 		if (plugin.portalManager.insideBlocks.containsKey(new V10Location(event.getBlockPlaced())))
 		  event.setCancelled(true);
 	}
-	 	 
+	
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event)
 	{
@@ -203,11 +203,9 @@ public class PortalStickBlockListener implements Listener
 	}
 	
 	@EventHandler(ignoreCancelled = true)
-	public void noGrowingGrills(BlockGrowEvent event) {
-		Block from = event.getBlock().getRelative(BlockFace.DOWN);
-		if (from.getType() != Material.SUGAR_CANE_BLOCK)
-		  return;
-		if(plugin.grillManager.insideBlocks.containsKey(new V10Location(from)))
+	public void noGrowingGrills(BlockGrowEvent event)
+	{
+		if(plugin.grillManager.insideBlocks.containsKey(new V10Location(event.getBlock().getRelative(BlockFace.DOWN))))
 		  event.setCancelled(true);
 	}
 	

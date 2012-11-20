@@ -7,13 +7,14 @@ import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.bergerkiller.bukkit.common.events.EntityAddEvent;
 import com.matejdro.bukkit.portalstick.commands.BaseCommand;
 import com.matejdro.bukkit.portalstick.commands.DeleteAllCommand;
 import com.matejdro.bukkit.portalstick.commands.DeleteCommand;
@@ -29,7 +30,6 @@ import com.matejdro.bukkit.portalstick.listeners.PortalStickBlockListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickEntityListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickPlayerListener;
 import com.matejdro.bukkit.portalstick.listeners.PortalStickVehicleListener;
-import com.matejdro.bukkit.portalstick.listeners.PortalStickWorldListener;
 import com.matejdro.bukkit.portalstick.util.BlockUtil;
 import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Util;
@@ -84,9 +84,8 @@ public class PortalStick extends JavaPlugin {
 		pm.registerEvents(pL, this);
 		pm.registerEvents(new PortalStickBlockListener(this), this);
 		pm.registerEvents(new PortalStickVehicleListener(this), this);
-		pm.registerEvents(new PortalStickEntityListener(this), this);
-		PortalStickWorldListener wL = new PortalStickWorldListener(this);
-		pm.registerEvents(wL, this);
+		PortalStickEntityListener eL = new PortalStickEntityListener(this);
+		pm.registerEvents(eL, this);
 		
 		worldGuard = (WorldGuardPlugin) pm.getPlugin("WorldGuard");
 		
@@ -116,13 +115,15 @@ public class PortalStick extends JavaPlugin {
 		  pL.onPlayerJoin(pje);
 		}
 		
-		ChunkLoadEvent cle;
+		EntityAddEvent eae;
 		for(World w: s.getWorlds())
 		  for(Chunk c: w.getLoadedChunks())
-		  {
-			cle = new ChunkLoadEvent(c, false);
-			wL.onChunkLoad(cle);
-		  }
+			for(Entity e: c.getEntities())
+			  if(!(e instanceof Player))
+			  {
+				eae = new EntityAddEvent(e);
+				eL.spawn(eae);
+			  }
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[])

@@ -2,6 +2,8 @@ name: PortalStick
 main: com.matejdro.bukkit.portalstick.PortalStick
 version: 3.0.9999
 authors: [matejdro, oliverw92, V10lator]
+depend: [BKCommonLib]
+softdepend: [WorldGuard]
 commands:
   portalstick:
     description: Aperture Science Portal Stick

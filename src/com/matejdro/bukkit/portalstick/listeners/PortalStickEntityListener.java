@@ -8,13 +8,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.ItemStack;
 
+import com.bergerkiller.bukkit.common.events.EntityAddEvent;
+import com.bergerkiller.bukkit.common.events.EntityRemoveEvent;
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.Portal;
 import com.matejdro.bukkit.portalstick.PortalStick;
@@ -99,13 +99,13 @@ public class PortalStickEntityListener implements Listener {
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void spawn(CreatureSpawnEvent event)
+	public void spawn(EntityAddEvent event)
 	{
 	  plugin.userManager.createUser(event.getEntity());
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void despawn(EntityDeathEvent event)
+	public void despawn(EntityRemoveEvent event)
 	{
 	  plugin.userManager.deleteUser(event.getEntity());
 	}
