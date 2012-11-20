@@ -120,7 +120,7 @@ public class Config {
         CompactPortal = getBoolean("main.compact-portal", false);
         RegionTool = getInt("main.region-tool", 268);
         RestoreInvOnWorldChange = getBoolean("main.restore-inventory-on-world-change", true);
-        ColorPresets = getStringList("main.portal-color-presets", Arrays.asList(new String[]{"11-1","2-6","9-10","5-13","8-7","15-4"}));
+        ColorPresets = getStringList("main.portal-color-presets", Arrays.asList(new String[]{"3-1","2-6","9-10","5-13","8-7","15-4"}));
         FillPortalBack = getInt("main.fill-portal-back", -1);
         
         //Load sound settings

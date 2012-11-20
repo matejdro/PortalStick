@@ -94,7 +94,7 @@ public class Util {
           if(raw == null || raw.equals(""))
         	return;
           String[] split = raw.split(":");
-          float volume = 0.0F;
+          float volume = 1.0F;
           float pitch = volume;
           if(split.length > 1)
         	try

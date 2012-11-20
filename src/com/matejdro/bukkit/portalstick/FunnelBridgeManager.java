@@ -303,10 +303,7 @@ public class FunnelBridgeManager {
 						
 					}
 				}
-				
-
 			}
-			
 		}
 	}
 }

@@ -133,7 +133,7 @@ public class EntityManager implements Runnable {
 		plugin.getServer().broadcastMessage("Velocity Y: "+vector.getY());
 		*/
 		
-		Portal destination = portal.getDestination();	 
+		final Portal destination = portal.getDestination();	 
 		Location teleport = destination.teleport.getHandle();
 		
 		teleport.setX(teleport.getX() + 0.5D);
@@ -248,7 +248,7 @@ public class EntityManager implements Runnable {
 		}
 		
 		destination.disabled = true;
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new enablePortal(destination), 10L);
+		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){public void run(){destination.disabled = false;}}, 10L);
 		
 		if (portal.orange)
 			plugin.util.PlaySound(Sound.PORTAL_EXIT_ORANGE, entity instanceof Player ? (Player) entity : null, new V10Location(teleport));
@@ -274,21 +274,6 @@ public class EntityManager implements Runnable {
 				teleport(e, oloc, new V10Location(oloc), vector, true);
 				plugin.funnelBridgeManager.EntityMoveCheck(e);
 			}
-		}
-	}
-	
-	public class enablePortal implements Runnable
-	{
-		Portal portal;
-		public enablePortal(Portal instance)
-		{
-			portal = instance;
-		}
-
-		@Override
-		public void run() {
-			if (portal != null)
-			  portal.disabled = false;
 		}
 	}
 }
