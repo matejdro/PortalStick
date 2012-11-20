@@ -36,9 +36,6 @@ public class PortalManager {
 	public final HashMap<V10Location, Portal> insideBlocks = new HashMap<V10Location, Portal>();
 	final HashMap<V10Location, Portal> awayBlocks = new HashMap<V10Location, Portal>();
 	final HashMap<V10Location, Portal> awayBlocksY = new HashMap<V10Location, Portal>();
-//	final HashMap<V10Location, Portal> awayBlocksX = new HashMap<V10Location, Portal>();
-//	final HashMap<V10Location, Portal> awayBlocksY = new HashMap<V10Location, Portal>();
-//	final HashMap<V10Location, Portal> awayBlocksZ = new HashMap<V10Location, Portal>();
 
 	public void checkEntityMove(Entity e, Region regionFrom, Region regionTo)
 	{

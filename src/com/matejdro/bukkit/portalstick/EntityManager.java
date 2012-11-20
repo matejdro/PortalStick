@@ -51,7 +51,7 @@ public class EntityManager implements Runnable {
 		  }
 		  else if((Math.abs(vector.getX()) > 0.5 || (Math.abs(vector.getY()) > 1 || (Math.abs(vector.getZ()) > 0.5))) || entity instanceof Boat)
 		  {
-			portal = plugin.portalManager.awayBlocks.get(locTo); //TODO: Improve. This seems to be still to much.
+			portal = plugin.portalManager.awayBlocks.get(locTo);
 			if(portal == null)
 			  return null;
 			Block to = locTo.getHandle().getBlock();
@@ -112,30 +112,6 @@ public class EntityManager implements Runnable {
 		
 		if(!portal.open || portal.disabled || (Math.abs(vector.getY()) > 1 && !portal.vertical))
 		  return null;
-		
-/*		double x, y, z;
-		
-		for (V10Location b : portal.inside)
-		{
-			x = b.x;
-			y = b.y;
-			z = b.z;
-			
-			if (!portal.vertical)
-			{
-				if (x + 0.5 < entity.getLocation().getX() && vector.getX() > 0) return null;
-				else if (x - 0.5 > entity.getLocation().getX() && vector.getX() < 0) return null;
-				else if (y + 0.5 < entity.getLocation().getY() && vector.getY() > 0) return null;
-				else if (z - 0.5 > entity.getLocation().getZ() && vector.getZ() < 0) return null;
-			}
-			else
-			{
-				if (y + 0.5 < entity.getLocation().getY() && vector.getY() > 0) return null;
-				if (y - 0.5 > entity.getLocation().getY() && vector.getY() < -0.1) return null;
-			}
-		}
-		plugin.getServer().broadcastMessage("Velocity Y: "+vector.getY());
-		*/
 		
 		final Portal destination = portal.getDestination();	 
 		Location teleport = destination.teleport.getHandle();
@@ -206,7 +182,7 @@ public class EntityManager implements Runnable {
         		outvector = outvector.setZ(-momentum);
         		break;
         	case DOWN:
-        		if (portal.teleportFace != BlockFace.UP && portal.teleportFace != BlockFace.DOWN) //TODO: || to &&
+        		if (portal.teleportFace != BlockFace.UP && portal.teleportFace != BlockFace.DOWN)
         		{
         			yaw = pitch;
 	        		pitch = startyaw;
@@ -219,7 +195,7 @@ public class EntityManager implements Runnable {
         		outvector = outvector.setY(momentum);
         		break;
         	case UP:
-        		if (portal.teleportFace != BlockFace.UP && portal.teleportFace != BlockFace.DOWN) //TODO: || to &&
+        		if (portal.teleportFace != BlockFace.UP && portal.teleportFace != BlockFace.DOWN)
         		{
         			yaw = pitch;
 	        		pitch = startyaw + 180;
