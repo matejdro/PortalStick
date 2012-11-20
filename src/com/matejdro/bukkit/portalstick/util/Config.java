@@ -50,7 +50,6 @@ public class Config {
 	public int soundRange;
 	public final String[] soundUrls = new String[Sound.values().length];
 	public final String[] soundNative = new String[Sound.values().length];
-	public final String[] soundNotes = new String[Sound.values().length];
 	
 	public Config (PortalStick instance) {
 		
@@ -154,15 +153,6 @@ public class Config {
         soundUrls[Sound.GRILL_EMANCIPATE.ordinal()] = getString("sounds.spout.grill-emancipate-url", "");
         soundUrls[Sound.FAITHPLATE_LAUNCH.ordinal()] = getString("sounds.spout.faith-plate-launch-url", "");
         soundUrls[Sound.GEL_BLUE_BOUNCE.ordinal()] = getString("sounds.spout.blue-gel-bounce-url", "");
-        
-        soundNotes[Sound.PORTAL_CREATE_BLUE.ordinal()] = getString("sounds.fallback.create-blue-portal-note", "");
-        soundNotes[Sound.PORTAL_CREATE_ORANGE.ordinal()] = getString("sounds.fallback.create-orange-portal-note", "");
-        soundNotes[Sound.PORTAL_EXIT_BLUE.ordinal()] = getString("sounds.fallback.exit-blue-portal-note", "");
-        soundNotes[Sound.PORTAL_EXIT_ORANGE.ordinal()] = getString("sounds.fallback.exit-orange-portal-note", "");
-        soundNotes[Sound.PORTAL_CANNOT_CREATE.ordinal()] = getString("sounds.fallback.cannot-create-portal-note", "");
-        soundNotes[Sound.GRILL_EMANCIPATE.ordinal()] = getString("sounds.fallback.grill-emancipate-note", "");
-        soundNotes[Sound.FAITHPLATE_LAUNCH.ordinal()] = getString("sounds.fallback.faith-plate-launch-note", "4-5");
-        soundNotes[Sound.GEL_BLUE_BOUNCE.ordinal()] = getString("sounds.fallback.blue-gel-bounce-note", "4-5");
         
         soundRange = getInt("sounds.sound-range", 20);
         
