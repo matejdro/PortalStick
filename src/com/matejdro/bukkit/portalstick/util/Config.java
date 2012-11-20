@@ -135,7 +135,7 @@ public class Config {
         
         
         useSpoutSounds = getBoolean("sounds.use-spout-sounds", false);
-        //TODO: Holds compat for < weisstscho o.O
+        //TODO: Holds compat for < 4.0-beta1 o.O
         if(mainConfig.isSet("sounds.use-bukkitcontrib-sounds"))
         {
           if(!mainConfig.isSet("sounds.use-spout-sounds"))
