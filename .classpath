@@ -9,5 +9,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="/media/V10lator/Minecraft/4eclipse/WorldGuard.jar"/>
 	<classpathentry kind="lib" path="/media/V10lator/Minecraft/4eclipse/bukkit.jar"/>
+	<classpathentry kind="lib" path="/media/V10lator/Minecraft/4eclipse/BKCommonLib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -16,21 +17,22 @@ import de.V10lator.PortalStick.V10Location;
 public class GelManager {
 	private final PortalStick plugin;
 	final HashMap<String, Float> onRedGel = new HashMap<String, Float>();
-	private final HashSet<Player> ignore = new HashSet<Player>();
+	private final HashSet<Entity> ignore = new HashSet<Entity>();
 	
 	GelManager(PortalStick plugin)
 	{
 		this.plugin = plugin;
 	}
 	
-	public void useGel(Player player, V10Location locTo, Vector vector)
+	public void useGel(Entity entity, V10Location locTo, Vector vector)
 	{
 		V10Location vl = new V10Location(locTo.world, locTo.x, locTo.y - 1, locTo.z);
 		for(V10Location loc: plugin.portalManager.borderBlocks.keySet())
 		{
 		  if(loc.equals(vl))
 		  {
-			resetPlayer(player);
+			if(entity instanceof Player) //TODO
+			  resetPlayer(((Player)entity));
 			return;
 		  }
 		}
@@ -38,7 +40,8 @@ public class GelManager {
 		{
 		  if(loc.equals(vl))
 		  {
-			resetPlayer(player);
+			if(entity instanceof Player) //TODO
+			  resetPlayer(((Player)entity));
 			return;
 		  }
 		}
@@ -46,11 +49,11 @@ public class GelManager {
 		Block block = locTo.getHandle().getBlock();
 		
 		if(region.getBoolean(RegionSetting.ENABLE_RED_GEL_BLOCKS))
-		  redGel(player, block.getRelative(BlockFace.DOWN), region);
+		  redGel(entity, block.getRelative(BlockFace.DOWN), region);
 
 		if (region.getBoolean(RegionSetting.ENABLE_BLUE_GEL_BLOCKS))
 		{
-			if(player.isSneaking() || ignore.contains(player))
+			if(ignore.contains(entity) || (entity instanceof Player && ((Player)entity).isSneaking()))
 			  return;
 			String bg = region.getString(RegionSetting.BLUE_GEL_BLOCK);
 			for(BlockFace face: new BlockFace[] {BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST})
@@ -69,14 +72,14 @@ public class GelManager {
 				  default:
 					dir = 2;
 				}
-				blueGel(player, region, dir, vector);
+				blueGel(entity, region, dir, vector);
 				break;
 			  }
 		}
 	}
 	
 	//TODO: Vertical is still bugged :(
-	private void blueGel(final Player player, Region region, byte dir, Vector vector)
+	private void blueGel(final Entity entity, Region region, byte dir, Vector vector)
 	{
 //		Vector vector = player.getVelocity(); //We need a self-calculated vector from the player move event as this has 0.0 everywhere.
 //		vector.multiply(region.getDouble(RegionSetting.BLUE_GEL_VELOCITY_MULTIPLIER));
@@ -97,16 +100,19 @@ public class GelManager {
 			vector.setZ(-vector.getZ());
 		}
 		
-		player.setVelocity(vector);
+		entity.setVelocity(vector);
 		
-		plugin.util.PlaySound(Sound.GEL_BLUE_BOUNCE, player, new V10Location(player.getLocation()));
+		plugin.util.playSound(Sound.GEL_BLUE_BOUNCE, new V10Location(entity.getLocation()));
 		
-		ignore.add(player);
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() { public void run() { ignore.remove(player); }}, 10L);
+		ignore.add(entity);
+		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() { public void run() { ignore.remove(entity); }}, 10L);
 	}
 	
-	private boolean redGel(Player player, Block under, Region region)
+	private boolean redGel(Entity entity, Block under, Region region)
 	{
+	  if(!(entity instanceof Player)) // TODO
+		return false;
+	  Player player = (Player)entity;
 	  String pn = player.getName();
 	  String rg = region.getString(RegionSetting.RED_GEL_BLOCK);
 	  if(onRedGel.containsKey(pn))

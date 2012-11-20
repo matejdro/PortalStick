@@ -11,7 +11,8 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 import de.V10lator.PortalStick.V10Location;
 
-public class Region extends User {
+public class Region extends User 
+{
 	
 	public HashMap<RegionSetting, Object> settings = new HashMap<RegionSetting, Object>();
 	
@@ -22,9 +23,12 @@ public class Region extends User {
 	public HashSet<Portal> portals = new HashSet<Portal>();
 	public Portal bluePortalDest;
 	public Portal orangePortalDest;
+	public String name;
 	
-	Region(String name) {
-		super("region_" + name);
+	Region(String name)
+	{
+		super(null);
+		this.name = name;
 	}
 	
 	public void updateLocation() {

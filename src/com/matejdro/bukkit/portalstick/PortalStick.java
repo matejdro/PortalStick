@@ -2,12 +2,15 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.ArrayList;
 
+import org.bukkit.Chunk;
 import org.bukkit.Server;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -82,7 +85,8 @@ public class PortalStick extends JavaPlugin {
 		pm.registerEvents(new PortalStickBlockListener(this), this);
 		pm.registerEvents(new PortalStickVehicleListener(this), this);
 		pm.registerEvents(new PortalStickEntityListener(this), this);
-		pm.registerEvents(new PortalStickWorldListener(this), this);
+		PortalStickWorldListener wL = new PortalStickWorldListener(this);
+		pm.registerEvents(wL, this);
 		
 		worldGuard = (WorldGuardPlugin) pm.getPlugin("WorldGuard");
 		
@@ -111,6 +115,14 @@ public class PortalStick extends JavaPlugin {
 		  pje = new PlayerJoinEvent(p, null);
 		  pL.onPlayerJoin(pje);
 		}
+		
+		ChunkLoadEvent cle;
+		for(World w: s.getWorlds())
+		  for(Chunk c: w.getLoadedChunks())
+		  {
+			cle = new ChunkLoadEvent(c, false);
+			wL.onChunkLoad(cle);
+		  }
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[])

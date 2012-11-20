@@ -10,9 +10,11 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.material.Wool;
 
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
@@ -38,27 +40,34 @@ public class PortalManager {
 //	final HashMap<V10Location, Portal> awayBlocksY = new HashMap<V10Location, Portal>();
 //	final HashMap<V10Location, Portal> awayBlocksZ = new HashMap<V10Location, Portal>();
 
-	public void checkPlayerMove(Player player, Region regionFrom, Region regionTo)
+	public void checkEntityMove(Entity e, Region regionFrom, Region regionTo)
 	{
-		User user = plugin.userManager.getUser(player);
-		if (user == null) return;
-		if (user.usingTool) return;
-		if (!regionTo.name.equals(regionFrom.name)) {
-			if (regionFrom.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE) || regionTo.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE))
-				deletePortals(user);
-			plugin.userManager.deleteDroppedItems(player);
-
-			if (regionFrom.getBoolean(RegionSetting.UNIQUE_INVENTORY) || regionTo.getBoolean(RegionSetting.UNIQUE_INVENTORY))
-			{
-				if (regionTo.name.equalsIgnoreCase("global"))
-					user.revertInventory(player);
-				else {
-					user.saveInventory(player);
-					setPortalInventory(player, regionTo);
-				}
-			}
-			
+	  if(!(e instanceof InventoryHolder))
+		return;
+	  
+	  InventoryHolder ih = (InventoryHolder)e;
+	  User user = plugin.userManager.getUser(e);
+	  
+	  if (user == null || user.usingTool)
+		return;
+	  if (!regionTo.name.equals(regionFrom.name)) {
+		if(ih instanceof Player && (regionFrom.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE) || regionTo.getBoolean(RegionSetting.DELETE_ON_EXITENTRANCE)))
+		{
+		  deletePortals(user);
+		  plugin.userManager.deleteDroppedItems((Player)ih);
 		}
+		
+		if (regionFrom.getBoolean(RegionSetting.UNIQUE_INVENTORY) || regionTo.getBoolean(RegionSetting.UNIQUE_INVENTORY))
+		{
+		  if (regionTo.name.equalsIgnoreCase("global"))
+			user.revertInventory(ih);
+		  else
+		  {
+			user.saveInventory(ih);
+			setPortalInventory(ih, regionTo);
+		  }
+		}
+	  }
 	}
 	
 	private boolean checkPortal(PortalCoord portal)
@@ -289,7 +298,7 @@ public class PortalManager {
 			if (!checkPortal(portalc))
 			{
 				if (end) plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
-				plugin.util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, block);
+				plugin.util.playSound(Sound.PORTAL_CANNOT_CREATE, block);
 				return false;
 			}
 		}
@@ -299,7 +308,7 @@ public class PortalManager {
 			if (portalc.finished)
 			{
 				if (end) plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
-				plugin.util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, block);
+				plugin.util.playSound(Sound.PORTAL_CANNOT_CREATE, block);
 				return false;
 			}
 		}
@@ -312,7 +321,7 @@ public class PortalManager {
 			if (owner.orangePortal != null)
 			  owner.orangePortal.delete();
 			owner.orangePortal = portal;
-			plugin.util.PlaySound(Sound.PORTAL_CREATE_ORANGE, player, block);
+			plugin.util.playSound(Sound.PORTAL_CREATE_ORANGE, block);
 			
 		}
 		else
@@ -320,7 +329,7 @@ public class PortalManager {
 			if (owner.bluePortal != null)
 			  owner.bluePortal.delete();
 			owner.bluePortal = portal;
-			plugin.util.PlaySound(Sound.PORTAL_CREATE_BLUE, player, block);
+			plugin.util.playSound(Sound.PORTAL_CREATE_BLUE, block);
 		}
 		
 		portals.add(portal);
@@ -368,9 +377,9 @@ public class PortalManager {
 	
 	 }
 
-	public void setPortalInventory(Player player, Region region)
+	public void setPortalInventory(InventoryHolder ih, Region region)
 	{
-		PlayerInventory inv = player.getInventory();
+		Inventory inv = ih.getInventory();
 		List<?> ice = region.getList(RegionSetting.GRILL_INVENTORY_CLEAR_EXCEPTIONS);
 		ItemStack item, item2;
 		for (int i = 0; i < inv.getSize(); i++)

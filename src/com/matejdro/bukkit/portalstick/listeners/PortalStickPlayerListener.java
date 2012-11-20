@@ -6,9 +6,7 @@ import java.util.List;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,10 +16,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.util.Vector;
 
-import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.Portal;
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
@@ -30,7 +25,6 @@ import com.matejdro.bukkit.portalstick.util.Config.Sound;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 import de.V10lator.PortalStick.V10Location;
-import de.V10lator.PortalStick.V10Teleport;
 
 public class PortalStickPlayerListener implements Listener {
 	private final PortalStick plugin;
@@ -74,7 +68,7 @@ public class PortalStickPlayerListener implements Listener {
 						if (p.inside.contains(b))
 						{
 							plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
-							plugin.util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, new V10Location(b.getLocation()));
+							plugin.util.playSound(Sound.PORTAL_CANNOT_CREATE, new V10Location(b.getLocation()));
 							return;
 						}
 					}
@@ -88,13 +82,13 @@ public class PortalStickPlayerListener implements Listener {
 					if ((b.getType() == Material.IRON_DOOR_BLOCK || b.getType() == Material.WOODEN_DOOR) && ((b.getData() & 4) != 4) )
 					{
 						plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
-						plugin.util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, new V10Location(b));
+						plugin.util.playSound(Sound.PORTAL_CANNOT_CREATE, new V10Location(b));
 						return;
 					}
 					else if (b.getType() == Material.TRAP_DOOR && (b.getData() & 4) == 0)
 					{
 						plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
-						plugin.util.PlaySound(Sound.PORTAL_CANNOT_CREATE, player, new V10Location(b));
+						plugin.util.playSound(Sound.PORTAL_CANNOT_CREATE, new V10Location(b));
 						return;
 
 					}
@@ -169,109 +163,9 @@ public class PortalStickPlayerListener implements Listener {
 	@EventHandler(ignoreCancelled = false)
 	public void onPlayerMove(PlayerMoveEvent event)
 	{
-		final Player player = event.getPlayer();
-		if (player.isInsideVehicle())
-		  return;
-
-		Location locTo = event.getTo();
-		World world = locTo.getWorld();
-		if (plugin.config.DisabledWorlds.contains(world.getName()))
-		  return;
-		
-		double d = locTo.getBlockY();
-		if(d > world.getMaxHeight() - 1 || d < 0)
-		  return;
-		
-		Vector vec2 = locTo.toVector();
-		V10Location vlocTo = new V10Location(locTo);
-		Location oloc = locTo;
-		locTo = vlocTo.getHandle();
-		Location locFrom = event.getFrom();
-		Vector vec1 = locFrom.toVector();
-		V10Location vlocFrom = new V10Location(locFrom);
-		if(vlocTo.equals(vlocFrom))
-		  return;
-		
-	    Vector vector = vec2.subtract(vec1);
-	    vector.setY(player.getVelocity().getY());
-	    
-	    Region regionTo = plugin.regionManager.getRegion(vlocTo);
-		Region regionFrom = plugin.regionManager.getRegion(vlocFrom);
-		
-		//Check for changing regions
-	    plugin.portalManager.checkPlayerMove(player, regionFrom, regionTo);
-		
-		//Emancipation grill
-		if (regionTo.getBoolean(RegionSetting.ENABLE_GRILLS))
-		{
-			Grill grill = plugin.grillManager.insideBlocks.get(vlocTo);
-			if (grill != null && !grill.disabled)
-			{
-				plugin.grillManager.emancipate(player);
-				return;
-			}
-		}
-		
-		//Aerial faith plate
-		if (regionTo.getBoolean(RegionSetting.ENABLE_AERIAL_FAITH_PLATES))
-		{
-			Block blockIn = locTo.getBlock();
-			Block blockUnder = blockIn.getRelative(BlockFace.DOWN);
-			Block blockStart = null;
-			d = Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[0]);
-			String faithBlock = regionTo.getString(RegionSetting.FAITH_PLATE_BLOCK);
-			Vector velocity = new Vector(0, Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[1]),0);
-			
-			if (blockIn.getType() == Material.STONE_PLATE && plugin.blockUtil.compareBlockToString(blockUnder, faithBlock))
-				blockStart = blockUnder;
-			else
-				blockStart = blockIn;
-			if (blockStart != null) {
-				BlockFace[] faces = new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
-				BlockFace face = plugin.blockUtil.getFaceOfMaterial(blockStart, faces, faithBlock);
-				if (face != null) {
-					switch (face) {
-						case NORTH:
-							velocity.setX(d);
-							break;
-						case SOUTH:
-							velocity.setX(-d);
-							break;
-						case EAST:
-							velocity.setZ(d);
-							break;
-						case WEST:
-							velocity.setZ(-d);
-							break;
-					}
-					if (blockStart == blockUnder) {
-						velocity.setX(-velocity.getX());
-						velocity.setZ(-velocity.getZ());
-					}
-					player.setVelocity(velocity);
-					plugin.util.PlaySound(Sound.FAITHPLATE_LAUNCH, player, new V10Location(blockStart.getLocation()));
-					return;
-				}
-			}
-		
-		}
-		
-		//Teleport
-		if (plugin.hasPermission(player, plugin.PERM_TELEPORT))
-		{
-		  final V10Teleport to = plugin.entityManager.teleport(player, oloc, vlocTo, vector, true);
-		  if(to != null)
-		  {
-			event.setTo(to.to);
-			vlocTo = new V10Location(to.to);
-			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){public void run(){player.setVelocity(to.velocity);}});
-		  }
-		}
-		
-		plugin.gelManager.useGel(player, vlocTo, vector);
-		
-		//Funnel
-		plugin.funnelBridgeManager.EntityMoveCheck(player);
+	  Location to = plugin.entityManager.onEntityMove(event.getPlayer(), event.getFrom(), event.getTo(), false);
+	  if(to != null)
+		event.setTo(to);
 	}
 		 
 	@EventHandler()
@@ -286,14 +180,15 @@ public class PortalStickPlayerListener implements Listener {
 		
 	}
 	
-	@EventHandler()
+	//TODO: check if this is still handled by onPlayerMove
+/*	@EventHandler()
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
 		Region regionFrom = plugin.regionManager.getRegion(new V10Location(event.getFrom()));
 		Region regionTo = plugin.regionManager.getRegion(new V10Location(event.getTo()));
 		if (!plugin.config.RestoreInvOnWorldChange && !event.getFrom().getWorld().getName().equalsIgnoreCase(event.getTo().getWorld().getName()))
 			return;
 		plugin.portalManager.checkPlayerMove(event.getPlayer(), regionFrom, regionTo);
-	}
+	}*/
 		 
 	@EventHandler()
 	public void onPlayerQuit(PlayerQuitEvent event)
@@ -313,7 +208,7 @@ public class PortalStickPlayerListener implements Listener {
 	public void onPlayerJoin(PlayerJoinEvent event)
 	{
 		Player player = event.getPlayer();
-		User user = new User(player.getName());
+		User user = new User(player);
 		plugin.userManager.createUser(player);
 		Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
 		if (!region.name.equals("global") && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))

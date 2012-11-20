@@ -2,9 +2,7 @@ package com.matejdro.bukkit.portalstick.util;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.getspout.spoutapi.SpoutManager;
@@ -73,14 +71,7 @@ public class Util {
     	return str;
     }
     
-    public void PlayNote(Player player, byte instrument, byte note)
-    {
-    	Location loc = player.getLocation();
-        if (!plugin.regionManager.getRegion(new V10Location(loc)).getBoolean(RegionSetting.ENABLE_SOUNDS)) return;
-        player.playNote(loc, instrument, note);
-    }
-    
-    public void PlaySound(Sound sound, Player player, V10Location loc)
+    public void playSound(Sound sound, V10Location loc)
     {
       if (!plugin.regionManager.getRegion(loc).getBoolean(RegionSetting.ENABLE_SOUNDS))
     	return;
@@ -119,18 +110,7 @@ public class Util {
           	}
           }
           org.bukkit.Sound s = org.bukkit.Sound.valueOf(split[0]);
-          World world;
-          if(player != null)
-        	world = player.getWorld();
-          else
-        	world = loc.getHandle().getWorld();
-          world.playSound(loc.getHandle(), s, volume, pitch);
-        }
-        else
-        {
-          Byte instrument = Byte.parseByte(plugin.config.soundNotes[sound.ordinal()].split("-")[0]);
-          Byte note = Byte.parseByte(plugin.config.soundNotes[sound.ordinal()].split("-")[1]);
-          PlayNote(player, instrument, note);
+          loc.getHandle().getWorld().playSound(loc.getHandle(), s, volume, pitch);
         }
       }
       else
@@ -141,7 +121,7 @@ public class Util {
     	else
     	{
     	  plugin.config.useSpoutSounds = false;
-    	  PlaySound(sound, player, loc);
+    	  playSound(sound, loc);
     	  plugin.config.useSpoutSounds = true;
     	}
       }

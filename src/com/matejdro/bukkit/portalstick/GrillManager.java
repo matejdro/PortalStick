@@ -8,7 +8,9 @@ import java.util.List;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
@@ -170,17 +172,20 @@ public class GrillManager {
     	}
     }
 
-	public void emancipate(Player player) {
-		
-		User user = plugin.userManager.getUser(player);
-		Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
-		plugin.portalManager.deletePortals(user);
-		
-		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_INVENTORY) && !user.usingTool)
-			plugin.portalManager.setPortalInventory(player, region);
-		
-		if (region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS)) {
-			plugin.userManager.deleteDroppedItems(player);
-		}
+	public void emancipate(Entity entity)
+	{
+	  if(!(entity instanceof InventoryHolder))
+		return;
+	  InventoryHolder ih = (InventoryHolder)entity;
+	  User user = plugin.userManager.getUser(entity);
+	  Region region = plugin.regionManager.getRegion(new V10Location(entity.getLocation()));
+	  plugin.portalManager.deletePortals(user);
+	  
+	  if (region.getBoolean(RegionSetting.GRILLS_CLEAR_INVENTORY) && !user.usingTool)
+		plugin.portalManager.setPortalInventory(ih, region);
+	  
+	  if (entity instanceof Player && region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS)) {
+		plugin.userManager.deleteDroppedItems((Player)entity);
+	  }
 	}
 }

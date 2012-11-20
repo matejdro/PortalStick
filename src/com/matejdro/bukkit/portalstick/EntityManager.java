@@ -1,8 +1,11 @@
 package com.matejdro.bukkit.portalstick;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.UUID;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -25,6 +28,7 @@ import de.V10lator.PortalStick.V10Teleport;
 public class EntityManager implements Runnable {
 	private final PortalStick plugin;
 	private final HashSet<Entity> blockedEntities = new HashSet<Entity>();
+	final HashMap<UUID, Location> oldLocations = new HashMap<UUID, Location>();
 
 	EntityManager(PortalStick instance)
 	{
@@ -251,29 +255,145 @@ public class EntityManager implements Runnable {
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){public void run(){destination.disabled = false;}}, 10L);
 		
 		if (portal.orange)
-			plugin.util.PlaySound(Sound.PORTAL_EXIT_ORANGE, entity instanceof Player ? (Player) entity : null, new V10Location(teleport));
+			plugin.util.playSound(Sound.PORTAL_EXIT_ORANGE, new V10Location(teleport));
 		else
-			plugin.util.PlaySound(Sound.PORTAL_EXIT_BLUE, entity instanceof Player ? (Player) entity : null, new V10Location(teleport));
+			plugin.util.playSound(Sound.PORTAL_EXIT_BLUE, new V10Location(teleport));
 		
 		return new V10Teleport(teleport, outvector);
 	}
 	
 	@Override
-	public void run() {
-		Location oloc;
-		Vector vector;
+	public void run()
+	{
+		UUID uuid;
+		Location loc;
 		for (World w : plugin.getServer().getWorlds())
 		{
+			if(plugin.config.DisabledWorlds.contains(w.getName()))
+			  continue;
 			for(Entity e: w.getEntities())
 			{
 				if (e instanceof Player || e instanceof Vehicle || e.isDead())
 				  continue;
-
-				vector = e.getVelocity();
-				oloc = e.getLocation();
-				teleport(e, oloc, new V10Location(oloc), vector, true);
-				plugin.funnelBridgeManager.EntityMoveCheck(e);
+				
+				uuid = e.getUniqueId();
+				loc = oldLocations.get(e.getUniqueId());
+				if(loc == null) //TODO: This shouldn't be
+				{
+				  oldLocations.put(uuid, e.getLocation());
+				  return;
+				}
+				loc = onEntityMove(e, oldLocations.get(e.getUniqueId()), e.getLocation(), true);
+				if(loc != null)
+				  oldLocations.put(uuid, loc);
 			}
 		}
+	}
+	
+	public Location onEntityMove(final Entity entity, Location locFrom, Location locTo, boolean tp)
+	{
+		if (entity.isInsideVehicle())
+		  return null;
+		
+		World world = locTo.getWorld();
+		if (plugin.config.DisabledWorlds.contains(world.getName()))
+		  return null;
+		
+		double d = locTo.getBlockY();
+		if(d > world.getMaxHeight() - 1 || d < 0)
+		  return null;
+		
+		Vector vec2 = locTo.toVector();
+		V10Location vlocTo = new V10Location(locTo);
+		Location oloc = locTo;
+		locTo = vlocTo.getHandle();
+		Vector vec1 = locFrom.toVector();
+		V10Location vlocFrom = new V10Location(locFrom);
+		if(vlocTo.equals(vlocFrom))
+		  return null;
+		
+	    Vector vector = vec2.subtract(vec1);
+	    vector.setY(entity.getVelocity().getY());
+	    
+	    Region regionTo = plugin.regionManager.getRegion(vlocTo);
+		Region regionFrom = plugin.regionManager.getRegion(vlocFrom);
+		
+		//Check for changing regions
+	    plugin.portalManager.checkEntityMove(entity, regionFrom, regionTo);
+		
+		//Emancipation grill
+		if (regionTo.getBoolean(RegionSetting.ENABLE_GRILLS))
+		{
+			Grill grill = plugin.grillManager.insideBlocks.get(vlocTo);
+			if (grill != null && !grill.disabled)
+			{
+				plugin.grillManager.emancipate(entity);
+				return null;
+			}
+		}
+		
+		//Aerial faith plate
+		if (regionTo.getBoolean(RegionSetting.ENABLE_AERIAL_FAITH_PLATES))
+		{
+			Block blockIn = locTo.getBlock();
+			Block blockUnder = blockIn.getRelative(BlockFace.DOWN);
+			Block blockStart = null;
+			d = Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[0]);
+			String faithBlock = regionTo.getString(RegionSetting.FAITH_PLATE_BLOCK);
+			Vector velocity = new Vector(0, Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[1]),0);
+			
+			if (blockIn.getType() == Material.STONE_PLATE && plugin.blockUtil.compareBlockToString(blockUnder, faithBlock))
+				blockStart = blockUnder;
+			else
+				blockStart = blockIn;
+			if (blockStart != null) {
+				BlockFace[] faces = new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
+				BlockFace face = plugin.blockUtil.getFaceOfMaterial(blockStart, faces, faithBlock);
+				if (face != null) {
+					switch (face) {
+						case NORTH:
+							velocity.setX(d);
+							break;
+						case SOUTH:
+							velocity.setX(-d);
+							break;
+						case EAST:
+							velocity.setZ(d);
+							break;
+						case WEST:
+							velocity.setZ(-d);
+							break;
+					}
+					if (blockStart == blockUnder) {
+						velocity.setX(-velocity.getX());
+						velocity.setZ(-velocity.getZ());
+					}
+					entity.setVelocity(velocity);
+					plugin.util.playSound(Sound.FAITHPLATE_LAUNCH, new V10Location(blockStart.getLocation()));
+					return null;
+				}
+			}
+		
+		}
+		Location ret = null;
+		//Teleport
+		if (!(entity instanceof Player) || plugin.hasPermission((Player)entity, plugin.PERM_TELEPORT))
+		{
+		  final V10Teleport to = plugin.entityManager.teleport(entity, oloc, vlocTo, vector, tp);
+		  if(to != null)
+		  {
+			ret = to.to;
+			vlocTo = new V10Location(ret);
+			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){public void run(){entity.setVelocity(to.velocity);}});
+		  }
+		}
+		
+		//Gel
+		plugin.gelManager.useGel(entity, vlocTo, vector);
+		
+		//Funnel
+		plugin.funnelBridgeManager.EntityMoveCheck(entity);
+		
+		return ret;
 	}
 }
