@@ -13,11 +13,11 @@ import de.V10lator.PortalStick.V10Location;
 
 public class Portal {
 	private final PortalStick plugin;
-	public final V10Location teleport;
 	final HashSet<V10Location> border;
-	public final HashSet<V10Location> inside;
-	private final HashSet<V10Location> behind;
-	final boolean vertical;
+	public final V10Location[] inside;
+	public final V10Location[] teleport;
+	private final V10Location[] behind;
+	public final boolean horizontal;
 	private final V10Location centerBlock;
 	public final User owner;
 	public final boolean orange;
@@ -30,17 +30,17 @@ public class Portal {
 	private final HashMap<V10Location, String> oldBlocks = new HashMap<V10Location, String>();
 	private boolean placetorch = false;
 	
-	public Portal(PortalStick plugin, V10Location Teleport, V10Location CenterBlock, HashSet<V10Location> Border, HashSet<V10Location> Inside, HashSet<V10Location> Behind, User Owner, boolean Orange, boolean Vertical, BlockFace Teleportface)
+	public Portal(PortalStick plugin, V10Location[] teleport, V10Location CenterBlock, HashSet<V10Location> Border, V10Location[] inside, V10Location[] behind, User Owner, boolean Orange, boolean horizontal, BlockFace Teleportface)
 	{
 		this.plugin = plugin;
-		teleport = Teleport;
+		this.teleport = teleport;
 		border = Border;
-		inside = Inside;
+		this.inside = inside;
 		orange = Orange;
 		owner = Owner;
-		vertical = Vertical;
+		this.horizontal = horizontal;
 		teleportFace = Teleportface;
-		behind = Behind;
+		this.behind = behind;
 		centerBlock = CenterBlock;
 	}
 	
@@ -55,9 +55,11 @@ public class Portal {
 			}
 			for (V10Location loc: inside)
 			{
-				if (oldBlocks.containsKey(loc))
-					plugin.blockUtil.setBlockData(loc, oldBlocks.get(loc));
-				plugin.portalManager.insideBlocks.remove(loc);
+			  if(loc == null)
+				continue;
+			  if (oldBlocks.containsKey(loc))
+				plugin.blockUtil.setBlockData(loc, oldBlocks.get(loc));
+			  plugin.portalManager.insideBlocks.remove(loc);
 			}
 			if (plugin.config.FillPortalBack > -1)
 			{
@@ -103,11 +105,13 @@ public class Portal {
 	
 	public void open()
 	{
-		Region region = plugin.regionManager.getRegion((inside.toArray(new V10Location[0])[0]));
+		Region region = plugin.regionManager.getRegion(inside[0]);
 		
 		Block b;
 		for (V10Location loc: inside)
     	{
+		  if(loc == null)
+			continue;
 			b = loc.getHandle().getBlock();
 			b.setType(Material.AIR); 
 			
@@ -124,6 +128,7 @@ public class Portal {
 						 		transmitter = true;
 						 		if (destination.open)
 							 		for (V10Location b2: destination.inside)
+							 		  if(b2 != null)
 							 			b2.getHandle().getBlock().setType(Material.REDSTONE_TORCH_ON);
 						 		else
 						 			destination.placetorch = true;
@@ -135,7 +140,7 @@ public class Portal {
 		
 		if (placetorch)
 		{
-			(inside.toArray(new V10Location[0])[0]).getHandle().getBlock().setType(Material.REDSTONE_TORCH_ON);
+			inside[0].getHandle().getBlock().setType(Material.REDSTONE_TORCH_ON);
 			placetorch = false;
 		}
 		
@@ -153,8 +158,11 @@ public class Portal {
 		int w = Material.WOOL.getId();
 		for (V10Location b: inside)
     	{
+		  if(b != null)
+		  {
     		b.getHandle().getBlock().setTypeIdAndData(w, color, true);
     		open = false;
+		  }
     	}
 		
 		plugin.funnelBridgeManager.reorientBridge(this);
@@ -173,6 +181,7 @@ public class Portal {
 
 		if (!open)
 			for (V10Location b: inside)
+			  if(b != null)
 	    		b.getHandle().getBlock().setData(color);
 		
 		if (plugin.config.CompactPortal)
@@ -204,8 +213,11 @@ public class Portal {
        	}
     	for (V10Location loc: inside)
     	{
+    	  if(loc != null)
+    	  {
     		rb = loc.getHandle().getBlock();
 			oldBlocks.put(loc, plugin.blockUtil.getBlockData(rb));
+    	  }
     	}
     	if (plugin.config.FillPortalBack > -1)
     	{
@@ -246,34 +258,34 @@ public class Portal {
     		plugin.regionManager.getRegion(centerBlock).regionPortalCreated(orange);
     	
     	V10Location oloc;
+    	V10Location loc;
     	int i;
-    	for (V10Location loc : inside)
+    	oloc = inside[0].clone();
+    	plugin.portalManager.insideBlocks.put(inside[0], this);
+    	if(inside[1] != null)
+    	  plugin.portalManager.insideBlocks.put(inside[1], this);
+    	
+    	for (int y = -1;y<2;y++)
     	{
-    		oloc = loc.clone();
-    		plugin.portalManager.insideBlocks.put(loc, this);
-    		
-    		for (int y = -1;y<2;y++)
-    		{
-    			if(y != 0)
-    			{
-    			  loc = new V10Location(oloc.world, oloc.x, oloc.y + y, oloc.z);
-    			  plugin.portalManager.awayBlocksY.put(loc, this);
-    			  if(y < 1)
-    				i = 0;
-    			  else
-    				i = 1;
-    			  awayBlocksY[i] = loc;
-    			}
-    			for (int x = -1;x<2;x++)
-    			{
-    				for (int z = -1;z<2;z++)
-    	    		{
-    					loc = new V10Location(oloc.world, oloc.x + x, oloc.y + y, oloc.z + z);
-    					plugin.portalManager.awayBlocks.put(loc, this);
-    	    			awayBlocks.add(loc);
-    	    		}
-        		}
-    		}	
+    	  if(y != 0)
+    	  {
+    		loc = new V10Location(oloc.world, oloc.x, oloc.y + y, oloc.z);
+    		plugin.portalManager.awayBlocksY.put(loc, this);
+    		if(y < 1)
+    		  i = 0;
+    		else
+    		  i = 1;
+    		awayBlocksY[i] = loc;
+    	  }
+    	  for (int x = -1;x<2;x++)
+    	  {
+    		for (int z = -1;z<2;z++)
+    	    {
+    		  loc = new V10Location(oloc.world, oloc.x + x, oloc.y + y, oloc.z + z);
+    		  plugin.portalManager.awayBlocks.put(loc, this);
+    		  awayBlocks.add(loc);
+    	    }
+    	  }
     	}
 	}
 	

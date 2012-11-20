@@ -125,8 +125,8 @@ public class FunnelBridgeManager {
 		{
 			for (V10Location b: portal.inside)
 			{
-				if (cbridge.isBlockNextToBridge(b))
-					cbridge.activate();
+			  if(b != null && cbridge.isBlockNextToBridge(b))
+				cbridge.activate();
 			}
 			for (V10Location b: portal.border)
 			{

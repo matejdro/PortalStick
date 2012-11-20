@@ -45,14 +45,20 @@ public class Bridge {
 		V10Location nextV10Location = startBlock;
 		Block nextBlock = nextV10Location.getHandle().getBlock();
 		Portal portal;
-		while (true)
+		while(true)
 		{			
 			portal = null;
 			if(plugin.portalManager.insideBlocks.containsKey(nextV10Location))
 			{
 			  portal = plugin.portalManager.insideBlocks.get(nextV10Location);
 			  if(portal.open)
-				nextV10Location = portal.getDestination().teleport;
+			  {
+				Portal destP = portal.getDestination();
+				if(destP.horizontal || portal.inside[0].equals(nextV10Location))
+				  nextV10Location = destP.teleport[0];
+				else
+				  nextV10Location = destP.teleport[1];
+			  }
 			  else
 				return;
 			}
@@ -60,7 +66,7 @@ public class Bridge {
 			{
 			  portal = plugin.portalManager.borderBlocks.get(nextV10Location);
 			  if(portal.open)
-				nextV10Location = new V10Location(portal.getDestination().teleport.getHandle().getBlock().getRelative(BlockFace.DOWN));
+				nextV10Location = new V10Location(portal.getDestination().teleport[0].getHandle().getBlock().getRelative(BlockFace.DOWN));
 			  else
 				return;
 			}

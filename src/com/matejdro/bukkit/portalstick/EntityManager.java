@@ -42,18 +42,44 @@ public class EntityManager implements Runnable {
 
 		Region regionTo = plugin.regionManager.getRegion(locTo);
 		Portal portal = plugin.portalManager.insideBlocks.get(locTo);
-		
-		if(portal == null)
+		Location teleport;
+		final Portal destination;
+		if(portal != null)
+		{
+		  if(!portal.open)
+			return null;
+		  destination = portal.getDestination();
+		  if(destination.horizontal || portal.inside[0].equals(locTo))
+			teleport = destination.teleport[0].getHandle();
+		  else
+			teleport = destination.teleport[1].getHandle();
+		}
+		else
 		{
 		  if((entity instanceof FallingBlock || entity instanceof TNTPrimed) && vector.getX() == 0.0D && vector.getZ() == 0.0D)
 		  {
 			portal = plugin.portalManager.awayBlocksY.get(locTo);
+			if(!plugin.portalManager.awayBlocksY.containsKey(locTo))
+			  return null;
+			portal = plugin.portalManager.awayBlocksY.get(locTo);
+			destination = portal.getDestination();
+			teleport = destination.teleport[0].getHandle();
 		  }
 		  else if((Math.abs(vector.getX()) > 0.5 || (Math.abs(vector.getY()) > 1 || (Math.abs(vector.getZ()) > 0.5))) || entity instanceof Boat)
 		  {
-			portal = plugin.portalManager.awayBlocks.get(locTo);
-			if(portal == null)
+			if(!plugin.portalManager.awayBlocks.containsKey(locTo))
 			  return null;
+			portal = plugin.portalManager.awayBlocks.get(locTo);
+			
+			if(!portal.open)
+			  return null;
+			
+			destination = portal.getDestination();
+			if(portal.horizontal || portal.teleport[0].y <= locTo.y)
+			  teleport = destination.teleport[0].getHandle();
+			else
+			  teleport = destination.teleport[1].getHandle();
+			
 			Block to = locTo.getHandle().getBlock();
 			for(int i = 0; i < 2; i++)
 			{
@@ -110,11 +136,8 @@ public class EntityManager implements Runnable {
 			return null;
 		}
 		
-		if(!portal.open || portal.disabled || (Math.abs(vector.getY()) > 1 && !portal.vertical))
+		if(portal.disabled || (Math.abs(vector.getY()) > 1 && !portal.horizontal))
 		  return null;
-		
-		final Portal destination = portal.getDestination();	 
-		Location teleport = destination.teleport.getHandle();
 		
 		teleport.setX(teleport.getX() + 0.5D);
 		teleport.setZ(teleport.getZ() + 0.5D);
@@ -213,7 +236,6 @@ public class EntityManager implements Runnable {
 			teleport.setX(teleport.getX() + 0.5D);
 		
 		entity.setFallDistance(0);
-//		entity.setVelocity(entity.getVelocity().zero());
 		
 		teleport.setPitch(pitch);
 		teleport.setYaw(yaw);
@@ -242,7 +264,7 @@ public class EntityManager implements Runnable {
 	public void run()
 	{
 		UUID uuid;
-		Location loc;
+		Location loc, to;
 		for (World w : plugin.getServer().getWorlds())
 		{
 			if(plugin.config.DisabledWorlds.contains(w.getName()))
@@ -259,8 +281,10 @@ public class EntityManager implements Runnable {
 				  oldLocations.put(uuid, e.getLocation());
 				  return;
 				}
-				loc = onEntityMove(e, oldLocations.get(e.getUniqueId()), e.getLocation(), true);
-				if(loc != null)
+				to = onEntityMove(e, oldLocations.get(e.getUniqueId()), e.getLocation(), true);
+				if(to != null)
+				  oldLocations.put(uuid, to);
+				else
 				  oldLocations.put(uuid, loc);
 			}
 		}
@@ -355,7 +379,7 @@ public class EntityManager implements Runnable {
 		//Teleport
 		if (!(entity instanceof Player) || plugin.hasPermission((Player)entity, plugin.PERM_TELEPORT))
 		{
-		  final V10Teleport to = plugin.entityManager.teleport(entity, oloc, vlocTo, vector, tp);
+		  final V10Teleport to = teleport(entity, oloc, vlocTo, vector, tp);
 		  if(to != null)
 		  {
 			ret = to.to;

@@ -76,21 +76,43 @@ public class Funnel extends Bridge {
 		Block nextBlock = nextV10Location.getHandle().getBlock();
 		int counter = reversed ? 1 : 8;
 		while (true)
-		{			
-			Portal portal = plugin.portalManager.insideBlocks.get(nextV10Location);
-			if (portal == null) portal = plugin.portalManager.borderBlocks.get(nextV10Location);
-			if (portal != null && portal.open)
+		{
+			Portal portal = null;
+			if(plugin.portalManager.insideBlocks.containsKey(nextV10Location))
 			{
-				nextV10Location = portal.getDestination().teleport;
-				nextBlock = nextV10Location.getHandle().getBlock();
-
-				face = portal.getDestination().teleportFace.getOppositeFace();
-				
-				involvedPortals.add(portal);
-				plugin.funnelBridgeManager.involvedPortals.put(portal, this);
-				continue;
+			  portal = plugin.portalManager.insideBlocks.get(nextV10Location);
+			  if(portal.open)
+			  {
+				Portal destP = portal.getDestination();
+				if(destP.horizontal ||portal.inside[0].equals(nextV10Location))
+				  nextV10Location = destP.teleport[0];
+				else
+				  nextV10Location = destP.teleport[1];
+			  }
+			  else
+				return;
 			}
-			else if (nextBlock.getY() > 127 || (!nextBlock.isLiquid() && nextBlock.getType() != Material.AIR)) break;
+			else if(plugin.portalManager.borderBlocks.containsKey(nextV10Location))
+			{
+			  portal = plugin.portalManager.borderBlocks.get(nextV10Location);
+			  if(portal.open)
+				nextV10Location = new V10Location(portal.getDestination().teleport[0].getHandle().getBlock().getRelative(BlockFace.DOWN));
+			  else
+				return;
+			}
+			
+			if(portal != null && portal.open)
+			{
+			  nextBlock = nextV10Location.getHandle().getBlock();
+			  
+			  face = portal.getDestination().teleportFace.getOppositeFace();
+			  
+			  involvedPortals.add(portal);
+			  plugin.funnelBridgeManager.involvedPortals.put(portal, this);
+			  continue;
+			}
+			else if (nextBlock.getY() > nextBlock.getWorld().getMaxHeight() - 1 || nextBlock.getY() < 1 || (!nextBlock.isLiquid() && nextBlock.getType() != Material.AIR))
+			  break;
 			
 			if (!nextBlock.getWorld().isChunkLoaded(nextBlock.getChunk())) return;
 			

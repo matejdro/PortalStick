@@ -103,6 +103,8 @@ public class PortalManager {
 		}
 		for (V10Location loc: portal.inside)
 		{
+			if(loc == null)
+			  continue;
 			if(borderBlocks.containsKey(loc))
 			{
 			  overlap.add(borderBlocks.get(loc));
@@ -193,11 +195,11 @@ public class PortalManager {
 				}
 			}
 			
-			portal.inside.add(new V10Location(rb));
+			portal.inside[0] = new V10Location(rb);
 	    	
-	    	portal.destLoc = new V10Location(rb.getRelative(face));
+	    	portal.destLoc[0] = new V10Location(rb.getRelative(face));
 	    	face = face.getOppositeFace();
-			portal.behind.add(new V10Location(rb.getRelative(face)));
+			portal.behind[0] = new V10Location(rb.getRelative(face));
 	    	portal.tpFace = face;
 	    	portal.vertical = true;
 	    	return portal;
@@ -258,16 +260,19 @@ public class PortalManager {
 	      }
 	    }
 	    
-	    portal.inside.add(block);
+	    portal.inside[1] = block;
 	    Block block2 = rb.getRelative(BlockFace.DOWN);
-	    portal.inside.add(new V10Location(block2));
+	    portal.inside[0] = new V10Location(block2);
 	    
-	    portal.destLoc = new V10Location(block2.getRelative(portal.tpFace.getOppositeFace()));
+	    Block block3 = block2.getRelative(portal.tpFace.getOppositeFace());
+	    portal.destLoc[0] = new V10Location(block3);
+	    portal.destLoc[1] = new V10Location(block3.getRelative(BlockFace.UP));
+	    
 	    portal.vertical = false;
 	    
 	    block2 = block2.getRelative(portal.tpFace);
-	    portal.behind.add(new V10Location(block2));
-	    portal.behind.add(new V10Location(block2.getRelative(BlockFace.UP)));
+	    portal.behind[0] = new V10Location(block2);
+	    portal.behind[1] = new V10Location(block2.getRelative(BlockFace.UP));
 	    
 		return portal;
 	}
@@ -524,6 +529,7 @@ public class PortalManager {
 				
 		//Check if portal is big enough and start making a portal
 		PortalCoord portalc = new PortalCoord();
+		int c = 0;
 		for (int i = 0; i < ironBars.size() / 2; i++)
 		{
 			portalc.border.add(new V10Location(ironBars.get(i).getRelative(portalFace).getRelative(otherSide, 1)));
@@ -532,31 +538,31 @@ public class PortalManager {
 			if (i == 0 || i == (ironBars.size() / 2) - 1)
 				portalc.border.add(new V10Location(ironBars.get(i).getRelative(portalFace).getRelative(otherSide, 2)));
 			else
-				portalc.inside.add(new V10Location(ironBars.get(i).getRelative(portalFace).getRelative(otherSide, 2)));
+				portalc.inside[c++] = new V10Location(ironBars.get(i).getRelative(portalFace).getRelative(otherSide, 2));
 		}
 		
 		portalc.vertical = portalFace == BlockFace.UP || portalFace == BlockFace.DOWN;
-		portalc.block = portalc.inside.toArray(new V10Location[0])[0];
+		portalc.block = portalc.inside[0];
 		
 		if (oldPortal != null)
 		  oldPortal.delete();
 		
-		if (portalc.border.size() == 0 || portalc.inside.size() == 0) return;
+		if (portalc.border.size() == 0 || portalc.inside[0] == null)
+		  return;
 		for (V10Location tb : portalc.border)
 			if ((!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(tb.getHandle().getBlock().getTypeId())) || borderBlocks.containsKey(tb) || insideBlocks.containsKey(tb)) return;
 		for (V10Location tb : portalc.inside)
+		  if(tb != null)
 			if ((!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(tb.getHandle().getBlock().getTypeId())) || borderBlocks.containsKey(tb) || insideBlocks.containsKey(tb)) return;
 		
-		if (portalc.vertical) portalc.destLoc = new V10Location(portalc.inside.toArray(new V10Location[0])[0].getHandle().getBlock().getRelative(portalFace.getOppositeFace()));
+		if (portalc.vertical)
+		  portalc.destLoc[0] = new V10Location(portalc.inside[0].getHandle().getBlock().getRelative(portalFace.getOppositeFace()));
 		else
 		{
-			//Find lowest block inside horizontal portal
-			int y = 200;
-			V10Location lBlock = null;
-			for (V10Location lb : portalc.inside)
-				if (lBlock == null || lBlock.y < y) lBlock = lb;
-					
-			portalc.destLoc = new V10Location(lBlock.getHandle().getBlock().getRelative(portalFace.getOppositeFace()));
+		  Block block = portalc.inside[0].getHandle().getBlock().getRelative(portalFace.getOppositeFace());
+		  portalc.destLoc[0] = new V10Location(block);
+		  block = block.getRelative(BlockFace.UP);
+		  portalc.destLoc[1] = new V10Location(block);
 		}
 		
 		portalc.tpFace = portalFace;

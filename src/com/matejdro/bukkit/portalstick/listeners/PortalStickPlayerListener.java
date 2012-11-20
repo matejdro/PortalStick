@@ -59,16 +59,19 @@ public class PortalStickPlayerListener implements Listener {
 			if (targetBlocks.size() < 1 || plugin.config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()) || !region.getBoolean(RegionSetting.ENABLE_PORTALS))
 				return;
 			
+			V10Location loc;
 			if (region.getBoolean(RegionSetting.PREVENT_PORTAL_THROUGH_PORTAL))
 			{
 				for (Block b : targetBlocks)
 				{
+					loc = new V10Location(b);
 					for (Portal p : plugin.portalManager.portals)
 					{
-						if (p.inside.contains(b))
+					  for(int i = 0; i < 2; i++)
+						if(p.inside[i] != null && p.inside[i].equals(loc))
 						{
 							plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
-							plugin.util.playSound(Sound.PORTAL_CANNOT_CREATE, new V10Location(b.getLocation()));
+							plugin.util.playSound(Sound.PORTAL_CANNOT_CREATE, loc);
 							return;
 						}
 					}
@@ -101,7 +104,7 @@ public class PortalStickPlayerListener implements Listener {
 			if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || tb.contains((byte) event.getClickedBlock().getTypeId()))
 			{
 				Block b = targetBlocks.get(targetBlocks.size() - 1);
-				V10Location loc = new V10Location(b);
+				loc = new V10Location(b);
 		        if (targetBlocks.size() < 2)
 		        	plugin.portalManager.placePortal(loc, event.getPlayer(), orange);
 		        else

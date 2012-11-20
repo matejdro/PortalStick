@@ -135,7 +135,8 @@ public class PortalStickBlockListener implements Listener {
 			  continue;
 			
 			for (V10Location b: destination.inside)
-			  b.getHandle().getBlock().setType(Material.AIR);
+			  if(b != null)
+				b.getHandle().getBlock().setType(Material.AIR);
 			portal.transmitter = false;
 		  }
 		}
@@ -211,10 +212,11 @@ public class PortalStickBlockListener implements Listener {
 	
 	@EventHandler()
 	public void onBlockFromTo(BlockFromToEvent event) {
-		V10Location vb = new V10Location(event.getBlock());
-		 Region region = plugin.regionManager.getRegion(vb);
+		V10Location loc = new V10Location(event.getBlock());
+		V10Location tb = new V10Location(event.getToBlock());
+		 Region region = plugin.regionManager.getRegion(loc);
 		 //Liquid teleporting
-			if (region. //TODO: region is null!
+			if (region. //TODO: region is null! - Seems to be solved.
 					getBoolean(
 							RegionSetting.
 							TELEPORT_LIQUIDS)
@@ -222,57 +224,53 @@ public class PortalStickBlockListener implements Listener {
 							!plugin.
 							funnelBridgeManager.
 							bridgeBlocks.
-							containsKey(vb))
+							containsKey(loc))
 			{
-				V10Location loc = new V10Location(event.getBlock().getLocation());
-					Portal portal = plugin.portalManager.insideBlocks.get(loc);
-					if (portal != null && portal.open && portal.owner != null)
-					{
-						Portal destination;
-						if (portal.orange)
-							destination = portal.owner.bluePortal;
-						else
-							destination = portal.owner.orangePortal;
-						
-						Material blockt = Material.AIR;
-						switch (event.getBlock().getType())
-						{
-							case WATER:
-							case STATIONARY_WATER:
-								blockt = Material.WATER;
-								break;
-							case LAVA:
-							case STATIONARY_LAVA:
-								blockt = Material.LAVA;
-								break;
-						}
-						
-						if (destination != null)
-						{
-							final Block destb = destination.teleport.getHandle().getBlock();
-							final Block source = event.getBlock();
-							if (destb.getType() == Material.AIR)
-							{
-								destb.setType(blockt);
-								plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemoveLiquid(plugin, source, destb, destination), 10L);
-	
-							}
-							
-							event.setCancelled(true);
-						}
-					}
-			}
-			V10Location tb = new V10Location(event.getToBlock());
-				//Funnel
-				if (plugin.funnelBridgeManager.bridgeBlocks.containsKey(vb) && plugin.funnelBridgeManager.bridgeBlocks.containsKey(tb)) 
+				Portal portal = plugin.portalManager.insideBlocks.get(tb);
+				if (portal != null && portal.open)
 				{
-					if (!(plugin.funnelBridgeManager.bridgeBlocks.get(vb) instanceof Funnel && plugin.funnelBridgeManager.bridgeBlocks.get(tb) instanceof Funnel))
-						{
-							event.setCancelled(true);
-							return;
-						}
+					Portal destination = portal.getDestination();
 					
-					Funnel funnel1 = (Funnel) plugin.funnelBridgeManager.bridgeBlocks.get(vb);
+					Material blockt = Material.AIR;
+					switch (event.getBlock().getType())
+					{
+						case WATER:
+						case STATIONARY_WATER:
+							blockt = Material.WATER;
+							break;
+						case LAVA:
+						case STATIONARY_LAVA:
+							blockt = Material.LAVA;
+							break;
+					}
+					
+					V10Location dest;
+					Portal destP = portal.getDestination();
+					if(destP.horizontal || portal.inside[0].equals(tb))
+					  dest = destP.teleport[0];
+					else
+					  dest = destP.teleport[1];
+					
+					final Block destb = dest.getHandle().getBlock();
+					final Block source = event.getBlock();
+					if (destb.getType() == Material.AIR)
+					{
+					  destb.setType(blockt);
+					  plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemoveLiquid(plugin, source, destb, destination), 10L);  
+					}
+					event.setCancelled(true);
+				}
+			}
+				//Funnel
+				if (plugin.funnelBridgeManager.bridgeBlocks.containsKey(loc) && plugin.funnelBridgeManager.bridgeBlocks.containsKey(tb)) 
+				{
+					if (!(plugin.funnelBridgeManager.bridgeBlocks.get(loc) instanceof Funnel && plugin.funnelBridgeManager.bridgeBlocks.get(tb) instanceof Funnel))
+					{
+						event.setCancelled(true);
+						return;
+					}
+					
+					Funnel funnel1 = (Funnel) plugin.funnelBridgeManager.bridgeBlocks.get(loc);
 					Funnel funnel2 = (Funnel) plugin.funnelBridgeManager.bridgeBlocks.get(tb);
 					if (!funnel1.equals(funnel2))
 					{
@@ -280,7 +278,7 @@ public class PortalStickBlockListener implements Listener {
 						return;
 					}
 					
-					int numfrom = funnel1.getCounter(vb);
+					int numfrom = funnel1.getCounter(loc);
 					int numto = funnel1.getCounter(tb);
 					
 					if (numfrom < numto || numfrom < 0 || numto < 0)
@@ -291,7 +289,7 @@ public class PortalStickBlockListener implements Listener {
 					
 				
 				}
-				else if (plugin.funnelBridgeManager.bridgeBlocks.containsKey(vb) || plugin.funnelBridgeManager.bridgeBlocks.containsKey(tb))
+				else if (plugin.funnelBridgeManager.bridgeBlocks.containsKey(loc) || plugin.funnelBridgeManager.bridgeBlocks.containsKey(tb))
 				{
 					event.setCancelled(true);
 					return;
@@ -354,9 +352,12 @@ public class PortalStickBlockListener implements Listener {
 					 	}
 					 	for (V10Location b: destination.inside)
 					 	{
+					 	  if(b != null)
+					 	  {
 					 		block2 = b.getHandle().getBlock();
 					 		if(block2.getType() == mat2)
 				 			block2.setType(mat1);
+					 	  }
 					 	}
 					 }
 			 }	 
@@ -424,6 +425,7 @@ public class PortalStickBlockListener implements Listener {
 		 Region region = plugin.regionManager.getRegion(new V10Location(event.getBlock()));
 
 		 BlockBreakEvent bbe;
+		 V10Location loc;
 		 for (final Block b : event.getBlocks())
 		 {
 			 fakeBBE = true;
@@ -445,42 +447,44 @@ public class PortalStickBlockListener implements Listener {
 				 return;
 			 }
 			 
-			 Portal portal = plugin.portalManager.insideBlocks.get(new V10Location(b.getRelative(event.getDirection()).getLocation()));
-			 if (portal != null && region.getBoolean(RegionSetting.ENABLE_PISTON_BLOCK_TELEPORT))
+			 if(region.getBoolean(RegionSetting.ENABLE_PISTON_BLOCK_TELEPORT))
+				 return;
+			 
+			 loc = new V10Location(b.getRelative(event.getDirection()).getLocation());
+			 if(!plugin.portalManager.insideBlocks.containsKey(loc))
+				 return;
+			 
+			 Portal portal = plugin.portalManager.insideBlocks.get(loc);
+			 if(!portal.open)
+				 return;
+			 
+			 Portal destP = portal.getDestination();
+			 V10Location dest;
+			 
+			 if(destP.horizontal || portal.inside[0].equals(loc))
+				 dest = destP.teleport[0];
+			 else
+				 dest = destP.teleport[1];
+			 
+			 Block destB = dest.getHandle().getBlock();
+			 
+			 if (destB.isLiquid() || destB.getType() == Material.AIR)
 			 {
-				 Portal destP = portal.getDestination();
-				 final Block destB = destP.teleport.getHandle().getBlock();
-				 
-				 if (!portal.open || !destP.open)
+				 destB.setTypeIdAndData(b.getType().getId(), b.getData(), true);
+				 final Block b2 = b.getRelative(event.getDirection());
+				 blockedPistonBlocks.add(b2);
+				 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
 				 {
-					 event.setCancelled(true);
-					 return;
-				 }
-				 
-				 if (destB.isLiquid() || destB.getType() == Material.AIR)
-				 {
-					 destB.setTypeIdAndData(b.getType().getId(), b.getData(), true);
-					 final Block b2 = b.getRelative(event.getDirection());
-					 blockedPistonBlocks.add(b2);
-					 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
+					 public void run()
 					 {
-						 public void run()
-						 {
-							 b2.setType(Material.AIR);
-							 blockedPistonBlocks.remove(b2);
-						 }
-					 }, 2L);
-				 }
-				 else
-					 event.setCancelled(true);
+						 b2.setType(Material.AIR);
+						 blockedPistonBlocks.remove(b2);
+					 }
+				 }, 2L);
 			 }
 			 else
-			 {
-				 V10Location loc = new V10Location(b.getLocation());
-				 if (plugin.portalManager.borderBlocks.containsKey(loc) || plugin.grillManager.borderBlocks.containsKey(loc) || plugin.grillManager.insideBlocks.containsKey(loc))
-					 event.setCancelled(true);
-			 }
-		 }
+				 event.setCancelled(true);
+		}
 	 }
 	 
 	@EventHandler(ignoreCancelled = true)
@@ -513,12 +517,18 @@ public class PortalStickBlockListener implements Listener {
 		 
 		 Region region = plugin.regionManager.getRegion(new V10Location(event.getBlock()));
 
-		 Portal portal = plugin.portalManager.insideBlocks.get(new V10Location(event.getRetractLocation()));
+		 V10Location loc = new V10Location(event.getRetractLocation());
+		 Portal portal = plugin.portalManager.insideBlocks.get(loc);
 		 
 		 if (portal != null && region.getBoolean(RegionSetting.ENABLE_PISTON_BLOCK_TELEPORT))
 		 {
 			 Portal destP = portal.getDestination();
-			 Block sourceB = destP.teleport.getHandle().getBlock();
+			 V10Location dest;
+			 if(destP.horizontal || portal.inside[0].equals(loc))
+				 dest = destP.teleport[0];
+			 else
+				 dest = destP.teleport[1];
+			 Block sourceB = dest.getHandle().getBlock();
 			 
 			 if (!sourceB.isLiquid() && sourceB.getType() != Material.AIR)
 			 {
@@ -529,7 +539,6 @@ public class PortalStickBlockListener implements Listener {
 		 }
 		 else
 		 {
-			 V10Location loc = new V10Location(event.getRetractLocation());
 			 if (plugin.portalManager.borderBlocks.containsKey(loc) || plugin.grillManager.borderBlocks.containsKey(loc) || plugin.grillManager.insideBlocks.containsKey(loc))
 				 event.setCancelled(true);
 		 }
@@ -538,7 +547,7 @@ public class PortalStickBlockListener implements Listener {
 		 plugin.funnelBridgeManager.updateBridge(new V10Location(event.getRetractLocation()));
 	 }
 	 
-	 public class RemoveLiquid implements Runnable
+	 public class RemoveLiquid implements Runnable //TODO: Ugly.
 		{
 			PortalStick plugin = null;
 			Block source = null;
