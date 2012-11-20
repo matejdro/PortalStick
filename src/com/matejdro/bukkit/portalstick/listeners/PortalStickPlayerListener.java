@@ -9,6 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -171,10 +172,9 @@ public class PortalStickPlayerListener implements Listener {
 		event.setTo(to);
 	}
 		 
-	@EventHandler()
-	public void onPlayerDropItem(PlayerDropItemEvent event) {
-		if (event.isCancelled()) return;
-		
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onPlayerDropItem(PlayerDropItemEvent event)
+	{
 		Player player = event.getPlayer();
 		User user = plugin.userManager.getUser(player);
 		Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
@@ -182,16 +182,6 @@ public class PortalStickPlayerListener implements Listener {
 			user.droppedItems.add(event.getItemDrop());
 		
 	}
-	
-	//TODO: check if this is still handled by onPlayerMove
-/*	@EventHandler()
-	public void onPlayerTeleport(PlayerTeleportEvent event) {
-		Region regionFrom = plugin.regionManager.getRegion(new V10Location(event.getFrom()));
-		Region regionTo = plugin.regionManager.getRegion(new V10Location(event.getTo()));
-		if (!plugin.config.RestoreInvOnWorldChange && !event.getFrom().getWorld().getName().equalsIgnoreCase(event.getTo().getWorld().getName()))
-			return;
-		plugin.portalManager.checkPlayerMove(event.getPlayer(), regionFrom, regionTo);
-	}*/
 		 
 	@EventHandler()
 	public void onPlayerQuit(PlayerQuitEvent event)

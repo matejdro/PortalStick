@@ -33,8 +33,8 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 import de.V10lator.PortalStick.V10Location;
 
-public class PortalStickBlockListener implements Listener {
-	
+public class PortalStickBlockListener implements Listener
+{
 	private PortalStick plugin;
 	private HashSet<Block> blockedPistonBlocks = new HashSet<Block>();	
 	private boolean fakeBBE;
@@ -194,8 +194,8 @@ public class PortalStickBlockListener implements Listener {
 	}
 	 	 
 	@EventHandler(ignoreCancelled = true)
-	public void onBlockPhysics(BlockPhysicsEvent event) {
-		
+	public void onBlockPhysics(BlockPhysicsEvent event)
+	{
 		if (event.getBlock().getType() != Material.SUGAR_CANE_BLOCK)
 		  return;
 		if(plugin.grillManager.insideBlocks.containsKey(new V10Location(event.getBlock())))
@@ -213,8 +213,10 @@ public class PortalStickBlockListener implements Listener {
 	
 	@EventHandler()
 	public void onBlockFromTo(BlockFromToEvent event) {
-		V10Location loc = new V10Location(event.getBlock());
-		V10Location tb = new V10Location(event.getToBlock());
+		Block from = event.getBlock();
+		V10Location loc = new V10Location(from);
+		Block to = event.getToBlock();
+		V10Location tb = new V10Location(to);
 		 Region region = plugin.regionManager.getRegion(loc);
 		 //Liquid teleporting
 			if (region. //TODO: region is null! - Seems to be solved.
@@ -232,16 +234,15 @@ public class PortalStickBlockListener implements Listener {
 				{
 					Portal destination = portal.getDestination();
 					
-					Material blockt = Material.AIR;
-					switch (event.getBlock().getType())
+					int blockt = Material.AIR.getId();
+					switch (from.getType())
 					{
 						case WATER:
 						case STATIONARY_WATER:
-							blockt = Material.WATER;
+							blockt = Material.STATIONARY_WATER.getId();
 							break;
-						case LAVA:
-						case STATIONARY_LAVA:
-							blockt = Material.LAVA;
+						default:
+							blockt = Material.STATIONARY_LAVA.getId();
 							break;
 					}
 					
@@ -252,12 +253,12 @@ public class PortalStickBlockListener implements Listener {
 					else
 					  dest = destP.teleport[1];
 					
-					final Block destb = dest.getHandle().getBlock();
-					final Block source = event.getBlock();
+					Block destb = dest.getHandle().getBlock();
 					if (destb.getType() == Material.AIR)
 					{
-					  destb.setType(blockt);
-					  plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemoveLiquid(plugin, source, destb, destination), 10L);  
+					  destb.setTypeId(blockt);
+					  LiquidCheck lc = new LiquidCheck(loc, dest, destination, blockt);
+					  lc.setPid(plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, lc, 10L, 10L));  
 					}
 					event.setCancelled(true);
 				}
@@ -551,26 +552,52 @@ public class PortalStickBlockListener implements Listener {
 		 plugin.funnelBridgeManager.updateBridge(new V10Location(event.getRetractLocation()));
 	 }
 	 
-	 public class RemoveLiquid implements Runnable //TODO: Ugly.
+	private class LiquidCheck implements Runnable
+	{
+	  private final V10Location source;
+	  private final V10Location destination;
+	  private final Portal exit;
+	  private final int mat;
+	  private int pid;
+	  
+	  private LiquidCheck(V10Location source, V10Location destination, Portal exit, int mat)
+	  {
+		this.source = source;
+		this.destination = destination;
+		this.exit = exit;
+		this.mat = mat;
+	  }
+	  
+	  private void setPid(int pid)
+	  {
+		this.pid = pid;
+	  }
+	  
+	  @Override
+	  public void run()
+	  {
+		Location loc = source.getHandle();
+		if(loc == null)
 		{
-			PortalStick plugin = null;
-			Block source = null;
-			Block destination = null;
-			Portal exit = null;
-			public RemoveLiquid(PortalStick Plugin, Block Source, Block Destination, Portal Exit){
-				plugin = Plugin;
-				source = Source;
-				destination = Destination;
-				exit = Exit;
-			}
-			@Override
-			public void run() {
-				if (!(source.getTypeId() <12 && source.getTypeId() > 6) || !exit.open)
-					destination.setType(Material.AIR);
-				else
-					plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new RemoveLiquid(plugin, source, destination, exit), 10L);
-
-			    		
-			}
+		  plugin.getServer().getScheduler().cancelTask(pid);
+		  return;
 		}
+		Block source = loc.getBlock();
+		loc = destination.getHandle();
+		if(loc == null)
+		{
+		  plugin.getServer().getScheduler().cancelTask(pid);
+		  return;
+		}
+		Block destination = loc.getBlock();
+		if(!exit.open || source.getTypeId() != mat)
+		{
+		  if(destination.getTypeId() == mat)
+			destination.setType(Material.AIR);
+		  plugin.getServer().getScheduler().cancelTask(pid);
+		}
+		else if(destination.getType() == Material.AIR)
+		  destination.setTypeId(mat);
+	  }
+	}
 }
