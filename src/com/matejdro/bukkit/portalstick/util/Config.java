@@ -103,8 +103,6 @@ public class Config {
 			e.printStackTrace();
 		}
 		
-		boolean aa = false;
-		
 		//Load messages
 		MessageCannotPlacePortal = getString("messages.cannot-place-portal", "&cCannot place a portal there!");
         
@@ -123,8 +121,6 @@ public class Config {
         FillPortalBack = getInt("main.fill-portal-back", -1);
         
         //Load sound settings
-        if(!mainConfig.isSet("sounds.use-minecraft-sounds"))
-          aa = true;
         useNativeSounds = getBoolean("sounds.use-minecraft-sounds", true);
         soundNative[Sound.PORTAL_CREATE_BLUE.ordinal()] = getString("sounds.minecraft.create-blue-portal", "STEP_WOOL:0.3");
         soundNative[Sound.PORTAL_CREATE_ORANGE.ordinal()] = getString("sounds.minecraft.create-orange-portal", "STEP_WOOL:0.3");
@@ -136,15 +132,6 @@ public class Config {
         soundNative[Sound.GEL_BLUE_BOUNCE.ordinal()] = getString("sounds.minecraft.blue-gel-bounce", "SLIME_WALK2");
         
         useSpoutSounds = getBoolean("sounds.use-spout-sounds", false);
-        //TODO: Holds compat for < 4.0-beta1 o.O
-        if(mainConfig.isSet("sounds.use-bukkitcontrib-sounds"))
-        {
-          if(!mainConfig.isSet("sounds.use-spout-sounds"))
-        	useSpoutSounds = getBoolean("sounds.use-bukkitcontrib-sounds", useSpoutSounds);
-          getBoolean("sounds.use-spout-sounds", useSpoutSounds);
-          getBoolean("sounds.use-bukkitcontrib-sounds", null);
-          aa = true;
-        }
         
         soundUrls[Sound.PORTAL_CREATE_BLUE.ordinal()] = getString("sounds.spout.create-blue-portal-url", "");
         soundUrls[Sound.PORTAL_CREATE_ORANGE.ordinal()] = getString("sounds.spout.create-orange-portal-url", "");
@@ -176,9 +163,6 @@ public class Config {
         for (String bridge : bridgeConfig.getStringList("bridges"))
         	plugin.funnelBridgeManager.loadBridge(bridge);
         plugin.getLogger().info(plugin.funnelBridgeManager.bridges.size() + " bridge(s) loaded");
-        
-        if(aa)
-        	plugin.getLogger().info("Your config file has been updated");
         
         //TODO: Enable
 /*        try
