@@ -164,8 +164,7 @@ public class Config {
         	plugin.funnelBridgeManager.loadBridge(bridge);
         plugin.getLogger().info(plugin.funnelBridgeManager.bridges.size() + " bridge(s) loaded");
         
-        //TODO: Enable
-/*        try
+        try
         {
           if(plugin.au == null)
         	plugin.au = new AutoUpdate(plugin, mainConfig);
@@ -177,7 +176,7 @@ public class Config {
 		  plugin.getLogger().info("Auto update error!");
 		  e.printStackTrace();
 		}
-        */
+        
         saveAll();
 		
 	}
