@@ -10,8 +10,10 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
@@ -235,5 +237,14 @@ public class PortalStickPlayerListener implements Listener {
 	      return;
 	    }
 	  }
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void trackDrops(PlayerDropItemEvent event)
+	{
+	  Player player = event.getPlayer();
+	  Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
+	  if(region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS))
+		plugin.userManager.getUser(player).droppedItems.add(event.getItemDrop());
 	}
 }

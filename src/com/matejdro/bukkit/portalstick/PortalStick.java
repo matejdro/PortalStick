@@ -97,6 +97,8 @@ public class PortalStick extends JavaPlugin {
 		
 		//Teleport all entities.
 		s.getScheduler().scheduleSyncRepeatingTask(this, entityManager, 1L, 1L);
+		//Garbage-collect the users drop lists.
+		s.getScheduler().scheduleSyncRepeatingTask(this, userManager, 600L, 600L);
 		
 		//Register commands
 		ArrayList<BaseCommand> tmpList = new ArrayList<BaseCommand>();

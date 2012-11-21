@@ -1,8 +1,10 @@
 package com.matejdro.bukkit.portalstick;
 
+import java.util.HashSet;
 import java.util.UUID;
 
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -23,6 +25,7 @@ public class User {
 	public final String name;
 	public final UUID uuid;
 	public final boolean isPlayer;
+	public final HashSet<Item> droppedItems = new HashSet<Item>();
 	
 	public User(String name)
 	{

@@ -14,6 +14,7 @@ public enum RegionSetting {
 	GRILLS_REMOVE_ITEMS("grills-clear-inventory", true, true),
 	GRILL_REMOVE_EXCEPTIONS("grill-inventory-clear-exceptions", Arrays.asList(new String[]{"280,313"}), false),
 	GRILL_MATERIAL("emancipation-grill-material", "48", true),
+	GRILLS_CLEAR_ITEM_DROPS("grills-clear-item-drops", true, true),
 	ENABLE_GRILL_REDSTONE_DISABLING("enable-disabling-grill-with-redstone", true, true),
 	ENABLE_HARD_GLASS_BRIDGES("enable-hard-glass-bridges", true, true),
 	HARD_GLASS_BRIDGE_BASE_MATERIAL("hard-light-bridge-base-block", "42", true),

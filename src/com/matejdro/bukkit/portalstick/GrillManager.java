@@ -181,6 +181,9 @@ public class GrillManager {
 	  Region region = plugin.regionManager.getRegion(new V10Location(entity.getLocation()));
 	  User user = plugin.userManager.getUser(entity);
 	  boolean clear = region.getBoolean(RegionSetting.GRILLS_REMOVE_ITEMS) && !user.usingTool;
+	  if(region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS))
+		plugin.userManager.deleteDroppedItems(user);
+
 	  if(clear && !(entity instanceof InventoryHolder))
 	  {
 		if(entity instanceof Item)
