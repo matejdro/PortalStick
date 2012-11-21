@@ -34,6 +34,7 @@ import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Util;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
+import de.V10lator.PortalStick.AutoUpdate;
 import de.V10lator.PortalStick.StillAlive;
 
 public class PortalStick extends JavaPlugin {
@@ -55,6 +56,8 @@ public class PortalStick extends JavaPlugin {
 	public final BlockUtil blockUtil = new BlockUtil();
 	
 	private final PortalStickEntityListener eL = new PortalStickEntityListener(this);
+	
+	public AutoUpdate au;
 
 	public void onDisable() {
 		// Lazy clean:

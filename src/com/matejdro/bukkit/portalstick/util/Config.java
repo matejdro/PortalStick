@@ -21,6 +21,8 @@ import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.User;
 
+import de.V10lator.PortalStick.AutoUpdate;
+
 public class Config {
 	
 	private final PortalStick plugin;
@@ -178,6 +180,20 @@ public class Config {
         if(aa)
         	plugin.getLogger().info("Your config file has been updated");
         
+        //TODO: Enable
+/*        try
+        {
+          if(plugin.au == null)
+        	plugin.au = new AutoUpdate(plugin, mainConfig);
+          else
+        	plugin.au.setConfig(mainConfig);
+		} 
+        catch (Exception e)
+        {
+		  plugin.getLogger().info("Auto update error!");
+		  e.printStackTrace();
+		}
+        */
         saveAll();
 		
 	}

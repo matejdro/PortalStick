@@ -14,8 +14,7 @@ public class ReloadCommand extends BaseCommand {
 	}
 	
 	public boolean execute() {
-		plugin.config.unLoad();
-		plugin.config.load();
+		plugin.config.reLoad();
 		plugin.util.sendMessage(player, "&cPortalStick config files reloaded");
 		return true;
 	}
