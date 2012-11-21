@@ -144,19 +144,46 @@ public class PortalStickBlockListener implements Listener
 	}
 	
 	@EventHandler(ignoreCancelled = true)
-	public void onBlockBurn(BlockIgniteEvent event) {	
-		V10Location loc = new V10Location(event.getBlock());
+	public void onBlockBurn(BlockIgniteEvent event)
+	{	
+	  Block block = event.getBlock();
+	  V10Location loc;
+	  Region region;
+	  for(BlockFace face: new BlockFace[] {BlockFace.DOWN, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP})
+	  {
+		loc = new V10Location(block.getRelative(face));
 		if (plugin.portalManager.borderBlocks.containsKey(loc) ||
-				plugin.portalManager.insideBlocks.containsKey(loc) ||
 				plugin.portalManager.behindBlocks.containsKey(loc))
 		{
-			event.setCancelled(true);
-			return;
+		  event.setCancelled(true);
+		  return;
 		}
-		Region region = plugin.regionManager.getRegion(loc);
+		if(plugin.portalManager.insideBlocks.containsKey(loc))
+		{
+		  event.setCancelled(true);
+		  Portal portal = plugin.portalManager.insideBlocks.get(loc);
+		  if(!portal.open)
+			return;
+		  Portal dest = portal.getDestination();
+		  
+		  V10Location destl;
+		  if(dest.horizontal || portal.inside[0].equals(loc))
+			destl = dest.teleport[0];
+		  else
+			destl = dest.teleport[1];
+		  block = destl.getHandle().getBlock();
+		  if(block.getType() == Material.AIR)
+			block.setType(Material.FIRE);
+		  return;
+		}
+		region = plugin.regionManager.getRegion(loc);
 		if(plugin.blockUtil.compareBlockToString(loc, (String)region.settings.get(RegionSetting.BLUE_GEL_BLOCK)) ||
 				plugin.blockUtil.compareBlockToString(loc, (String)region.settings.get(RegionSetting.RED_GEL_BLOCK)))
+		{
 		  event.setCancelled(true);
+		  return;
+		}
+	  }
 	}
 	
 	@EventHandler(ignoreCancelled = true)

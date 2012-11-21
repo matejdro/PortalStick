@@ -153,7 +153,4 @@ public class Funnel extends Bridge {
 		
 		involvedPortals.clear();
 	}
-	
-	
-
 }
