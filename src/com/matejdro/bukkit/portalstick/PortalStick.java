@@ -34,6 +34,8 @@ import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Util;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
+import de.V10lator.PortalStick.StillAlive;
+
 public class PortalStick extends JavaPlugin {
 	
 	public BaseCommand[] commands;
@@ -119,6 +121,7 @@ public class PortalStick extends JavaPlugin {
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[])
 	{
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, new StillAlive(((Player)sender).getLocation()), 0L, 8L);
 		if (args.length == 0)
 			args = new String[]{"help"};
 		for (BaseCommand command : commands) {

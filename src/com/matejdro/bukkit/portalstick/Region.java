@@ -23,10 +23,12 @@ public class Region extends User
 	public HashSet<Portal> portals = new HashSet<Portal>();
 	public Portal bluePortalDest;
 	public Portal orangePortalDest;
+	public final String name;
 	
 	Region(String name)
 	{
 		super("§region§_"+name);
+		this.name = name;
 	}
 	
 	public void updateLocation() {

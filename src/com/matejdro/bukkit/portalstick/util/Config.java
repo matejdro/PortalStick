@@ -75,7 +75,7 @@ public class Config {
 	}
 	
 	public void deleteRegion(String name) {
-		regionConfig.set("regions." + name, null);
+		regionConfig.set(name, null);
 		saveAll();
 	}
 	
@@ -160,10 +160,9 @@ public class Config {
 			plugin.userManager.createUser(player);
 		
         //Load all regions
-        if (regionConfig.getConfigurationSection("regions") != null)
-        	for (String regionName : regionConfig.getConfigurationSection("regions").getKeys(false))
-        		if(!regionName.equals("global"))
-        			plugin.regionManager.loadRegion(regionName);
+        for (String regionName : regionConfig.getKeys(false))
+        	if(!regionName.equals("global"))
+        		plugin.regionManager.loadRegion(regionName);
         plugin.regionManager.loadRegion("global");
         plugin.getLogger().info(plugin.regionManager.regions.size() + " region(s) loaded");
         
@@ -241,12 +240,12 @@ public class Config {
 	
 	public void loadRegionSettings(Region region) {
 		for (RegionSetting setting : RegionSetting.values()) {
-			Object prop = regionConfig.get("regions." + region.name + "." + setting.getYaml());
+			Object prop = regionConfig.get(region.name + "." + setting.getYaml());
     		if (prop == null)
     			region.settings.put(setting, setting.getDefault());
     		else
     			region.settings.put(setting, prop);
-    		regionConfig.set("regions." + region.name + "." + setting.getYaml(), region.settings.get(setting));
+    		regionConfig.set(region.name + "." + setting.getYaml(), region.settings.get(setting));
     	}
 		region.updateLocation();
 	}
@@ -282,7 +281,7 @@ public class Config {
 		for (Map.Entry<String, Region> entry : plugin.regionManager.regions.entrySet()) {
 			Region region = entry.getValue();
 			for (Entry<RegionSetting, Object> setting : region.settings.entrySet())
-				regionConfig.set("regions." + region.name + "." + setting.getKey().getYaml(), setting.getValue());
+				regionConfig.set(region.name + "." + setting.getKey().getYaml(), setting.getValue());
 		}
 		try
 		{
