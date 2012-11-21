@@ -156,7 +156,7 @@ public class Config {
         plugin.getLogger().info(plugin.regionManager.regions.size() + " region(s) loaded");
         
         //Load grills
-        for (String grill : (grillConfig.getStringList("grills")).toArray(new String[0]))
+        for (String grill : (grillConfig.getStringList("grills")))
         	plugin.grillManager.loadGrill(grill);
         plugin.getLogger().info(plugin.grillManager.grills.size() + " grill(s) loaded");
         //Load bridges
