@@ -55,7 +55,6 @@ public class UserManager implements Runnable {
 	public void deleteUser(Entity entity)
 	{
 	  deleteUser(getUser(entity));
-	  plugin.entityManager.oldLocations.remove(entity.getUniqueId());
 	}
 	
 	public void deleteUser(User user) {
@@ -63,6 +62,8 @@ public class UserManager implements Runnable {
 		deleteDroppedItems(user);
 		playerUsers.values().remove(user);
 		entityUsers.values().remove(user);
+		if(!user.isPlayer)
+		  plugin.entityManager.oldLocations.remove(user.uuid);
 	}
 
 	public List<User> getUsers()
