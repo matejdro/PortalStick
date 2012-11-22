@@ -37,3 +37,6 @@ permissions:
   portalstick.damageboots:
     description: Damage boots
     default: true
+  portalstick.language:
+    description: Change language
+    default: op
