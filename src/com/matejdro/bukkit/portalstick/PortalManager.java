@@ -297,7 +297,7 @@ public class PortalManager {
 			portalc = generatePortal(block, face);
 			if (!checkPortal(portalc))
 			{
-				if (end) plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
+				if (end) plugin.util.sendMessage(player, plugin.i18n.getString("CannotPlacePortal", player.getName()));
 				plugin.util.playSound(Sound.PORTAL_CANNOT_CREATE, block);
 				return false;
 			}
@@ -307,7 +307,7 @@ public class PortalManager {
 			portalc = generateHorizontalPortal(block, face);
 			if (portalc.finished)
 			{
-				if (end) plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
+				if (end) plugin.util.sendMessage(player, plugin.i18n.getString("CannotPlacePortal", player.getName()));
 				plugin.util.playSound(Sound.PORTAL_CANNOT_CREATE, block);
 				return false;
 			}

@@ -15,13 +15,13 @@ public class DeleteRegionCommand extends BaseCommand {
 	
 	public boolean execute() {
 		if (args.get(0).equalsIgnoreCase("global"))
-			plugin.util.sendMessage(player, "&cYou cannot delete the global config!");
+			plugin.util.sendMessage(player, plugin.i18n.getString("CanNotDeleteGlobalRegion", player.getName()));
 		else if (plugin.regionManager.getRegion(args.get(0)) != null) {
 			plugin.regionManager.deleteRegion(args.get(0));
 			plugin.config.reLoad();
-			plugin.util.sendMessage(player, "&cRegion &7" + args.get(0) + " &cdeleted");
+			plugin.util.sendMessage(player, plugin.i18n.getString("RegionDeleted", player.getName(), args.get(0)));
 		}
-		else plugin.util.sendMessage(player, "&cRegion &7" + args.get(0) + " &cdoes not exist!");
+		else plugin.util.sendMessage(player, plugin.i18n.getString("RegionNotFound", player.getName(), args.get(0)));
 		return true;
 	}
 	

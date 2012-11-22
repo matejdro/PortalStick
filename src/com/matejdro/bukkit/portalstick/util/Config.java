@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -46,12 +47,12 @@ public class Config {
 	public List<String> ColorPresets;
 	public int FillPortalBack;
 	
-	public String MessageCannotPlacePortal;
-	
 	public boolean useNativeSounds, useSpoutSounds;
 	public int soundRange;
 	public final String[] soundUrls = new String[Sound.values().length];
 	public final String[] soundNative = new String[Sound.values().length];
+	
+	public String lang;
 	
 	public Config (PortalStick instance) {
 		
@@ -102,9 +103,6 @@ public class Config {
 		} catch (InvalidConfigurationException e) {
 			e.printStackTrace();
 		}
-		
-		//Load messages
-		MessageCannotPlacePortal = getString("messages.cannot-place-portal", "&cCannot place a portal there!");
         
         //Load main settings
         DisabledWorlds = new HashSet<String>(getStringList("main.disabled-worlds", new ArrayList<String>()));
@@ -144,9 +142,12 @@ public class Config {
         
         soundRange = getInt("sounds.sound-range", 20);
         
+        Locale locale = Locale.getDefault();
+        lang = getString("Language", locale.getLanguage().toLowerCase()+"_"+locale.getCountry());
+        
 		//Load all current users
-		for (Player player : plugin.getServer().getOnlinePlayers())
-			plugin.userManager.createUser(player);
+//		for (Player player : plugin.getServer().getOnlinePlayers())
+//			plugin.userManager.createUser(player);
 		
         //Load all regions
         for (String regionName : regionConfig.getKeys(false))

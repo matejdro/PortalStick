@@ -15,7 +15,7 @@ public class DeleteAllCommand extends BaseCommand {
 	
 	public boolean execute() {
 		plugin.portalManager.portals.clear();
-		plugin.util.sendMessage(player, "&cAll portals deleted");
+		plugin.util.sendMessage(player, plugin.i18n.getString("AllPortalsDeleted", player.getName()));
 		return true;
 	}
 	

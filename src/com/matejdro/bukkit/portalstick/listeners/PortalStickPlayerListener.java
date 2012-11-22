@@ -72,7 +72,7 @@ public class PortalStickPlayerListener implements Listener {
 					  for(int i = 0; i < 2; i++)
 						if(p.inside[i] != null && p.inside[i].equals(loc))
 						{
-							plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
+							plugin.util.sendMessage(player, plugin.i18n.getString("CannotPlacePortal", player.getName()));
 							plugin.util.playSound(Sound.PORTAL_CANNOT_CREATE, loc);
 							return;
 						}
@@ -86,13 +86,13 @@ public class PortalStickPlayerListener implements Listener {
 				{
 					if ((b.getType() == Material.IRON_DOOR_BLOCK || b.getType() == Material.WOODEN_DOOR) && ((b.getData() & 4) != 4) )
 					{
-						plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
+						plugin.util.sendMessage(player, plugin.i18n.getString("CannotPlacePortal", player.getName()));
 						plugin.util.playSound(Sound.PORTAL_CANNOT_CREATE, new V10Location(b));
 						return;
 					}
 					else if (b.getType() == Material.TRAP_DOOR && (b.getData() & 4) == 0)
 					{
-						plugin.util.sendMessage(player, plugin.config.MessageCannotPlacePortal);
+						plugin.util.sendMessage(player, plugin.i18n.getString("CannotPlacePortal", player.getName()));
 						plugin.util.playSound(Sound.PORTAL_CANNOT_CREATE, new V10Location(b));
 						return;
 
@@ -121,11 +121,11 @@ public class PortalStickPlayerListener implements Listener {
 			switch (event.getAction()) {
 				case RIGHT_CLICK_BLOCK:
 					user.pointTwo = new V10Location(event.getClickedBlock());
-					plugin.util.sendMessage(player, "&aRegion point two set`nType /portal setregion to save the region");
+					plugin.util.sendMessage(player, plugin.i18n.getString("RegionPointTwoSet", player.getName()));
 					break;
 				case LEFT_CLICK_BLOCK:
 					user.pointOne = new V10Location(event.getClickedBlock());
-					plugin.util.sendMessage(player, "&aRegion point one set`nType /portal setregion to save the region");
+					plugin.util.sendMessage(player, plugin.i18n.getString("RegionPointTwoSet", player.getName()));
 			}
 		}
 		//Flint and steel
@@ -160,7 +160,7 @@ public class PortalStickPlayerListener implements Listener {
 			String color1 = DyeColor.values()[plugin.util.getLeftPortalColor(preset)].toString().replace("_", " ");
 			String color2 = DyeColor.values()[plugin.util.getRightPortalColor(preset)].toString().replace("_", " ");
 
-			plugin.util.sendMessage(player, "Your new portal color is " + color1 + " - " + color2);
+			plugin.util.sendMessage(player, plugin.i18n.getString("SwitchedPortalColor", player.getName(), color1, color2));
 		}
 
 	}

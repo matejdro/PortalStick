@@ -19,7 +19,7 @@ public class FlagCommand extends BaseCommand {
 		
 		Region editRegion = plugin.regionManager.getRegion(args.get(0));
 		if (editRegion == null) {
-			plugin.util.sendMessage(player, "&cInvalid region name, please supply an existing region!");
+			plugin.util.sendMessage(player, plugin.i18n.getString("RegionNotFound", player.getName(), args.get(0)));
 			return true;
 		}
 		
@@ -37,15 +37,14 @@ public class FlagCommand extends BaseCommand {
 					else
 						editRegion.settings.put(setting, args.get(2));
 					
-					plugin.util.sendMessage(player, "&aRegion &7" + editRegion.name + " &aupdated");
+					plugin.util.sendMessage(player, plugin.i18n.getString("RegionUpdated", player.getName(), editRegion.name));
 					plugin.config.saveAll();
 					plugin.config.reLoad();
-					return true;
 				} catch (Throwable t) {
 					plugin.util.sendMessage(player, "&cInvalid value supplied for flag &7" + setting.getYaml());
 					editRegion.settings.put(setting, old);
-					return true;
 				}
+				return true;
 			}
 		}
 		plugin.util.sendMessage(player, "&cInvalid flag, please choose from one of the following:");

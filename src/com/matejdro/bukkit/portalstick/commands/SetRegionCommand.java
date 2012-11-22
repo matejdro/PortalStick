@@ -17,11 +17,11 @@ public class SetRegionCommand extends BaseCommand {
 	public boolean execute() {
 		User user = plugin.userManager.getUser(player);
 		if (user.pointOne == null || user.pointTwo == null)
-			plugin.util.sendMessage(sender, "&cPlease select two points");
+			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionToolNoPointsSelected", player.getName(), args.get(0)));
 		else if (plugin.regionManager.getRegion(args.get(0)) != null)
-			plugin.util.sendMessage(sender, "&cRegion already exists with that name!");
+			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionExists", player.getName(), args.get(0)));
 		else {
-			plugin.util.sendMessage(sender, "&aRegion &7" + args.get(0) + " &acreated!");
+			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionCreated", player.getName(), args.get(0)));
 			plugin.regionManager.createRegion(args.get(0), user.pointOne, user.pointTwo);
 		}
 		return true;

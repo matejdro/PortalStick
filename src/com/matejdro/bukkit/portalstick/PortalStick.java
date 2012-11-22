@@ -35,11 +35,13 @@ import com.matejdro.bukkit.portalstick.util.Util;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 import de.V10lator.PortalStick.AutoUpdate;
+import de.V10lator.PortalStick.I18n;
 
 public class PortalStick extends JavaPlugin {
 	
 	public BaseCommand[] commands;
 	public Config config;
+	public I18n i18n;
 	
 	public final EntityManager entityManager = new EntityManager(this);
 	public final FunnelBridgeManager funnelBridgeManager = new FunnelBridgeManager(this);
@@ -93,6 +95,7 @@ public class PortalStick extends JavaPlugin {
 		worldGuard = (WorldGuardPlugin) pm.getPlugin("WorldGuard");
 		
 		config.load();
+		i18n = new I18n(this, getFile());
 		
 		//Teleport all entities.
 		s.getScheduler().scheduleSyncRepeatingTask(this, entityManager, 1L, 1L);
