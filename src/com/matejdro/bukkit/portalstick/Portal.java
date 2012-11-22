@@ -25,7 +25,7 @@ public class Portal {
 	boolean disabled = false;
 	public boolean transmitter = false;
 	public final BlockFace teleportFace;
-	private final HashSet<V10Location> awayBlocks = new HashSet<V10Location>();
+	private final HashSet<V10Location> awayBlocks;
 	final V10Location[] awayBlocksY = new V10Location[2];
 	private final HashMap<V10Location, String> oldBlocks = new HashMap<V10Location, String>();
 	private boolean placetorch = false;
@@ -42,6 +42,10 @@ public class Portal {
 		teleportFace = Teleportface;
 		this.behind = behind;
 		centerBlock = CenterBlock;
+		if(horizontal)
+		  awayBlocks = new HashSet<V10Location>();
+		else
+		  awayBlocks = null;
 	}
 	
 	public void delete()
@@ -69,12 +73,13 @@ public class Portal {
 				plugin.portalManager.behindBlocks.remove(loc);
 			}
 		}
-		for (V10Location l : awayBlocks)
+		if(horizontal)
 		{
+		  for(V10Location l: awayBlocks)
 			plugin.portalManager.awayBlocks.remove(l);
-			plugin.portalManager.awayBlocksY.remove(l);
+		  plugin.portalManager.awayBlocksY.remove(awayBlocksY[0]);
+		  plugin.portalManager.awayBlocksY.remove(awayBlocksY[1]);
 		}
-		
 		
 		if (orange)
 			owner.orangePortal = null;
@@ -263,26 +268,29 @@ public class Portal {
     	if(inside[1] != null)
     	  plugin.portalManager.insideBlocks.put(inside[1], this);
     	
-    	for (int y = -1;y<2;y++)
+    	if(horizontal)
     	{
-    	  if(y != 0)
+    	  for (int y = -1;y<2;y++)
     	  {
-    		loc = new V10Location(oloc.world, oloc.x, oloc.y + y, oloc.z);
-    		plugin.portalManager.awayBlocksY.put(loc, this);
-    		if(y < 1)
-    		  i = 0;
-    		else
-    		  i = 1;
-    		awayBlocksY[i] = loc;
-    	  }
-    	  for (int x = -1;x<2;x++)
-    	  {
-    		for (int z = -1;z<2;z++)
-    	    {
-    		  loc = new V10Location(oloc.world, oloc.x + x, oloc.y + y, oloc.z + z);
-    		  plugin.portalManager.awayBlocks.put(loc, this);
-    		  awayBlocks.add(loc);
-    	    }
+    		if(y != 0)
+    		{
+    		  loc = new V10Location(oloc.world, oloc.x, oloc.y + y, oloc.z);
+    		  plugin.portalManager.awayBlocksY.put(loc, this);
+    		  if(y < 1)
+    			i = 0;
+    		  else
+    			i = 1;
+    		  awayBlocksY[i] = loc;
+    		}
+    		for (int x = -1;x<2;x++)
+    		{
+    		  for (int z = -1;z<2;z++)
+    		  {
+    			loc = new V10Location(oloc.world, oloc.x + x, oloc.y + y, oloc.z + z);
+    			plugin.portalManager.awayBlocks.put(loc, this);
+    			awayBlocks.add(loc);
+    		  }
+    		}
     	  }
     	}
 	}
