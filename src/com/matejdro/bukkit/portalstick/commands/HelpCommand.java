@@ -9,17 +9,14 @@ public class HelpCommand extends BaseCommand {
 
 	public HelpCommand(PortalStick plugin)
 	{
-	  super(plugin);
-	  name = "help";
-	  argLength = 0;
-	  usage = "<- lists all PortalStick commands";
+	  super(plugin, "help", 0, "<- lists all PortalStick commands", false);
 	}
 	
 	public boolean execute() {
 		player.sendMessage(ChatColor.RED+"--------------------- "+ChatColor.GRAY+"PortalStick "+ChatColor.RED+"---------------------");
 		for (BaseCommand cmd : plugin.commands)
-			if (cmd.permission(player))
-				plugin.util.sendMessage(player, "&7- /"+usedCommand+" &c" + cmd.name + " &7" + cmd.usage);
+			if ((player != null && cmd.permission(player)) || (player == null && !cmd.bePlayer))
+				plugin.util.sendMessage(sender, "&7- /"+usedCommand+" &c" + cmd.name + " &7" + cmd.usage);
 		return true;
 	}
 	

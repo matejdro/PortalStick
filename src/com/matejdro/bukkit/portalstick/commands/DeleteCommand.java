@@ -7,15 +7,12 @@ import com.matejdro.bukkit.portalstick.PortalStick;
 public class DeleteCommand extends BaseCommand {
 
 	public DeleteCommand(PortalStick plugin) {
-		super(plugin);
-		name = "delete";
-		argLength = 0;
-		usage = "<- deletes your portals";
+		super(plugin, "delete", 0, "<- deletes your portals", true);
 	}
 	
 	public boolean execute() {
-		plugin.portalManager.deletePortals(user);
-		plugin.util.sendMessage(player, plugin.i18n.getString("OwnPortalsDeleted", player.getName()));
+		plugin.portalManager.deletePortals(plugin.userManager.getUser(player));
+		plugin.util.sendMessage(sender, plugin.i18n.getString("OwnPortalsDeleted", playerName));
 		return true;
 	}
 	

@@ -14,5 +14,7 @@ RegionPointOneSet: '&aErste Ecke markiert`nType /portal setregion um die Region 
 RegionPointTwo: '&aZweite Ecke markiert`nType /portal setregion um die Region zu speichern'
 RegionToolNoPointsSelected: '&cBitte markiere zwei Ecken'
 CanNotDeleteGlobalRegion: '&cGlobale Region kann nicht gelöscht werden!'
+InvalidRegionFlag: '&cInvalides Flag %1%, bitte wähle eins der folgenden:'
+InvalidRegionFlagValue: '&cInvalider Wert für Flag &7%1%'
 LanguageChanged: '&cSprache auf %1% gesetzt!'
 LanguageNotChanged: '&cKann sprache nicht auf %1% setzen`nFür mehr Details schau in den Serverlog'

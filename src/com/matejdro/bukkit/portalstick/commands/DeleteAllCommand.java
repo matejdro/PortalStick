@@ -7,15 +7,12 @@ import com.matejdro.bukkit.portalstick.PortalStick;
 public class DeleteAllCommand extends BaseCommand {
 	public DeleteAllCommand(PortalStick plugin)
 	{
-		super(plugin);
-		name = "deleteall";
-		argLength = 0;
-		usage = "<- deletes all portals";
+		super(plugin, "deleteall", 0, "<- deletes all portals", false);
 	}
 	
 	public boolean execute() {
 		plugin.portalManager.portals.clear();
-		plugin.util.sendMessage(player, plugin.i18n.getString("AllPortalsDeleted", player.getName()));
+		plugin.util.sendMessage(sender, plugin.i18n.getString("AllPortalsDeleted", playerName));
 		return true;
 	}
 	

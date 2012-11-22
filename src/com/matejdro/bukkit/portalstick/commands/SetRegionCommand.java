@@ -8,21 +8,18 @@ import com.matejdro.bukkit.portalstick.User;
 public class SetRegionCommand extends BaseCommand {
 	
 	public SetRegionCommand(PortalStick plugin) {
-		super(plugin);
-		name = "setregion";
-		argLength = 1;
-		usage = "<name> <- saves selected region";
+		super(plugin, "setregion", 1, "<name> <- saves selected region", true);
 	}
 	
 	public boolean execute() {
 		User user = plugin.userManager.getUser(player);
 		if (user.pointOne == null || user.pointTwo == null)
-			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionToolNoPointsSelected", player.getName(), args.get(0)));
-		else if (plugin.regionManager.getRegion(args.get(0)) != null)
-			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionExists", player.getName(), args.get(0)));
+			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionToolNoPointsSelected", playerName, args[0]));
+		else if (plugin.regionManager.getRegion(args[0]) != null)
+			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionExists", playerName, args[0]));
 		else {
-			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionCreated", player.getName(), args.get(0)));
-			plugin.regionManager.createRegion(args.get(0), user.pointOne, user.pointTwo);
+			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionCreated", playerName, args[0]));
+			plugin.regionManager.createRegion(args[0], user.pointOne, user.pointTwo);
 		}
 		return true;
 	}

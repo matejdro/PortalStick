@@ -323,6 +323,7 @@ public class Config {
 		}
 		
 		//Save main
+		mainConfig.set("Language", lang);
 		try
 		{
 			mainConfig.save(mainConfigFile);

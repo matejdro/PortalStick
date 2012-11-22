@@ -25,7 +25,7 @@ public class I18n
 	YamlConfiguration yml = new YamlConfiguration();
 	try
 	{
-	  yml.load(PortalStick.class.getResourceAsStream("/lang/en_US.txt"));
+	  yml.load(getClass().getResourceAsStream("/lang/en_US.txt"));
 	}
 	catch(Exception e)
 	{

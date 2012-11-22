@@ -8,17 +8,18 @@ public class LanguageCommand extends BaseCommand
 {
 	public LanguageCommand(PortalStick plugin)
 	{
-		super(plugin);
-		name = "language";
-		argLength = 1;
-		usage = "<- switches the language";
+		super(plugin, "language", 1, "<- switches the language", false);
 	}
 	
 	public boolean execute() {
-		if(plugin.i18n.setLang(args.get(0)))
-		  plugin.util.sendMessage(player, plugin.i18n.getString("LanguageChanged", player.getName(), args.get(0)));
+		if(plugin.i18n.setLang(args[0]))
+		{
+		  plugin.util.sendMessage(sender, plugin.i18n.getString("LanguageChanged", playerName, args[0]));
+		  plugin.config.lang = args[0];
+		  plugin.config.saveAll();
+		}
 		else
-		  plugin.util.sendMessage(player, plugin.i18n.getString("LanguageNotChanged", player.getName(), args.get(0)));
+		  plugin.util.sendMessage(sender, plugin.i18n.getString("LanguageNotChanged", playerName, args[0]));
 		return true;
 	}
 	

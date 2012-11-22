@@ -7,15 +7,12 @@ import com.matejdro.bukkit.portalstick.PortalStick;
 public class ReloadCommand extends BaseCommand {
 
 	public ReloadCommand(PortalStick plugin) {
-		super(plugin);
-		name = "reload";
-		argLength = 0;
-		usage = "<- reloads the PortalStick config";
+		super(plugin, "reload", 0, "<- reloads the PortalStick config", false);
 	}
 	
 	public boolean execute() {
 		plugin.config.reLoad();
-		plugin.util.sendMessage(player, plugin.i18n.getString("ConfigurationReloaded", player.getName(), args.get(0)));
+		plugin.util.sendMessage(sender, plugin.i18n.getString("ConfigurationReloaded", playerName, args[0]));
 		return true;
 	}
 	

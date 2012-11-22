@@ -9,49 +9,47 @@ import com.matejdro.bukkit.portalstick.util.RegionSetting;
 public class FlagCommand extends BaseCommand {
 
 	public FlagCommand(PortalStick plugin) {
-		super(plugin);
-		name = "flag";
-		argLength = 3;
-		usage = "<region> <flag> <value> <- flag a region";
+		super(plugin, "flag", 3, "<region> <flag> <value> <- flag a region", false);
 	}
 	
 	public boolean execute() {
 		
-		Region editRegion = plugin.regionManager.getRegion(args.get(0));
+		Region editRegion = plugin.regionManager.getRegion(args[0]);
 		if (editRegion == null) {
-			plugin.util.sendMessage(player, plugin.i18n.getString("RegionNotFound", player.getName(), args.get(0)));
+			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionNotFound", playerName, args[0]));
 			return true;
 		}
 		
 		for (RegionSetting setting : RegionSetting.values()) {
-			if (setting.getYaml().equalsIgnoreCase(args.get(1)) && setting.getEditable()) {
+			if (setting.getYaml().equalsIgnoreCase(args[1]) && setting.getEditable()) {
 				Object old = editRegion.settings.remove(setting);
 				try {
 					
 					if (setting.getDefault() instanceof Integer)
-						editRegion.settings.put(setting, Integer.parseInt(args.get(2)));
+						editRegion.settings.put(setting, Integer.parseInt(args[2]));
 					else if (setting.getDefault() instanceof Double)
-						editRegion.settings.put(setting, Double.parseDouble(args.get(2)));
+						editRegion.settings.put(setting, Double.parseDouble(args[2]));
 					else if (setting.getDefault() instanceof Boolean)
-						editRegion.settings.put(setting, Boolean.parseBoolean(args.get(2)));
+						editRegion.settings.put(setting, Boolean.parseBoolean(args[2]));
 					else
-						editRegion.settings.put(setting, args.get(2));
+						editRegion.settings.put(setting, args[2]);
 					
-					plugin.util.sendMessage(player, plugin.i18n.getString("RegionUpdated", player.getName(), editRegion.name));
+					plugin.util.sendMessage(sender, plugin.i18n.getString("RegionUpdated", playerName, editRegion.name));
 					plugin.config.saveAll();
-					plugin.config.reLoad();
 				} catch (Throwable t) {
-					plugin.util.sendMessage(player, "&cInvalid value supplied for flag &7" + setting.getYaml());
+					plugin.util.sendMessage(sender, plugin.i18n.getString("InvalidRegionFlagValue", playerName, setting.getYaml()));
 					editRegion.settings.put(setting, old);
 				}
 				return true;
 			}
 		}
-		plugin.util.sendMessage(player, "&cInvalid flag, please choose from one of the following:");
-		String flags = "";
+		plugin.util.sendMessage(sender, plugin.i18n.getString("RegionUpdated", playerName, args[1]));
+		StringBuilder sb = new StringBuilder("&c");
 		for (RegionSetting setting : RegionSetting.values())
-			if (setting.getEditable()) flags += "&c" + setting.getYaml() + "&7, ";
-		plugin.util.sendMessage(player, "&c" + flags.substring(0, flags.length() - 2));
+			if (setting.getEditable()) 
+				sb.append("&c").append(setting.getYaml()).append("&7, ");
+		sb.delete(sb.length() - 2, sb.length());
+		plugin.util.sendMessage(sender, sb.toString());
 		return true;
 	}
 	

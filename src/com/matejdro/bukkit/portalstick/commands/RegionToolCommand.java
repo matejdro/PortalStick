@@ -9,19 +9,16 @@ import com.matejdro.bukkit.portalstick.User;
 public class RegionToolCommand extends BaseCommand {
 
 	public RegionToolCommand(PortalStick plugin) {
-		super(plugin);
-		name = "regiontool";
-		argLength = 0;
-		usage = "<- enable/disable region selection mode";
+		super(plugin, "regiontool", 0, "<- enable/disable region selection mode", true);
 	}
 	
 	public boolean execute() {
 		User user = plugin.userManager.getUser(player);
 		if (user.usingTool) {
-			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionToolDisabled", player.getName()));
+			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionToolDisabled", playerName));
 		}
 		else {
-			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionToolEnabled", player.getName(), args.get(0)));
+			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionToolEnabled", playerName, args[0]));
 			if (!player.getInventory().contains(plugin.config.RegionTool))
 					player.getInventory().addItem(new ItemStack(plugin.config.RegionTool, 1));
 		}

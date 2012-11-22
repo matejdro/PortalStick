@@ -1,56 +1,70 @@
 package com.matejdro.bukkit.portalstick.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.matejdro.bukkit.portalstick.PortalStick;
-import com.matejdro.bukkit.portalstick.Region;
-import com.matejdro.bukkit.portalstick.User;
-
-import de.V10lator.PortalStick.V10Location;
 
 public abstract class BaseCommand {
-	final PortalStick plugin;
+	protected final PortalStick plugin;
 	
-	public CommandSender sender;
-	public List<String> args = new ArrayList<String>();
-	public String name;
-	public int argLength;
-	public String usage;
-	public boolean bePlayer = true;
-	public Player player;
-	public Region region;
-	public User user;
-	public String usedCommand;
+	public final String name;
+	protected final int argLength;
+	protected final String usage;
+	protected final boolean bePlayer;
 	
-	public BaseCommand(PortalStick plugin)
+	protected CommandSender sender;
+	protected String[] args;
+	protected Player player;
+	protected String playerName;
+	protected String usedCommand;
+	
+	public BaseCommand(PortalStick plugin, String name, int argLength, String usage, boolean bePlayer)
 	{
 	  this.plugin = plugin;
+	  this.name = name;
+	  this.argLength = argLength;
+	  this.usage = usage;
+	  this.bePlayer = bePlayer;
 	}
 	
 	public boolean run(CommandSender sender, String[] preArgs, String cmd) {
 		this.sender = sender;
-		args.clear();
-		for (String arg : preArgs)
-			args.add(arg);
-		args.remove(0);
+		usedCommand = cmd;
 		
-		if (argLength != args.size()) {
+		int nl = preArgs.length - 1;
+		if (argLength != nl) {
 			sendUsage();
 			return true;
 		}
-		if (bePlayer && !(sender instanceof Player))
+		
+		args = new String[nl];
+		for(int i = 0; i < nl; i++)
+			args[i] = preArgs[i + 1];
+		
+		if(!(sender instanceof Player))
+		{
+		  if(bePlayer)
+		  {
+			cleanup();
+			return true;
+		  }
+		  playerName = "Console";
+		}
+		else
+		{
+		  player = (Player)sender;
+		  if (!permission(player))
+		  {
+			cleanup();
 			return false;
-		player = (Player)sender;
-		region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
-		user = plugin.userManager.getUser(player);
-		usedCommand = cmd;
-		if (!permission(player))
-			return false;
-		return execute();
+		  }
+		  playerName = player.getName();
+		}
+		
+		boolean ret = execute();
+		cleanup();
+		return ret;
 	}
 	
 	public abstract boolean execute();
@@ -59,5 +73,12 @@ public abstract class BaseCommand {
 	public void sendUsage() {
 		plugin.util.sendMessage(sender, "&c/"+usedCommand+" " + name + " " + usage);
 	}
-
+	
+	private void cleanup()
+	{
+	  sender = null;
+	  args = null;
+	  player = null;
+	  usedCommand = null;
+	}
 }
