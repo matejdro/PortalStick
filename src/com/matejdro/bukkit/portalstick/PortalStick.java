@@ -20,6 +20,7 @@ import com.matejdro.bukkit.portalstick.commands.DeleteCommand;
 import com.matejdro.bukkit.portalstick.commands.DeleteRegionCommand;
 import com.matejdro.bukkit.portalstick.commands.FlagCommand;
 import com.matejdro.bukkit.portalstick.commands.HelpCommand;
+import com.matejdro.bukkit.portalstick.commands.LanguageCommand;
 import com.matejdro.bukkit.portalstick.commands.RegionInfoCommand;
 import com.matejdro.bukkit.portalstick.commands.RegionListCommand;
 import com.matejdro.bukkit.portalstick.commands.RegionToolCommand;
@@ -114,6 +115,7 @@ public class PortalStick extends JavaPlugin {
 		tmpList.add(new DeleteRegionCommand(this));
 		tmpList.add(new FlagCommand(this));
 		tmpList.add(new RegionInfoCommand(this));
+		tmpList.add(new LanguageCommand(this));
 		commands = tmpList.toArray(new BaseCommand[0]);
 		
 		EntityAddEvent eae;
@@ -146,6 +148,7 @@ public class PortalStick extends JavaPlugin {
 	public final String PERM_DELETE_GRILL	= "portalstick.deletegrill";
 	public final String PERM_DAMAGE_BOOTS	= "portalstick.damageboots";
 	public final String PERM_TELEPORT 		= "portalstick.teleport";
+	public final String PERM_LANGUAGE		= "portalstick.language";
     
 	public boolean hasPermission(Player player, String node) {
 		if(player.hasPermission(node))

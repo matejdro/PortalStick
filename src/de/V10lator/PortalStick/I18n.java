@@ -77,7 +77,7 @@ public class I18n
 	setLang(plugin.config.lang);
   }
   
-  public void setLang(String lang)
+  public boolean setLang(String lang)
   {
 	File f = new File(plugin.getDataFolder(), "lang");
 	if(!f.exists())
@@ -86,7 +86,7 @@ public class I18n
 	if(!f.exists())
 	{
 	  plugin.getLogger().info("Language file "+f.getAbsolutePath()+" not found!");
-	  return;
+	  return false;
 	}
 	YamlConfiguration yml = new YamlConfiguration();
 	try
@@ -98,7 +98,9 @@ public class I18n
 	{
 	  plugin.getLogger().info("Internal error loading "+f.getAbsolutePath());
 	  e.printStackTrace();
+	  return false;
 	}
+	return true;
   }
   
   public String getString(String node, String ... replace)

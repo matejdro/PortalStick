@@ -14,3 +14,5 @@ RegionPointOneSet: '&aRegion point one set`nType /portal setregion to save the r
 RegionPointTwo: '&aRegion point two set`nType /portal setregion to save the region'
 RegionToolNoPointsSelected: '&cPlease select two points'
 CanNotDeleteGlobalRegion: '&cYou cannot delete the global config!'
+LanguageChanged: '&cLanguage changed to %1%!'
+LanguageNotChanged: '&cError setting language to %1%`nSee the servers log for more details'

@@ -24,7 +24,7 @@ permissions:
     default: op
   portalstick.deletebridge:
     description: Delete bridges
-    default: true
+    default: op
   portalstick.teleport:
     description: Use portals
     default: true
