@@ -39,7 +39,8 @@ public enum RegionSetting {
 //	BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER("blue-gel-horizontal-velocity-multiplier", 1.5),
 //	BLUE_GEL_VERTICAL_BOUNCE_VELOCITY("blue-gel-vertical-bounce-velocity", 1.0),
 //	BLUE_GEL_HORIZONTAL_BOUNCE_VELOCITY("blue-gel-horizontal-bounce-velocity", 1.0),
-	RED_GEL_VELOCITY_MULTIPLIER("red-gel-velocity-multiplier", 1.5, true),
+	RED_GEL_VELOCITY_MULTIPLIER("red-gel-velocity-multiplier", 1.15, true),
+	RED_GEL_MAX_VELOCITY("red-gel-max-velocity", 0.7, true),
 	FAITH_PLATE_BLOCK("aerial-faith-plate-block", "57", true),
 	FAITH_PLATE_POWER("aerial-faith-plate-power", "6-2", true),
 	ENABLE_SOUNDS("enable-sounds", true, true),
@@ -48,9 +49,9 @@ public enum RegionSetting {
 	ENABLE_PISTON_BLOCK_TELEPORT("enable-teleporting-blocks-moved-by-pistons", true, true),
 	LOCATION("location", "world:0,0,0:0,0,0");
 	
-	private String yaml;
-	private Object def;
-	private boolean editable;
+	private final String yaml;
+	private final Object def;
+	private final boolean editable;
 	
 	private RegionSetting(String yaml, Object def) {
 		this.yaml = yaml;

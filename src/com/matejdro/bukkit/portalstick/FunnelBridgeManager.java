@@ -290,10 +290,12 @@ public class FunnelBridgeManager {
 				{
 					glassBlockOwners.put(new V10Location(pblock.getRelative(face, 2)), entity);
 				}
-				for (Block block : glassBlocks.get(entity).toArray(new Block[0]))
+				Block block;
+				for (V10Location loc : glassBlocks.get(entity).toArray(new V10Location[0]))
 				{
-					if (block.getLocation().distanceSquared(entity.getLocation()) > 4) 
+					if (loc.getHandle().distanceSquared(entity.getLocation()) > 4) 
 					{
+						block = loc.getHandle().getBlock();
 						if (glassBlockOwners.get(block) == entity)
 						{
 							block.setType(Material.AIR);

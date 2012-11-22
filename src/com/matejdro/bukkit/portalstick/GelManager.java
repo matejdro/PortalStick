@@ -7,6 +7,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
@@ -18,6 +19,7 @@ public class GelManager {
 	private final PortalStick plugin;
 	final HashMap<String, Float> onRedGel = new HashMap<String, Float>();
 	private final HashSet<Entity> ignore = new HashSet<Entity>();
+	final HashMap<String, Integer> redTasks = new HashMap<String, Integer>();
 	
 	GelManager(PortalStick plugin)
 	{
@@ -110,31 +112,31 @@ public class GelManager {
 	  if(!(entity instanceof Player)) // TODO
 		return false;
 	  
-	  Player player = (Player)entity;
+	  final Player player = (Player)entity;
 	  if(isPortal(new V10Location(under)))
 	  {
 		resetPlayer(player);
 		return false;
 	  }
 	  
-	  String pn = player.getName();
+	  final String pn = player.getName();
 	  String rg = region.getString(RegionSetting.RED_GEL_BLOCK);
-	  if(onRedGel.containsKey(pn))
-	  {
-		if(!plugin.blockUtil.compareBlockToString(under, rg))
-		{
-		  resetPlayer(player);
-		  return false;
-		}
-		return true;
-	  }
 	  
 	  if(!plugin.blockUtil.compareBlockToString(under, rg))
 		return false;
 	  
+	  BukkitScheduler s = plugin.getServer().getScheduler();
+	  if(redTasks.containsKey(pn))
+		s.cancelTask(redTasks.get(pn));
+	  redTasks.put(pn, s.scheduleSyncDelayedTask(plugin, new Runnable(){public void run(){resetPlayer(player);}} , 10L));
+	  
 	  float os = player.getWalkSpeed();
-	  player.setWalkSpeed(os * (float)region.getDouble(RegionSetting.RED_GEL_VELOCITY_MULTIPLIER));
-	  onRedGel.put(pn, os);
+	  float ns = os * (float)region.getDouble(RegionSetting.RED_GEL_VELOCITY_MULTIPLIER);
+	  if(ns > (float)region.getDouble(RegionSetting.RED_GEL_MAX_VELOCITY))
+		return true;
+	  player.setWalkSpeed(ns);
+	  if(!onRedGel.containsKey(pn))
+		onRedGel.put(pn, os);
 	  return true;
 	}
 	
@@ -145,5 +147,7 @@ public class GelManager {
 		return;
 	  player.setWalkSpeed(onRedGel.get(pn));
 	  onRedGel.remove(pn);
+	  redTasks.remove(pn);
+	  System.out.print("Reset");
 	}
 }

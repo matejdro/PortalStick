@@ -151,4 +151,14 @@ public class Region extends User
 		return (Double)settings.get(setting);
 	}
 	
+	public boolean validateRedGel()
+	{
+		if(getDouble(RegionSetting.RED_GEL_MAX_VELOCITY) > 1.0D)
+		{
+			settings.remove(RegionSetting.RED_GEL_MAX_VELOCITY);
+			settings.put(RegionSetting.RED_GEL_MAX_VELOCITY, 1.0D);
+			return false;
+		}
+		return true;
+	}
 }

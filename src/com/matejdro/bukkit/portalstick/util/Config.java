@@ -156,6 +156,11 @@ public class Config {
         plugin.regionManager.loadRegion("global");
         plugin.getLogger().info(plugin.regionManager.regions.size() + " region(s) loaded");
         
+        //Validate regions
+        for(Region region: plugin.regionManager.regions.values())
+        	if(!region.validateRedGel())
+        		plugin.getLogger().info("Inavlid red-gel-max-velocity for region \""+region.name+"\" - fixing!");
+        
         //Load grills
         for (String grill : (grillConfig.getStringList("grills")))
         	plugin.grillManager.loadGrill(grill);
