@@ -80,6 +80,7 @@ public class PortalStick extends JavaPlugin {
 		
 		//Disable bridges:
 		funnelBridgeManager.deleteAll();
+		getServer().getScheduler().cancelTasks(this);
 	}
 
 	public void onEnable() {

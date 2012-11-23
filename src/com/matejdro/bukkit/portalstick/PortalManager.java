@@ -432,7 +432,7 @@ public class PortalManager {
 		Block rb = b.getHandle().getBlock();
 		//Check if wool is correct
 		Wool wool = (Wool) Material.WOOL.getNewData(rb.getData());
-		if (wool.getColor() != DyeColor.BLACK && wool.getColor() != DyeColor.BLUE && wool.getColor() != DyeColor.ORANGE) return;
+		if (wool.getColor() != DyeColor.BLACK && wool.getColor() != DyeColor.LIGHT_BLUE && wool.getColor() != DyeColor.ORANGE) return;
 		//Check for first iron bar
 		Block firstIronBar = null;
 		for (int i = 0; i < 6; i++)
