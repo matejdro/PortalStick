@@ -17,6 +17,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import com.matejdro.bukkit.portalstick.util.Config.Sound;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
 import de.V10lator.PortalStick.V10Location;
@@ -216,5 +217,6 @@ public class GrillManager {
 	  World world = loc.getWorld();
 	  for(int i = 0; i < 9; i++)
 		world.playEffect(loc, Effect.SMOKE, i, 16);
+	  plugin.util.playSound(Sound.GRILL_EMANCIPATE, new V10Location(loc));
 	}
 }
