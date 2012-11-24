@@ -104,8 +104,6 @@ public class PortalStickEntityListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void spawn(EntityAddEvent event)
 	{
-//	  plugin.userManager.createUser(event.getEntity());
-	  
 	  Entity entity = event.getEntity();
 	  plugin.userManager.createUser(entity);
 	  User user = plugin.userManager.getUser(entity);
@@ -117,15 +115,13 @@ public class PortalStickEntityListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void despawn(EntityRemoveEvent event)
 	{
-//	  plugin.userManager.deleteUser(event.getEntity());
-	  
 	  Entity entity = event.getEntity();
 	  User user = plugin.userManager.getUser(entity);
 	  
 	  Region region = plugin.regionManager.getRegion(new V10Location(entity.getLocation()));
 	  if(entity instanceof InventoryHolder && region.name != "global" && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
 		user.revertInventory((InventoryHolder)entity);
-	  plugin.userManager.deleteUser(entity);
+	  plugin.userManager.deleteUser(user);
 	  if(entity instanceof Player) //TODO
 		plugin.gelManager.resetPlayer((Player)entity);
 	}
