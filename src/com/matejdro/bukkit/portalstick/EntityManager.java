@@ -82,7 +82,7 @@ public class EntityManager implements Runnable {
 			  return null;
 			
 			destination = portal.getDestination();
-			if(portal.horizontal || portal.teleport[0].y <= locTo.y)
+			if(destination.horizontal || portal.teleport[0].y <= locTo.y)
 			  teleport = destination.teleport[0].getHandle();
 			else
 			  teleport = destination.teleport[1].getHandle();
