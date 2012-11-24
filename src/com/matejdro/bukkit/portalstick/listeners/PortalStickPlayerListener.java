@@ -244,7 +244,20 @@ public class PortalStickPlayerListener implements Listener {
 	{
 	  Player player = event.getPlayer();
 	  Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
-	  if(region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS))
-		plugin.userManager.getUser(player).droppedItems.add(event.getItemDrop());
+	  
+	  if(!region.getBoolean(RegionSetting.GRILLS_CLEAR_ITEM_DROPS))
+		return;
+	  
+	  Item item = event.getItemDrop();
+	  ItemStack is = item.getItemStack();
+	  
+	  ItemStack item2;
+	  for(Object iss: region.getList(RegionSetting.GRILL_REMOVE_EXCEPTIONS))
+	  {
+		item2 = plugin.util.getItemData((String)iss);
+		if(is.getTypeId() == item2.getTypeId() && is.getDurability() == item2.getDurability())
+		  return;
+	  }
+	  plugin.userManager.getUser(player).droppedItems.add(item);
 	}
 }
