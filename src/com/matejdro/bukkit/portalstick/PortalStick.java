@@ -2,6 +2,7 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.UUID;
 
 import org.bukkit.Server;
@@ -59,6 +60,8 @@ public class PortalStick extends JavaPlugin {
 	public final PortalStickEntityListener eL = new PortalStickEntityListener(this);
 	
 	public AutoUpdate au;
+	
+	public final Random rand = new Random();
 
 	public void onDisable() {
 		//config.unLoad() hancles cleanup, so let's call it

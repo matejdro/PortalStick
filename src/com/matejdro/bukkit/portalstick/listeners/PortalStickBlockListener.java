@@ -2,13 +2,17 @@ package com.matejdro.bukkit.portalstick.listeners;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.UUID;
 
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Dispenser;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -351,6 +355,8 @@ public class PortalStickBlockListener implements Listener
 		return;
 	  Dispenser d = (Dispenser)bs;
 	  ItemStack is = d.getInventory().getItem(4);
+	  if(is == null)
+		return;
 	  Material mat = is.getType();
 	  Region region = plugin.regionManager.getRegion(new V10Location(bs.getLocation()));
 	  if(region.getBoolean(RegionSetting.GEL_TUBE))
@@ -414,7 +420,7 @@ public class PortalStickBlockListener implements Listener
 	  public void run()
 	  {
 		Block to = loc.getHandle().getBlock();
-		if(to.getType() != Material.DISPENSER)
+		if(to.getType() != Material.DISPENSER || to.getBlockPower() == 0)
 		{
 		  stopGelTube(loc);
 		  return;
@@ -427,22 +433,28 @@ public class PortalStickBlockListener implements Listener
 		if(to.isLiquid())
 		  return;
 		Vector vector = new Vector();
+		double v = plugin.rand.nextDouble();
 		if(to.getType() != Material.AIR)
-		  vector.setY(-0.5D);
+		  vector.setY(-v);
 		else
 		{
 		  switch(direction)
 		  {
 		    case NORTH:
-		      vector.setX(0.5D);
+		      vector.setX(-v);
+		      break;
 		  	case EAST:
-		  	  vector.setZ(0.5D);
+		  	  vector.setZ(-v);
+		  	  break;
 		  	case SOUTH:
-		  	  vector.setX(-0.5D);
-		  	case WEST:
-		  	  vector.setZ(-0.5D);
+		  	  vector.setX(v);
+		  	  break;
+		  	default:
+		  	  vector.setZ(v);
 		  }
 		}
+		loc2.setX(loc2.getX()+0.5D);
+		loc2.setZ(loc2.getZ()+0.5D);
 		FallingBlock fb = loc2.getWorld().spawnFallingBlock(loc2, mat, data);
 		fb.setVelocity(vector);
 		plugin.flyingRedGels.put(fb.getUniqueId(), loc);
@@ -459,6 +471,18 @@ public class PortalStickBlockListener implements Listener
 	  for(BlockHolder bh: plugin.redGels.get(loc))
 		  bh.reset();
 	  plugin.redGels.remove(loc);
+	  World world = plugin.getServer().getWorld(loc.world);
+	  UUID uuid;
+	  for(Chunk c: world.getLoadedChunks())
+		for(Entity e: c.getEntities())
+		{
+		  uuid = e.getUniqueId();
+		  if(plugin.flyingRedGels.containsKey(uuid))
+		  {
+			e.remove();
+			plugin.flyingRedGels.remove(uuid);
+		  }
+		}
 	}
 	
 	@EventHandler()
@@ -469,13 +493,6 @@ public class PortalStickBlockListener implements Listener
 		 V10Location loc = new V10Location(block);
 		 if(plugin.config.DisabledWorlds.contains(loc.world))
 			 return;
-		 
-		 if(activeGelTubes.contains(loc))
-		 {
-			 if(event.getOldCurrent() == 0)
-				 stopGelTube(loc);
-			return;
-		 }
 		 
 		 Region region = plugin.regionManager.getRegion(loc);
 		 

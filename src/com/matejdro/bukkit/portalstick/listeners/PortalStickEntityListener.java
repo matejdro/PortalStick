@@ -134,8 +134,10 @@ public class PortalStickEntityListener implements Listener {
 	  {
 		V10Location from = plugin.flyingRedGels.get(entity.getUniqueId());
 		Location loc = entity.getLocation();
+		V10Location vloc = new V10Location(loc);
 		Block b = loc.getBlock();
-		b.setType(Material.AIR);
+		if(!plugin.grillManager.insideBlocks.containsKey(vloc))
+		  b.setType(Material.AIR);
 		FallingBlock fb = (FallingBlock)entity;
 		Block b2;
 		int mat = fb.getBlockId();
@@ -148,13 +150,27 @@ public class PortalStickEntityListener implements Listener {
 		  blocks = new ArrayList<BlockHolder>();
 		  plugin.redGels.put(from, blocks);
 		}
+		BlockHolder bh;
 		for(BlockFace face: new BlockFace[] {BlockFace.DOWN, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP})
 		{
 		  b2 = b.getRelative(face);
 		  if(b2.getType() != Material.AIR && !b2.isLiquid())
 		  {
-			blocks.add(new BlockHolder(b2));
-			b2.setTypeIdAndData(mat, data, true);
+			vloc = new V10Location(b2);
+			if(plugin.portalManager.borderBlocks.containsKey(vloc) ||
+					plugin.portalManager.insideBlocks.containsKey(vloc) ||
+					plugin.portalManager.behindBlocks.containsKey(vloc) ||
+					plugin.grillManager.borderBlocks.containsKey(vloc) ||
+					plugin.grillManager.insideBlocks.containsKey(vloc) ||
+					plugin.funnelBridgeManager.bridgeBlocks.containsKey(vloc) ||
+					plugin.funnelBridgeManager.bridgeMachineBlocks.containsKey(vloc))
+			  continue;
+			bh = new BlockHolder(b2);
+			if(!blocks.contains(bh))
+			{
+			  blocks.add(new BlockHolder(b2));
+			  b2.setTypeIdAndData(mat, data, true);
+			}
 		  }
 		}
 	  }

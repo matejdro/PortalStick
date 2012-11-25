@@ -2,7 +2,6 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.UUID;
 
 import org.bukkit.Location;
@@ -32,7 +31,6 @@ public class EntityManager implements Runnable {
 	private final PortalStick plugin;
 	private final HashSet<Entity> blockedEntities = new HashSet<Entity>();
 	final HashMap<UUID, Location> oldLocations = new HashMap<UUID, Location>();
-	private final Random rand = new Random();
 
 	EntityManager(PortalStick instance)
 	{
@@ -228,16 +226,16 @@ public class EntityManager implements Runnable {
         		break;
         }
 		
-		if (!(entity instanceof Player) && !(entity instanceof Chicken) && !(entity instanceof Bat) && (portal.teleportFace == BlockFace.UP || portal.teleportFace == BlockFace.DOWN) && (destination.teleportFace == BlockFace.UP || destination.teleportFace == BlockFace.DOWN) && rand.nextInt(100) < 5)
+		if (!(entity instanceof Player) && !(entity instanceof Chicken) && !(entity instanceof Bat) && (portal.teleportFace == BlockFace.UP || portal.teleportFace == BlockFace.DOWN) && (destination.teleportFace == BlockFace.UP || destination.teleportFace == BlockFace.DOWN) && plugin.rand.nextInt(100) < 5)
 		{
-		  double d = rand.nextDouble();
+		  double d = plugin.rand.nextDouble();
 		  if(d > 0.5D)
 			d -= 0.5D;
 		  if(ab)
 			d += 0.5D;
-		  if(rand.nextBoolean())
+		  if(plugin.rand.nextBoolean())
 			d = -d;
-		  if(rand.nextBoolean())
+		  if(plugin.rand.nextBoolean())
 			teleport.setX(teleport.getX() + d);
 		  else
 			teleport.setZ(teleport.getZ() + d);

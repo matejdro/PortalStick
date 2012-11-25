@@ -20,4 +20,18 @@ public class BlockHolder
 	Block b = loc.getHandle().getBlock();
 	b.setTypeIdAndData(id, data, true);
   }
+  
+  @Override
+  public int hashCode()
+  {
+	return loc.hashCode();
+  }
+  
+  @Override
+  public boolean equals(Object obj)
+  {
+	if(obj == null || !(obj instanceof BlockHolder))
+	  return false;
+	return loc.equals(((BlockHolder)obj).loc);
+  }
 }

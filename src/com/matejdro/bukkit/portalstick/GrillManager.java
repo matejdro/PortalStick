@@ -11,6 +11,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
@@ -195,6 +196,21 @@ public class GrillManager {
 		  {
 			item2 = plugin.util.getItemData((String)is);
 			if(item.getTypeId() == item2.getTypeId() && item.getDurability() == item2.getDurability())
+			  return;
+		  }
+		  entity.remove();
+		  playGrillAnimation(entity.getLocation());
+		}
+		else if(entity instanceof FallingBlock)
+		{
+		  FallingBlock fb = (FallingBlock)entity;
+		  int id = fb.getBlockId();
+		  byte data = fb.getBlockData();
+		  ItemStack item2;
+		  for(Object is: region.getList(RegionSetting.GRILL_REMOVE_EXCEPTIONS))
+		  {
+			item2 = plugin.util.getItemData((String)is);
+			if(id == item2.getTypeId() && data == item2.getDurability())
 			  return;
 		  }
 		  entity.remove();
