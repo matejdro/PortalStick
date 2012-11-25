@@ -152,40 +152,29 @@ public class EntityManager implements Runnable {
 		float yaw = entity.getLocation().getYaw();
 		float pitch = entity.getLocation().getPitch();
 		float startyaw = yaw;
-		switch(portal.teleportFace)
-	       {
-	       	case EAST:
-	       		yaw -= 90;
-	       		break;
-	       	case SOUTH:
-	       		yaw -= 180;
-	       		break;
-	       	case WEST:
-	       		yaw -= 270;
-	       		break;
-	       	case DOWN:
-	       		teleport.add(0, 1, 0);
-	       	case UP:
-	       		yaw = pitch;
-	       		pitch = 0;
-	       		break;
-	       }
-			
-		//Read input velocity
 		double momentum = 0.0;
 		switch(portal.teleportFace)
 	       {
 	       	case NORTH:
-	       	case SOUTH:
 	       		momentum = vector.getX();
 	       		break;
 	       	case EAST:
-	       	case WEST:
+	       		yaw -= 90;
 	       		momentum = vector.getZ();
 	       		break;
-	       	case UP:
+	       	case SOUTH:
+	       		yaw -= 180;
+	       		momentum = vector.getX();
+	       		break;
+	       	case WEST:
+	       		yaw -= 270;
+	       		momentum = vector.getZ();
+	       		break;
 	       	case DOWN:
+	       	case UP:
 	       		momentum = vector.getY();
+	       		yaw = pitch;
+	       		pitch = 0;
 	       		break;
 	       }
 			
@@ -261,6 +250,7 @@ public class EntityManager implements Runnable {
 		
 		if (entity instanceof Arrow)
 			teleport.setY(teleport.getY() + 0.5);
+		
 		if(really)
 		{
 		  if(!entity.teleport(teleport))

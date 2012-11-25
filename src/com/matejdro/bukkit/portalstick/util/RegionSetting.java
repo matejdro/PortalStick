@@ -35,6 +35,7 @@ public enum RegionSetting {
 	ENABLE_RED_GEL_BLOCKS("enable-red-gel-blocks", true, true),
 	BLUE_GEL_BLOCK("blue-gel-block", "35:3", true),
 	RED_GEL_BLOCK("red-gel-block", "35:1", true),
+	GEL_TUBE("gel-tube", true, true),
 //	BLUE_GEL_VERTICAL_VELOCITY_MULTIPLIER("blue-gel-horizontal-velocity-multiplier", 1.5),
 //	BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER("blue-gel-horizontal-velocity-multiplier", 1.5),
 //	BLUE_GEL_VERTICAL_BOUNCE_VELOCITY("blue-gel-vertical-bounce-velocity", 1.0),

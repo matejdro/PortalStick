@@ -39,12 +39,22 @@ public class PortalStickPlayerListener implements Listener {
 	@EventHandler(ignoreCancelled = false)
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{
+		
 		Player player = event.getPlayer();
 		User user = plugin.userManager.getUser(player);
 	
 		//Portal tool
 		if (player.getItemInHand().getTypeId() == plugin.config.PortalTool && player.getItemInHand().getDurability() == plugin.config.portalToolData && (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK))
 		{
+			if(event.getAction() == Action.RIGHT_CLICK_BLOCK)
+			{
+				Block block = event.getClickedBlock();
+				Material mat = block.getType();
+				if(mat == Material.STONE_BUTTON || mat == Material.WOOD_BUTTON)
+					return;
+			}
+			
+			
 			event.setCancelled(true);
 			Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
 			HashSet<Byte> tb = new HashSet<Byte>();

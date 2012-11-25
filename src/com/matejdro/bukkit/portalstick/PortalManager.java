@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -16,11 +18,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.material.MaterialData;
 import org.bukkit.material.Wool;
 
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
+import de.V10lator.PortalStick.BlockHolder;
 import de.V10lator.PortalStick.V10Location;
 
 public class PortalManager {
@@ -427,8 +431,226 @@ public class PortalManager {
 		  }
 	}
 	
-	public void tryPlacingAutomatedPortal(V10Location b)
+	public final HashMap<V10Location, HashMap<V10Location, BlockHolder>> openAutoPortals = new HashMap<V10Location, HashMap<V10Location, BlockHolder>>();
+	public final HashMap<V10Location, Portal> autoPortals = new HashMap<V10Location, Portal>();
+	
+	public void tryPlacingAutomatedPortal(Block b)
 	{
-
+	  DyeColor color = ((Wool)Material.WOOL.getNewData(b.getData())).getColor();
+	  boolean orange;
+	  boolean black;
+	  if(color == DyeColor.ORANGE)
+	  {
+		orange = true;
+		black = false;
+	  }
+	  else if(color == DyeColor.LIGHT_BLUE)
+	  {
+		orange = false;
+		black = false;
+	  }
+	  else if(color == DyeColor.BLACK)
+	  {
+		orange = false;
+		black = true;
+	  }
+	  else
+		return;
+	  Block iron = null;
+	  //Search iron fence
+	  BlockFace[] sides = new BlockFace[] {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
+	  BlockFace f = null;
+	  for(BlockFace face: sides)
+	  {
+		iron = b.getRelative(face, 2);
+		if(iron.getType() == Material.IRON_FENCE)
+		{
+		  f = face;
+		  break;
+		}
+		else
+		  iron = null;
+	  }
+	  if(iron == null)
+		return;
+	  
+	  //get iron block at the other side
+	  Block iron2 = null;
+	  for(BlockFace face: sides)
+	  {
+		iron2 = iron.getRelative(face, 4);
+		if(iron2.getType() == Material.IRON_FENCE)
+		  break;
+		else
+		  iron2 = null;
+	  }
+	  if(iron2 == null)
+		return;
+	  //get all iron
+	  ArrayList<Block> ironBlocks1 = getAllIron(iron);
+	  if(ironBlocks1.size() != 4)
+		return;
+	  ArrayList<Block> ironBlocks2 = getAllIron(iron2);
+	  if(ironBlocks2.size() != 4)
+		return;
+	  
+	  //get min y
+	  int minY = getMinY(ironBlocks1);
+	  if(minY != getMinY(ironBlocks2))
+		return;
+	  //get max y
+	  int maxY = getMaxY(ironBlocks1);
+	  if(maxY != getMaxY(ironBlocks2))
+		return;
+	  
+	  boolean x = f == BlockFace.WEST || f == BlockFace.EAST;
+	  //get min/max x
+	  int min, max;
+	  if(x)
+	  {
+		if(iron.getX() < iron2.getX())
+		{
+		  min = iron.getX();
+		  max = iron2.getX();
+		}
+		else
+		{
+		  min = iron2.getX();
+		  max = iron.getX();
+		}
+	  }
+	  else
+	  {
+		if(iron.getZ() < iron2.getZ())
+		{
+		  min = iron.getZ();
+		  max = iron2.getZ();
+		}
+		else
+		{
+		  min = iron2.getZ();
+		  max = iron.getZ();
+		}
+	  }
+	  
+	  //get comparable location
+	  V10Location mb;
+	  World world = iron.getWorld();
+	  if(x)
+		mb = new V10Location(new Location(world, min, minY, iron.getZ()));
+	  else
+		mb = new V10Location(new Location(world, iron.getX(), minY, min));
+	  
+	  if(black)
+	  {
+		if(!openAutoPortals.containsKey(mb))
+		  return;
+//		for(Entry<V10Location, BlockHolder> ts: openAutoPortals.get(mb).entrySet())
+//		  ts.getValue().setTo(ts.getKey());
+		openAutoPortals.remove(mb);
+		Portal destination = autoPortals.get(mb).getDestination();
+		if(destination != null)
+		  destination.close();
+		autoPortals.remove(mb);
+		return;
+	  }
+	  
+	  //get blocks to place portal at
+	  Region region = plugin.regionManager.getRegion(mb);
+	  HashMap<V10Location, BlockHolder> blocks = new HashMap<V10Location, BlockHolder>();
+	  if(!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL))
+	  {
+		List<?> placeable = region.getList(RegionSetting.PORTAL_BLOCKS);
+		int tz;
+		if(x)
+		  tz = iron.getZ() - 1;
+		else
+		  tz = iron.getX() - 1;
+		for(int ty = minY; ty <= maxY; ty++)
+		{
+		  for(int tx = min + 1; tx < max; tx++)
+		  {
+			if(x)
+			  iron = world.getBlockAt(tx, ty, tz);
+			else
+			  iron = world.getBlockAt(tz, ty, tx);
+			if(!placeable.contains(iron.getTypeId()))
+			  return;
+			blocks.put(new V10Location(iron), new BlockHolder(iron));
+		  }
+		}
+	  }
+	  if(!openAutoPortals.containsKey(mb))
+		openAutoPortals.put(mb, blocks);
+	  plugin.getServer().broadcastMessage("Structure fine!");
+	  V10Location middle;
+	  if(x)
+		middle = new V10Location(new Location(world, min + 2, minY + 2, iron.getZ()));
+	  else
+		middle = new V10Location(new Location(world, iron.getX(), minY + 2, min + 2));
+	  PortalCoord pc = generatePortal(middle, f);
+	  Portal portal = new Portal(plugin, pc.destLoc, middle, pc.border, pc.inside, pc.behind, region, orange, false, pc.tpFace);
+	  portal.recreate();
+	  Portal dest;
+	  if(orange)
+	  {
+		region.orangePortal = portal;
+		dest = region.orangePortalDest;
+	  }
+	  else
+	  {
+		region.bluePortal = portal;
+		dest = region.bluePortalDest;
+	  }
+	  if(dest != null)
+		portal.open();
+	  autoPortals.put(mb, portal);
+	}
+	
+	private ArrayList<Block> getAllIron(Block start)
+	{
+	  ArrayList<Block> ironBlocks = new ArrayList<Block>();
+	  Block iron = start;
+	  boolean first = true;
+	  for(BlockFace face: new BlockFace[] {BlockFace.UP, BlockFace.DOWN})
+	  {
+		while(iron.getType() == Material.IRON_FENCE)
+		{
+		  if(first)
+			first = false;
+		  else
+			ironBlocks.add(iron);
+		  iron = iron.getRelative(face);
+		}
+		iron = start;
+	  }
+	  
+	  return ironBlocks;
+	}
+	
+	private int getMinY(ArrayList<Block> blocks)
+	{
+	  int ret = Integer.MAX_VALUE;
+	  int y;
+	  for(Block b: blocks)
+	  {
+		y = b.getY();
+		if(y < ret)
+		  ret = y;
+	  }
+	  return ret;
+	}
+	
+	private int getMaxY(ArrayList<Block> blocks)
+	{
+	  int ret = 0;
+	  int y;
+	  for(Block b: blocks)
+	  {
+		y = b.getY();
+		if(y > ret)
+		  ret = y;
+	  }
+	  return ret;
 	}
 }

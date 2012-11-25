@@ -1,6 +1,9 @@
 package com.matejdro.bukkit.portalstick;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.UUID;
 
 import org.bukkit.Chunk;
 import org.bukkit.Server;
@@ -36,7 +39,9 @@ import com.matejdro.bukkit.portalstick.util.Util;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 import de.V10lator.PortalStick.AutoUpdate;
+import de.V10lator.PortalStick.BlockHolder;
 import de.V10lator.PortalStick.I18n;
+import de.V10lator.PortalStick.V10Location;
 
 public class PortalStick extends JavaPlugin {
 	
@@ -57,32 +62,19 @@ public class PortalStick extends JavaPlugin {
 	public final Util util = new Util(this);
 	public final BlockUtil blockUtil = new BlockUtil();
 	
-	private final PortalStickEntityListener eL = new PortalStickEntityListener(this);
+	public final PortalStickEntityListener eL = new PortalStickEntityListener(this);
 	
 	public AutoUpdate au;
 
 	public void onDisable() {
-		// Lazy clean:
-		EntityRemoveEvent ere;
-		for(World w: getServer().getWorlds())
-		  for(Entity e: w.getEntities())
-		  {
-			ere = new EntityRemoveEvent(e);
-			eL.despawn(ere);
-		  }
-		
-		//Remove all portals:
-		for(Region region: regionManager.regions.values())
-		{
-		  for(Portal p: region.portals)
-			p.delete();
-		}
-		
-		//Disable bridges:
-		funnelBridgeManager.deleteAll();
+		//config.unLoad() hancles cleanup, so let's call it
+		config.unLoad();
 		getServer().getScheduler().cancelTasks(this);
 	}
 
+	public final HashMap<UUID, V10Location> flyingRedGels = new HashMap<UUID, V10Location>();
+	public final HashMap<V10Location, ArrayList<BlockHolder>> redGels = new HashMap<V10Location, ArrayList<BlockHolder>>();
+	
 	public void onEnable() {
 		config = new Config(this);
 		
@@ -118,15 +110,6 @@ public class PortalStick extends JavaPlugin {
 		tmpList.add(new RegionInfoCommand(this));
 		tmpList.add(new LanguageCommand(this));
 		commands = tmpList.toArray(new BaseCommand[0]);
-		
-		EntityAddEvent eae;
-		for(World w: s.getWorlds())
-		  for(Chunk c: w.getLoadedChunks())
-			for(Entity e: c.getEntities())
-			{
-			  eae = new EntityAddEvent(e);
-			  eL.spawn(eae);
-			}
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String args[])

@@ -1,5 +1,6 @@
 package com.matejdro.bukkit.portalstick.listeners;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 import org.bukkit.Location;
@@ -8,6 +9,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Dispenser;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -22,6 +24,7 @@ import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.Bridge;
 import com.matejdro.bukkit.portalstick.Funnel;
@@ -31,6 +34,7 @@ import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
+import de.V10lator.PortalStick.BlockHolder;
 import de.V10lator.PortalStick.V10Location;
 
 public class PortalStickBlockListener implements Listener
@@ -38,6 +42,7 @@ public class PortalStickBlockListener implements Listener
 	private PortalStick plugin;
 	private HashSet<Block> blockedPistonBlocks = new HashSet<Block>();	
 	private boolean fakeBBE;
+	private final HashSet<V10Location> activeGelTubes = new HashSet<V10Location>();
 	
 	public PortalStickBlockListener(PortalStick instance)
 	{
@@ -329,13 +334,116 @@ public class PortalStickBlockListener implements Listener
 	  BlockState bs = event.getBlock().getState();
 	  if(!(bs instanceof Dispenser))
 		return;
-	  if(!plugin.regionManager.getRegion(new V10Location(bs.getLocation())).getBoolean(RegionSetting.INFINITE_DISPENSERS))
-		return;
 	  Dispenser d = (Dispenser)bs;
 	  ItemStack is = d.getInventory().getItem(4);
-	  if(is != null && is.getType() != Material.AIR)
-		is.setAmount(is.getAmount() + 1);
+	  Material mat = is.getType();
+	  Region region = plugin.regionManager.getRegion(new V10Location(bs.getLocation()));
+	  if(region.getBoolean(RegionSetting.GEL_TUBE))
+	  {
+		ItemStack gel = plugin.util.getItemData(region.getString(RegionSetting.RED_GEL_BLOCK));
+		if(mat == gel.getType() && is.getDurability() == gel.getDurability())
+		{
+		  event.setCancelled(true);
+		  Block to = d.getBlock();
+		  V10Location from = new V10Location(to);
+		  if(activeGelTubes.contains(from))
+			return;
+		  BlockFace direction;
+		  switch(d.getData().getData())
+		  {
+		  	case 2:
+		  	  direction = BlockFace.EAST;
+		  	  break;
+		  	case 3:
+		  	  direction = BlockFace.WEST;
+		  	  break;
+		  	case 4:
+			  direction = BlockFace.NORTH;
+			  break;
+		  	default:
+			  direction = BlockFace.SOUTH;
+		  }
+		  tubePids.put(from, plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new GelTube(from, direction, mat.getId(), is.getData().getData()), 0L, 20L));
+		  activeGelTubes.add(from);
+		  return;
+		}
+		gel = plugin.util.getItemData(region.getString(RegionSetting.BLUE_GEL_BLOCK));
+		{
+		  //TODO...
+		}
+	  }
+	  if(region.getBoolean(RegionSetting.INFINITE_DISPENSERS))
+	  {
+		if(is != null && is.getType() != Material.AIR)
+		  is.setAmount(is.getAmount() + 1);
+	  }
+	}
+	
+	private final HashMap<V10Location, Integer> tubePids = new HashMap<V10Location, Integer>();
+	
+	private class GelTube implements Runnable
+	{
+	  private final V10Location loc;
+	  private final BlockFace direction;
+	  private final int mat;
+	  private final byte data;
 	  
+	  private GelTube(V10Location loc, BlockFace direction, int mat, byte data)
+	  {
+		this.loc = loc;
+		this.direction = direction;
+		this.mat = mat;
+		this.data = data;
+	  }
+	  
+	  public void run()
+	  {
+		Block to = loc.getHandle().getBlock();
+		if(to.getType() != Material.DISPENSER)
+		{
+		  stopGelTube(loc);
+		  return;
+		}
+		to = to.getRelative(direction);
+		if(to.getType() != Material.AIR)
+		  return;
+		Location loc2 = to.getLocation();
+		to = to.getRelative(direction);
+		if(to.isLiquid())
+		  return;
+		Vector vector = new Vector();
+		if(to.getType() != Material.AIR)
+		  vector.setY(-0.5D);
+		else
+		{
+		  switch(direction)
+		  {
+		    case NORTH:
+		      vector.setX(0.5D);
+		  	case EAST:
+		  	  vector.setZ(0.5D);
+		  	case SOUTH:
+		  	  vector.setX(-0.5D);
+		  	case WEST:
+		  	  vector.setZ(-0.5D);
+		  }
+		}
+		FallingBlock fb = loc2.getWorld().spawnFallingBlock(loc2, mat, data);
+		fb.setVelocity(vector);
+		plugin.flyingRedGels.put(fb.getUniqueId(), loc);
+	  }
+	}
+	
+	private void stopGelTube(V10Location loc)
+	{
+	  if(!tubePids.containsKey(loc))
+		return;
+	  plugin.getServer().getScheduler().cancelTask(tubePids.get(loc));
+	  tubePids.remove(loc);
+	  activeGelTubes.remove(loc);
+	  for(BlockHolder bh: plugin.redGels.get(loc))
+		  bh.reset();
+	  plugin.redGels.remove(loc);
 	}
 	
 	@EventHandler()
@@ -344,6 +452,14 @@ public class PortalStickBlockListener implements Listener
 		  return;
 		 Block block = event.getBlock();
 		 V10Location loc = new V10Location(block);
+		 
+		 if(activeGelTubes.contains(loc))
+		 {
+			 if(event.getOldCurrent() == 0)
+				 stopGelTube(loc);
+			return;
+		 }
+		 
 		 Region region = plugin.regionManager.getRegion(loc);
 		 
 		 //Redstone teleportation
@@ -441,9 +557,15 @@ public class PortalStickBlockListener implements Listener
 		 
 		 //Portal Generators
 		 if (event.getOldCurrent()  == 0 && event.getNewCurrent() > 0)
+		 {
+			 Block block2;
 			 for (int i = 0; i < 5; i++)
-				 if (block.getRelative(BlockFace.values()[i]).getType() == Material.WOOL)
-					 plugin.portalManager.tryPlacingAutomatedPortal(new V10Location(block.getRelative(BlockFace.values()[i])));	 
+			 {
+				 block2 = block.getRelative(BlockFace.values()[i]);
+				 if (block2.getType() == Material.WOOL)
+					 plugin.portalManager.tryPlacingAutomatedPortal(block2);
+			 }
+		 }
 	 }
 	 
 	@EventHandler(ignoreCancelled = true)

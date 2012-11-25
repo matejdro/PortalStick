@@ -11,16 +11,20 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.Entity;
 
+import com.bergerkiller.bukkit.common.events.EntityAddEvent;
+import com.bergerkiller.bukkit.common.events.EntityRemoveEvent;
 import com.matejdro.bukkit.portalstick.Bridge;
 import com.matejdro.bukkit.portalstick.Grill;
+import com.matejdro.bukkit.portalstick.Portal;
 import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
-import com.matejdro.bukkit.portalstick.User;
 
 import de.V10lator.PortalStick.AutoUpdate;
 
@@ -185,6 +189,14 @@ public class Config {
         
         saveAll();
 		
+        EntityAddEvent eae;
+		for(World w: plugin.getServer().getWorlds())
+		  for(Chunk c: w.getLoadedChunks())
+			for(Entity e: c.getEntities())
+			{
+			  eae = new EntityAddEvent(e);
+			  plugin.eL.spawn(eae);
+			}
 	}
 	
 	private int getInt(String path, int def)
@@ -225,22 +237,22 @@ public class Config {
 		load();
 	}
 	
-	public void unLoad() {
-		
+	public void unLoad()
+	{
+		EntityRemoveEvent ere;
+		for(World world: plugin.getServer().getWorlds())
+		  for(Chunk c: world.getLoadedChunks())
+			for(Entity e: c.getEntities())
+			{
+			  ere = new EntityRemoveEvent(e);
+			  plugin.eL.despawn(ere);
+			}
 		plugin.funnelBridgeManager.deleteAll();
+		for(Region region: plugin.regionManager.regions.values())
+		  for(Portal p: region.portals)
+			p.delete();
 		plugin.portalManager.portals.clear();
 		plugin.grillManager.deleteAll();
-		for(User user: plugin.userManager.getUsers())
-		{
-		  if(user.isPlayer)
-		  {
-			Player player = plugin.getServer().getPlayer(user.name);
-			if (player != null)
-			  user.revertInventory(player);
-		  }
-		  plugin.userManager.deleteUser(user);
-		}
-		
 	}
 	
 	public void loadRegionSettings(Region region) {

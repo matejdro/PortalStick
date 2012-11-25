@@ -12,12 +12,11 @@ public class ReloadCommand extends BaseCommand {
 	
 	public boolean execute() {
 		plugin.config.reLoad();
-		plugin.util.sendMessage(sender, plugin.i18n.getString("ConfigurationReloaded", playerName, args[0]));
+		plugin.util.sendMessage(sender, plugin.i18n.getString("ConfigurationReloaded", playerName));
 		return true;
 	}
 	
 	public boolean permission(Player player) {
 		return plugin.hasPermission(player, plugin.PERM_ADMIN_REGIONS);
 	}
-
 }

@@ -1,10 +1,14 @@
 package com.matejdro.bukkit.portalstick.listeners;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -24,6 +28,7 @@ import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.User;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
+import de.V10lator.PortalStick.BlockHolder;
 import de.V10lator.PortalStick.V10Location;
 
 public class PortalStickEntityListener implements Listener {
@@ -105,6 +110,7 @@ public class PortalStickEntityListener implements Listener {
 	public void spawn(EntityAddEvent event)
 	{
 	  Entity entity = event.getEntity();
+//	  System.out.print("Spawned: "+entity.getType());
 	  plugin.userManager.createUser(entity);
 	  User user = plugin.userManager.getUser(entity);
 	  Region region = plugin.regionManager.getRegion(new V10Location(entity.getLocation()));
@@ -116,7 +122,38 @@ public class PortalStickEntityListener implements Listener {
 	public void despawn(EntityRemoveEvent event)
 	{
 	  Entity entity = event.getEntity();
+	  
+	  if(plugin.flyingRedGels.containsKey(entity.getUniqueId()))
+	  {
+		V10Location from = plugin.flyingRedGels.get(entity.getUniqueId());
+		Location loc = entity.getLocation();
+		Block b = loc.getBlock();
+		b.setType(Material.AIR);
+		FallingBlock fb = (FallingBlock)entity;
+		Block b2;
+		int mat = fb.getBlockId();
+		byte data = fb.getBlockData();
+		ArrayList<BlockHolder> blocks;
+		if(plugin.redGels.containsKey(from))
+		  blocks = plugin.redGels.get(from);
+		else
+		{
+		  blocks = new ArrayList<BlockHolder>();
+		  plugin.redGels.put(from, blocks);
+		}
+		for(BlockFace face: new BlockFace[] {BlockFace.DOWN, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP})
+		{
+		  b2 = b.getRelative(face);
+		  if(b2.getType() != Material.AIR && !b2.isLiquid())
+		  {
+			blocks.add(new BlockHolder(b2));
+			b2.setTypeIdAndData(mat, data, true);
+		  }
+		}
+	  }
+	  
 	  User user = plugin.userManager.getUser(entity);
+//	  System.out.print("Despawned: "+entity.getType());
 	  
 	  Region region = plugin.regionManager.getRegion(new V10Location(entity.getLocation()));
 	  if(entity instanceof InventoryHolder && region.name != "global" && region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
