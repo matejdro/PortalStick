@@ -298,12 +298,8 @@ public class EntityManager implements Runnable {
 		if (entity.isInsideVehicle())
 		  return null;
 		
-		World world = locTo.getWorld();
-		if (plugin.config.DisabledWorlds.contains(world.getName()))
-		  return null;
-		
 		double d = locTo.getBlockY();
-		if(d > world.getMaxHeight() - 1 || d < 0)
+		if(d > locTo.getWorld().getMaxHeight() - 1 || d < 0)
 		  return null;
 		
 		Vector vec2 = locTo.toVector();

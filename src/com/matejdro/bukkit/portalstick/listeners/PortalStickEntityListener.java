@@ -39,10 +39,11 @@ public class PortalStickEntityListener implements Listener {
 		this.plugin = plugin;
 	}
 	
-	@EventHandler()
+	@EventHandler(ignoreCancelled = true)
 	public void onEntityDamage(EntityDamageEvent event) {
-		if (event.isCancelled()) return;
-
+		if(plugin.config.DisabledWorlds.contains(event.getEntity().getLocation().getWorld().getName()))
+		  return;
+		
 		if (event.getEntity() instanceof Player)
 		{
 			Player player = (Player)event.getEntity();
@@ -66,6 +67,8 @@ public class PortalStickEntityListener implements Listener {
 	@EventHandler(ignoreCancelled = true)
 	public void onEntityExplode(EntityExplodeEvent event)
 	{
+		if(plugin.config.DisabledWorlds.contains(event.getLocation().getWorld().getName()))
+		  return;
 		Region region = plugin.regionManager.getRegion(new V10Location(event.getLocation()));
 		Iterator<Block> iter = event.blockList().iterator();
 		Block block;
@@ -110,6 +113,8 @@ public class PortalStickEntityListener implements Listener {
 	public void spawn(EntityAddEvent event)
 	{
 	  Entity entity = event.getEntity();
+	  if(plugin.config.DisabledWorlds.contains(entity.getLocation().getWorld().getName()))
+		return;
 //	  System.out.print("Spawned: "+entity.getType());
 	  plugin.userManager.createUser(entity);
 	  User user = plugin.userManager.getUser(entity);
@@ -122,6 +127,8 @@ public class PortalStickEntityListener implements Listener {
 	public void despawn(EntityRemoveEvent event)
 	{
 	  Entity entity = event.getEntity();
+	  if(plugin.config.DisabledWorlds.contains(entity.getLocation().getWorld().getName()))
+		return;
 	  
 	  if(plugin.flyingRedGels.containsKey(entity.getUniqueId()))
 	  {

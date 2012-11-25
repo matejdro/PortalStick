@@ -55,7 +55,7 @@ public class GrillManager {
     
     public boolean createGrill(Player player, V10Location block) {
     	boolean ret;
-    	if(!plugin.hasPermission(player, plugin.PERM_CREATE_GRILL) || plugin.config.DisabledWorlds.contains(player.getLocation().getWorld().getName()))
+    	if(!plugin.hasPermission(player, plugin.PERM_CREATE_GRILL))
     	  ret = false;
     	else if(placeRecursiveEmancipationGrill(block))
     	{

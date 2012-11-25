@@ -54,6 +54,8 @@ public class PortalStickBlockListener implements Listener
 	{
 	  Block block = event.getBlock();
 	  V10Location loc = new V10Location(block);
+	  if(plugin.config.DisabledWorlds.contains(loc.world))
+		return;
 	  
 	  //Update bridge if destroyed block made space.
 	  //We call this as early as possible to not be suppressed by one of the returns.
@@ -150,8 +152,10 @@ public class PortalStickBlockListener implements Listener
 	
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockBurn(BlockIgniteEvent event)
-	{	
+	{
 	  Block block = event.getBlock();
+	  if(plugin.config.DisabledWorlds.contains(block.getLocation().getWorld().getName()))
+		return;
 	  V10Location loc;
 	  Region region;
 	  for(BlockFace face: new BlockFace[] {BlockFace.DOWN, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP})
@@ -194,6 +198,8 @@ public class PortalStickBlockListener implements Listener
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockBurn2(BlockBurnEvent event) {	
 		V10Location loc = new V10Location(event.getBlock());
+		if(plugin.config.DisabledWorlds.contains(loc.world))
+		  return;
 		if (plugin.portalManager.borderBlocks.containsKey(loc) ||
 				plugin.portalManager.insideBlocks.containsKey(loc) ||
 				plugin.portalManager.behindBlocks.containsKey(loc))
@@ -209,6 +215,8 @@ public class PortalStickBlockListener implements Listener
 	
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockPlace(BlockPlaceEvent event) {
+		if(plugin.config.DisabledWorlds.contains(event.getBlock().getLocation().getWorld().getName()))
+		  return;
 		Material block = event.getBlock().getType();
 		
 		//Prevent obstructing funnel
@@ -228,15 +236,18 @@ public class PortalStickBlockListener implements Listener
 	@EventHandler(ignoreCancelled = true)
 	public void onBlockPhysics(BlockPhysicsEvent event)
 	{
-		if (event.getBlock().getType() != Material.SUGAR_CANE_BLOCK)
+		Block block = event.getBlock();
+		if(block.getType() != Material.SUGAR_CANE_BLOCK || plugin.config.DisabledWorlds.contains(block.getLocation().getWorld().getName()))
 		  return;
-		if(plugin.grillManager.insideBlocks.containsKey(new V10Location(event.getBlock())))
+		if(plugin.grillManager.insideBlocks.containsKey(new V10Location(block)))
 		  event.setCancelled(true);
 	}
 	
 	@EventHandler(ignoreCancelled = true)
 	public void noGrowingGrills(BlockGrowEvent event)
 	{
+		if(plugin.config.DisabledWorlds.contains(event.getBlock().getLocation().getWorld().getName()))
+		  return;
 		if(plugin.grillManager.insideBlocks.containsKey(new V10Location(event.getBlock().getRelative(BlockFace.DOWN))))
 		  event.setCancelled(true);
 	}
@@ -245,6 +256,8 @@ public class PortalStickBlockListener implements Listener
 	public void onBlockFromTo(BlockFromToEvent event) {
 		Block from = event.getBlock();
 		V10Location loc = new V10Location(from);
+		if(plugin.config.DisabledWorlds.contains(loc.world))
+		  return;
 		Block to = event.getToBlock();
 		V10Location tb = new V10Location(to);
 		 Region region = plugin.regionManager.getRegion(loc);
@@ -331,6 +344,8 @@ public class PortalStickBlockListener implements Listener
 	@EventHandler
 	public void infiniteDispenser(BlockDispenseEvent event)
 	{
+	  if(plugin.config.DisabledWorlds.contains(event.getBlock().getLocation().getWorld().getName()))
+		return;
 	  BlockState bs = event.getBlock().getState();
 	  if(!(bs instanceof Dispenser))
 		return;
@@ -452,6 +467,8 @@ public class PortalStickBlockListener implements Listener
 		  return;
 		 Block block = event.getBlock();
 		 V10Location loc = new V10Location(block);
+		 if(plugin.config.DisabledWorlds.contains(loc.world))
+			 return;
 		 
 		 if(activeGelTubes.contains(loc))
 		 {
@@ -571,6 +588,8 @@ public class PortalStickBlockListener implements Listener
 	@EventHandler(ignoreCancelled = true)
 	 public void onBlockPistonExtend(BlockPistonExtendEvent event) 
 	 {
+		if(plugin.config.DisabledWorlds.contains(event.getBlock().getLocation().getWorld().getName()))
+			  return;
 		 Region region = plugin.regionManager.getRegion(new V10Location(event.getBlock()));
 
 		 BlockBreakEvent bbe;
@@ -643,6 +662,8 @@ public class PortalStickBlockListener implements Listener
 			 return;
 		 
 		 Block block = event.getRetractLocation().getBlock();
+		 if(plugin.config.DisabledWorlds.contains(block.getLocation().getWorld().getName()))
+			  return;
 		 
 		 fakeBBE = true;
 		 BlockBreakEvent bbe = new BlockBreakEvent(block, null);

@@ -39,6 +39,8 @@ public class PortalStickPlayerListener implements Listener {
 	@EventHandler(ignoreCancelled = false)
 	public void onPlayerInteract(PlayerInteractEvent event)
 	{
+		if(plugin.config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))
+		  return;
 		
 		Player player = event.getPlayer();
 		User user = plugin.userManager.getUser(player);
@@ -68,7 +70,7 @@ public class PortalStickPlayerListener implements Listener {
 				return;
 		
 			List<Block> targetBlocks = event.getPlayer().getLineOfSight(tb, 120);
-			if (targetBlocks.size() < 1 || plugin.config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()) || !region.getBoolean(RegionSetting.ENABLE_PORTALS))
+			if (targetBlocks.size() < 1 || !region.getBoolean(RegionSetting.ENABLE_PORTALS))
 				return;
 			
 			V10Location loc;
@@ -178,6 +180,8 @@ public class PortalStickPlayerListener implements Listener {
 	@EventHandler(ignoreCancelled = false)
 	public void onPlayerMove(PlayerMoveEvent event)
 	{
+	  if(plugin.config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))
+		return;
 	  Location to = plugin.entityManager.onEntityMove(event.getPlayer(), event.getFrom(), event.getTo(), false);
 	  if(to != null)
 		event.setTo(to);
@@ -252,6 +256,8 @@ public class PortalStickPlayerListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void trackDrops(PlayerDropItemEvent event)
 	{
+	  if(plugin.config.DisabledWorlds.contains(event.getPlayer().getLocation().getWorld().getName()))
+		return;
 	  Player player = event.getPlayer();
 	  Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
 	  

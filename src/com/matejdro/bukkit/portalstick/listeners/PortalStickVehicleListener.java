@@ -17,6 +17,8 @@ public class PortalStickVehicleListener implements Listener {
 	@EventHandler()
 	public void onVehicleMove(VehicleMoveEvent event)
 	{
+	  if(plugin.config.DisabledWorlds.contains(event.getTo().getWorld().getName()))
+		return;
 	  plugin.entityManager.onEntityMove(event.getVehicle(), event.getFrom(), event.getTo(), true);
 	}
 }
