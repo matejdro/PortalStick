@@ -272,8 +272,6 @@ public class PortalStickBlockListener implements Listener
 				Portal portal = plugin.portalManager.insideBlocks.get(tb);
 				if (portal != null && portal.open)
 				{
-					Portal destination = portal.getDestination();
-					
 					int blockt = Material.AIR.getId();
 					switch (from.getType())
 					{
@@ -287,11 +285,11 @@ public class PortalStickBlockListener implements Listener
 					}
 					
 					V10Location dest;
-					Portal destP = portal.getDestination();
-					if(destP.horizontal || portal.inside[0].equals(tb))
-					  dest = destP.teleport[0];
+					Portal destination = portal.getDestination();
+					if(destination.horizontal || portal.inside[0].equals(tb))
+					  dest = destination.teleport[0];
 					else
-					  dest = destP.teleport[1];
+					  dest = destination.teleport[1];
 					
 					Block destb = dest.getHandle().getBlock();
 					if (destb.getType() == Material.AIR)
