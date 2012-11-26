@@ -18,7 +18,7 @@ public class V10Location
   
   public V10Location(Location loc)
   {
-	this(loc.getBlock());
+	this(loc.getWorld().getName(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
   }
   
   public V10Location(Block block)

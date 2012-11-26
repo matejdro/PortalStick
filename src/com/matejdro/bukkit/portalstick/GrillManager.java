@@ -47,7 +47,7 @@ public class GrillManager {
 	}
 	
 	public void deleteAll() {
-		for (Grill g : grills.toArray(new Grill[0]))
+		for (Grill g : grills)
 			g.deleteInside();
 		grills.clear();
 		insideBlocks.clear();

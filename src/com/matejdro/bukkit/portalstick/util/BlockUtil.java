@@ -1,5 +1,7 @@
 package com.matejdro.bukkit.portalstick.util;
 
+import java.util.HashMap;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -39,10 +41,20 @@ public class BlockUtil {
 		return Integer.toString(block.getTypeId());
 	}
 	
-	public BlockFace getFaceOfMaterial(Block block, BlockFace[] faces, String material) {
+	public BlockFace getFaceOfMaterial(Block block, BlockFace[] faces, String material, HashMap<BlockFace, Block> faceMap) {
+		Block block2;
 		for (BlockFace face : faces)
-			if (compareBlockToString(block.getRelative(face), material))
+		{
+			if(faceMap.containsKey(face))
+				block2 = faceMap.get(face);
+			else
+			{
+				block2 = block.getRelative(face);
+				faceMap.put(face, block2);
+			}
+			if (compareBlockToString(block2, material))
 				return face;
+		}
 		return null;
 	}
 	

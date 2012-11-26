@@ -1,11 +1,9 @@
 package com.matejdro.bukkit.portalstick;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -28,9 +26,9 @@ public class FunnelBridgeManager {
 	public HashMap<Portal, Bridge> involvedPortals = new HashMap<Portal, Bridge>();
 	public HashMap<V10Location, Bridge> bridgeBlocks = new HashMap<V10Location, Bridge>();
 	public HashMap<V10Location, Bridge> bridgeMachineBlocks = new HashMap<V10Location, Bridge>();
-	private HashSet<Entity> inFunnel = new HashSet<Entity>();
+//	private HashSet<Entity> inFunnel = new HashSet<Entity>();
 	HashMap<Entity, List<V10Location>> glassBlocks = new HashMap<Entity, List<V10Location>>();
-	private HashMap<V10Location, Entity> glassBlockOwners = new HashMap<V10Location, Entity>();
+//	private HashMap<V10Location, Entity> glassBlockOwners = new HashMap<V10Location, Entity>();
 
 	public boolean placeGlassBridge(Player player, V10Location first)
 	{
@@ -164,7 +162,7 @@ public class FunnelBridgeManager {
 			bridge.deactivate();
 	}
 	
-	public Funnel getFunnelInEntity(Entity entity)
+/*	public Funnel getFunnelInEntity(Entity entity)
 	{
 		Bridge bridge = bridgeBlocks.get(new V10Location(entity.getLocation()));
 		if (bridge == null && ((entity.getLocation().getZ() - (double) entity.getLocation().getBlockZ()) < 0.5)) bridge = bridgeBlocks.get(new V10Location(entity.getLocation().getBlock().getRelative(0,0,-1)));
@@ -307,5 +305,5 @@ public class FunnelBridgeManager {
 				}
 			}
 		}
-	}
+	}*/
 }

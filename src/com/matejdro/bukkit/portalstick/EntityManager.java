@@ -289,7 +289,10 @@ public class EntityManager implements Runnable {
 				  oldLocations.put(uuid, loc);
 			}
 		}
+		faceCache.clear();
 	}
+	
+	HashMap<V10Location, HashMap<BlockFace, Block>> faceCache = new HashMap<V10Location, HashMap<BlockFace, Block>>();
 	
 	public Location onEntityMove(final Entity entity, Location locFrom, Location locTo, boolean tp)
 	{
@@ -330,10 +333,28 @@ public class EntityManager implements Runnable {
 		}
 		
 		//Aerial faith plate
+		Block blockIn = locTo.getBlock();
+		HashMap<BlockFace, Block> faceMap;
+		if(faceCache.containsKey(vlocTo))
+		  faceMap = faceCache.get(vlocTo);
+		else
+		{
+		  faceMap = new HashMap<BlockFace, Block>();
+		  faceCache.put(vlocTo, faceMap);
+		}
+		Block blockUnder;
+		if(faceMap.containsKey(BlockFace.DOWN))
+		  blockUnder = faceMap.get(BlockFace.DOWN);
+		else
+		{
+		  blockUnder = blockIn.getRelative(BlockFace.DOWN);
+		  faceMap.put(BlockFace.DOWN, blockUnder);
+		}
+		  
+		//  blockUnder = blockIn.getRelative(BlockFace.DOWN);
+		  
 		if (regionTo.getBoolean(RegionSetting.ENABLE_AERIAL_FAITH_PLATES))
 		{
-			Block blockIn = locTo.getBlock();
-			Block blockUnder = blockIn.getRelative(BlockFace.DOWN);
 			Block blockStart = null;
 			d = Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[0]);
 			String faithBlock = regionTo.getString(RegionSetting.FAITH_PLATE_BLOCK);
@@ -345,7 +366,7 @@ public class EntityManager implements Runnable {
 				blockStart = blockIn;
 			if (blockStart != null) {
 				BlockFace[] faces = new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
-				BlockFace face = plugin.blockUtil.getFaceOfMaterial(blockStart, faces, faithBlock);
+				BlockFace face = plugin.blockUtil.getFaceOfMaterial(blockStart, faces, faithBlock, faceMap);
 				if (face != null) {
 					switch (face) {
 						case NORTH:
@@ -387,10 +408,10 @@ public class EntityManager implements Runnable {
 		
 		//Gel
 		if(!plugin.gelManager.flyingGels.containsKey(entity.getUniqueId()))
-		  plugin.gelManager.useGel(entity, vlocTo, vector);
+		  plugin.gelManager.useGel(entity, vlocTo, vector, blockIn, blockUnder, faceMap);
 		
 		//Funnel
-		plugin.funnelBridgeManager.EntityMoveCheck(entity);
+//		plugin.funnelBridgeManager.EntityMoveCheck(entity);
 		
 		return ret;
 	}

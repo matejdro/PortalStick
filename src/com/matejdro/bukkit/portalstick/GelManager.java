@@ -3,7 +3,6 @@ package com.matejdro.bukkit.portalstick;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Chunk;
@@ -37,13 +36,12 @@ public class GelManager {
 		this.plugin = plugin;
 	}
 	
-	public void useGel(Entity entity, V10Location locTo, Vector vector)
+	public void useGel(Entity entity, V10Location locTo, Vector vector, Block block, Block under, HashMap<BlockFace, Block> faceMap)
 	{
 		Region region = plugin.regionManager.getRegion(locTo);
-		Block block = locTo.getHandle().getBlock();
 		
 		if(region.getBoolean(RegionSetting.ENABLE_RED_GEL_BLOCKS))
-		  redGel(entity, block.getRelative(BlockFace.DOWN), region);
+		  redGel(entity, under, region);
 
 		if (region.getBoolean(RegionSetting.ENABLE_BLUE_GEL_BLOCKS))
 		{
@@ -51,9 +49,17 @@ public class GelManager {
 			  return;
 			String bg = region.getString(RegionSetting.BLUE_GEL_BLOCK);
 			Block block2;
-			for(BlockFace face: new BlockFace[] {BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST})
+			for(BlockFace face: new BlockFace[] {null, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST})
 			{
-			  block2 = block.getRelative(face);
+			  if(face == null)
+				block2 = under;
+			  else if(faceMap.containsKey(face))
+				block2 = faceMap.get(face);
+			  else
+			  {
+				block2 = block.getRelative(face);
+				faceMap.put(face, block);
+			  }
 			  if(plugin.blockUtil.compareBlockToString(block2, bg))
 			  {
 				if(isPortal(new V10Location(block2)))
@@ -71,7 +77,7 @@ public class GelManager {
 				  default:
 					dir = 2;
 				}
-				blueGel(entity, region, dir, vector);
+				blueGel(entity, region, dir, vector, region.getDouble(RegionSetting.BLUE_GEL_MIN_VELOCITY));
 				break;
 			  }
 			}
@@ -89,7 +95,7 @@ public class GelManager {
 	  return false;
 	}
 	
-	private void blueGel(final Entity entity, Region region, byte dir, Vector vector)
+	private void blueGel(final Entity entity, Region region, byte dir, Vector vector, double min)
 	{
 //		Vector vector = player.getVelocity(); //We need a self-calculated vector from the player move event as this has 0.0 everywhere.
 //		vector.multiply(region.getDouble(RegionSetting.BLUE_GEL_VELOCITY_MULTIPLIER));
@@ -97,10 +103,13 @@ public class GelManager {
 		switch(dir)
 		{
 		  case 0:
-			double y = vector.getY();
-		  	if(y >= 0)
+			double y = -vector.getY();
+			if(entity instanceof Player && onRedGel.containsKey(((Player)entity).getName()) && y < min)
+			  y = -min;
+			else if(y < 0.1D)
 			  return;
-			y = -y;
+			if(y < min)
+			  y = min;
 			vector.setY(y);
 			break;
 		  case 1:

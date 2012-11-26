@@ -148,8 +148,8 @@ public class Funnel extends Bridge {
 		bridgeBlocks.clear();
 		for (Portal p: involvedPortals)
 			plugin.funnelBridgeManager.involvedPortals.remove(p);
-		for (Entity e : plugin.funnelBridgeManager.glassBlocks.keySet())
-			plugin.funnelBridgeManager.EntityExitsFunnel(e);
+//		for (Entity e : plugin.funnelBridgeManager.glassBlocks.keySet())
+//			plugin.funnelBridgeManager.EntityExitsFunnel(e);
 		
 		involvedPortals.clear();
 	}

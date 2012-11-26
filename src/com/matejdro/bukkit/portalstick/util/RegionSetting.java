@@ -40,6 +40,7 @@ public enum RegionSetting {
 //	BLUE_GEL_HORIZONTAL_VELOCITY_MULTIPLIER("blue-gel-horizontal-velocity-multiplier", 1.5),
 //	BLUE_GEL_VERTICAL_BOUNCE_VELOCITY("blue-gel-vertical-bounce-velocity", 1.0),
 //	BLUE_GEL_HORIZONTAL_BOUNCE_VELOCITY("blue-gel-horizontal-bounce-velocity", 1.0),
+	BLUE_GEL_MIN_VELOCITY("blue-gel-min-velocity", 1.0, true),
 	RED_GEL_VELOCITY_MULTIPLIER("red-gel-velocity-multiplier", 1.15, true),
 	RED_GEL_MAX_VELOCITY("red-gel-max-velocity", 0.7, true),
 	FAITH_PLATE_BLOCK("aerial-faith-plate-block", "57", true),
