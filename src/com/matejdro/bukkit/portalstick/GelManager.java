@@ -65,17 +65,19 @@ public class GelManager {
 				if(isPortal(new V10Location(block2)))
 				  continue;
 				byte dir;
-				switch(face)
+				if(face == null)
+				  dir = 0;
+				else
 				{
-				  case DOWN:
-					dir = 0;
-				    break;
-				  case NORTH:
-				  case SOUTH:
-					dir = 1;
-					break;
-				  default:
-					dir = 2;
+				  switch(face)
+				  {
+				  	case NORTH:
+				  	case SOUTH:
+				  	  dir = 1;
+				  	  break;
+				  	default:
+				  	  dir = 2;
+				  }
 				}
 				blueGel(entity, region, dir, vector, region.getDouble(RegionSetting.BLUE_GEL_MIN_VELOCITY));
 				break;
