@@ -1,9 +1,7 @@
 package com.matejdro.bukkit.portalstick;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Random;
-import java.util.UUID;
 
 import org.bukkit.Server;
 import org.bukkit.command.Command;
@@ -34,9 +32,7 @@ import com.matejdro.bukkit.portalstick.util.Util;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 import de.V10lator.PortalStick.AutoUpdate;
-import de.V10lator.PortalStick.BlockHolder;
 import de.V10lator.PortalStick.I18n;
-import de.V10lator.PortalStick.V10Location;
 
 public class PortalStick extends JavaPlugin {
 	
@@ -68,9 +64,6 @@ public class PortalStick extends JavaPlugin {
 		config.unLoad();
 		getServer().getScheduler().cancelTasks(this);
 	}
-
-	public final HashMap<UUID, V10Location> flyingRedGels = new HashMap<UUID, V10Location>();
-	public final HashMap<V10Location, ArrayList<BlockHolder>> redGels = new HashMap<V10Location, ArrayList<BlockHolder>>();
 	
 	public void onEnable() {
 		config = new Config(this);

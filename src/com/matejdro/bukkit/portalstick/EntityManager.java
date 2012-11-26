@@ -386,7 +386,8 @@ public class EntityManager implements Runnable {
 		}
 		
 		//Gel
-		plugin.gelManager.useGel(entity, vlocTo, vector);
+		if(!plugin.gelManager.flyingGels.containsKey(entity.getUniqueId()))
+		  plugin.gelManager.useGel(entity, vlocTo, vector);
 		
 		//Funnel
 		plugin.funnelBridgeManager.EntityMoveCheck(entity);

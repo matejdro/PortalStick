@@ -96,7 +96,7 @@ public class PortalStickEntityListener implements Listener {
 					}
 				}
 			}
-			else if (block.getType() == Material.SUGAR_CANE_BLOCK || plugin.blockUtil.compareBlockToString(block, region.getString(RegionSetting.GRILL_MATERIAL)))
+			else if (plugin.blockUtil.compareBlockToString(block, region.getString(RegionSetting.GRILL_MATERIAL)))
 			{
 				Grill grill = plugin.grillManager.insideBlocks.get(loc);
 				if (grill == null) grill = plugin.grillManager.borderBlocks.get(loc);
@@ -130,9 +130,9 @@ public class PortalStickEntityListener implements Listener {
 	  if(plugin.config.DisabledWorlds.contains(entity.getLocation().getWorld().getName()))
 		return;
 	  
-	  if(plugin.flyingRedGels.containsKey(entity.getUniqueId()))
+	  if(plugin.gelManager.flyingGels.containsKey(entity.getUniqueId()))
 	  {
-		V10Location from = plugin.flyingRedGels.get(entity.getUniqueId());
+		V10Location from = plugin.gelManager.flyingGels.get(entity.getUniqueId());
 		Location loc = entity.getLocation();
 		V10Location vloc = new V10Location(loc);
 		Block b = loc.getBlock();
@@ -143,12 +143,12 @@ public class PortalStickEntityListener implements Listener {
 		int mat = fb.getBlockId();
 		byte data = fb.getBlockData();
 		ArrayList<BlockHolder> blocks;
-		if(plugin.redGels.containsKey(from))
-		  blocks = plugin.redGels.get(from);
+		if(plugin.gelManager.gels.containsKey(from))
+		  blocks = plugin.gelManager.gels.get(from);
 		else
 		{
 		  blocks = new ArrayList<BlockHolder>();
-		  plugin.redGels.put(from, blocks);
+		  plugin.gelManager.gels.put(from, blocks);
 		}
 		BlockHolder bh;
 		for(BlockFace face: new BlockFace[] {BlockFace.DOWN, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP})

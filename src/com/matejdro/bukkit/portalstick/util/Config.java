@@ -254,7 +254,7 @@ public class Config {
 			p.delete();
 		plugin.portalManager.portals.clear();
 		plugin.grillManager.deleteAll();
-		for(V10Location loc: plugin.redGels.keySet())
+		for(V10Location loc: plugin.gelManager.gels.keySet())
 		  plugin.gelManager.stopGelTube(loc);
 	}
 	

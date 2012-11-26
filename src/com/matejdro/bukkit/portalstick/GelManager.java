@@ -1,5 +1,6 @@
 package com.matejdro.bukkit.portalstick;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
@@ -26,6 +27,8 @@ public class GelManager {
 	final HashMap<String, Integer> redTasks = new HashMap<String, Integer>();
 	public final HashMap<V10Location, Integer> tubePids = new HashMap<V10Location, Integer>();
 	public final HashSet<V10Location> activeGelTubes = new HashSet<V10Location>();
+	public final HashMap<UUID, V10Location> flyingGels = new HashMap<UUID, V10Location>();
+	public final HashMap<V10Location, ArrayList<BlockHolder>> gels = new HashMap<V10Location, ArrayList<BlockHolder>>();
 	
 	GelManager(PortalStick plugin)
 	{
@@ -154,7 +157,6 @@ public class GelManager {
 	  player.setWalkSpeed(onRedGel.get(pn));
 	  onRedGel.remove(pn);
 	  redTasks.remove(pn);
-	  System.out.print("Reset");
 	}
 	
 	public void stopGelTube(V10Location loc)
@@ -164,11 +166,11 @@ public class GelManager {
 	  plugin.getServer().getScheduler().cancelTask(tubePids.get(loc));
 	  tubePids.remove(loc);
 	  activeGelTubes.remove(loc);
-	  if(plugin.redGels.containsKey(loc))
+	  if(gels.containsKey(loc))
 	  {
-		for(BlockHolder bh: plugin.redGels.get(loc))
+		for(BlockHolder bh: gels.get(loc))
 		  bh.reset();
-		plugin.redGels.remove(loc);
+		gels.remove(loc);
 	  }
 	  World world = plugin.getServer().getWorld(loc.world);
 	  UUID uuid;
@@ -176,10 +178,10 @@ public class GelManager {
 		for(Entity e: c.getEntities())
 		{
 		  uuid = e.getUniqueId();
-		  if(plugin.flyingRedGels.containsKey(uuid))
+		  if(flyingGels.containsKey(uuid))
 		  {
 			e.remove();
-			plugin.flyingRedGels.remove(uuid);
+			flyingGels.remove(uuid);
 		  }
 		}
 	}

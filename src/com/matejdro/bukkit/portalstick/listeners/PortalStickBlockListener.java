@@ -1,6 +1,5 @@
 package com.matejdro.bukkit.portalstick.listeners;
 
-import java.util.HashMap;
 import java.util.HashSet;
 
 import org.bukkit.Location;
@@ -382,9 +381,35 @@ public class PortalStickBlockListener implements Listener
 		  plugin.gelManager.activeGelTubes.add(from);
 		  return;
 		}
-		gel = plugin.util.getItemData(region.getString(RegionSetting.BLUE_GEL_BLOCK));
+		else
 		{
-		  //TODO...
+		  gel = plugin.util.getItemData(region.getString(RegionSetting.BLUE_GEL_BLOCK));
+		  if(mat == gel.getType() && is.getDurability() == gel.getDurability())
+		  {
+			event.setCancelled(true);
+			Block to = d.getBlock();
+			V10Location from = new V10Location(to);
+			if(plugin.gelManager.activeGelTubes.contains(from))
+			  return;
+			BlockFace direction;
+			switch(d.getData().getData())
+			{
+			  case 2:
+			    direction = BlockFace.EAST;
+			  	break;
+			  case 3:
+			    direction = BlockFace.WEST;
+			    break;
+			  case 4:
+				direction = BlockFace.NORTH;
+				break;
+			  default:
+				direction = BlockFace.SOUTH;
+			}
+			  plugin.gelManager.tubePids.put(from, plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new GelTube(from, direction, mat.getId(), is.getData().getData()), 0L, 5L));
+			  plugin.gelManager.activeGelTubes.add(from);
+			  return;
+		  }
 		}
 	  }
 	  if(region.getBoolean(RegionSetting.INFINITE_DISPENSERS))
@@ -448,8 +473,9 @@ public class PortalStickBlockListener implements Listener
 		loc2.setX(loc2.getX()+0.5D);
 		loc2.setZ(loc2.getZ()+0.5D);
 		FallingBlock fb = loc2.getWorld().spawnFallingBlock(loc2, mat, data);
+		fb.setDropItem(false);
 		fb.setVelocity(vector);
-		plugin.flyingRedGels.put(fb.getUniqueId(), loc);
+		plugin.gelManager.flyingGels.put(fb.getUniqueId(), loc);
 	  }
 	}
 	
