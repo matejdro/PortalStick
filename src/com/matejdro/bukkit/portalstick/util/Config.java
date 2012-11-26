@@ -27,6 +27,7 @@ import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 
 import de.V10lator.PortalStick.AutoUpdate;
+import de.V10lator.PortalStick.V10Location;
 
 public class Config {
 	
@@ -253,6 +254,8 @@ public class Config {
 			p.delete();
 		plugin.portalManager.portals.clear();
 		plugin.grillManager.deleteAll();
+		for(V10Location loc: plugin.redGels.keySet())
+		  plugin.gelManager.stopGelTube(loc);
 	}
 	
 	public void loadRegionSettings(Region region) {

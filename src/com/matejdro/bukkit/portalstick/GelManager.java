@@ -2,7 +2,10 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.UUID;
 
+import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -13,6 +16,7 @@ import org.bukkit.util.Vector;
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
+import de.V10lator.PortalStick.BlockHolder;
 import de.V10lator.PortalStick.V10Location;
 
 public class GelManager {
@@ -20,6 +24,8 @@ public class GelManager {
 	final HashMap<String, Float> onRedGel = new HashMap<String, Float>();
 	private final HashSet<Entity> ignore = new HashSet<Entity>();
 	final HashMap<String, Integer> redTasks = new HashMap<String, Integer>();
+	public final HashMap<V10Location, Integer> tubePids = new HashMap<V10Location, Integer>();
+	public final HashSet<V10Location> activeGelTubes = new HashSet<V10Location>();
 	
 	GelManager(PortalStick plugin)
 	{
@@ -149,5 +155,32 @@ public class GelManager {
 	  onRedGel.remove(pn);
 	  redTasks.remove(pn);
 	  System.out.print("Reset");
+	}
+	
+	public void stopGelTube(V10Location loc)
+	{
+	  if(!tubePids.containsKey(loc))
+		return;
+	  plugin.getServer().getScheduler().cancelTask(tubePids.get(loc));
+	  tubePids.remove(loc);
+	  activeGelTubes.remove(loc);
+	  if(plugin.redGels.containsKey(loc))
+	  {
+		for(BlockHolder bh: plugin.redGels.get(loc))
+		  bh.reset();
+		plugin.redGels.remove(loc);
+	  }
+	  World world = plugin.getServer().getWorld(loc.world);
+	  UUID uuid;
+	  for(Chunk c: world.getLoadedChunks())
+		for(Entity e: c.getEntities())
+		{
+		  uuid = e.getUniqueId();
+		  if(plugin.flyingRedGels.containsKey(uuid))
+		  {
+			e.remove();
+			plugin.flyingRedGels.remove(uuid);
+		  }
+		}
 	}
 }

@@ -2,17 +2,13 @@ package com.matejdro.bukkit.portalstick.listeners;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.UUID;
 
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Dispenser;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,7 +34,6 @@ import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
-import de.V10lator.PortalStick.BlockHolder;
 import de.V10lator.PortalStick.V10Location;
 
 public class PortalStickBlockListener implements Listener
@@ -46,7 +41,6 @@ public class PortalStickBlockListener implements Listener
 	private PortalStick plugin;
 	private HashSet<Block> blockedPistonBlocks = new HashSet<Block>();	
 	private boolean fakeBBE;
-	private final HashSet<V10Location> activeGelTubes = new HashSet<V10Location>();
 	
 	public PortalStickBlockListener(PortalStick instance)
 	{
@@ -367,7 +361,7 @@ public class PortalStickBlockListener implements Listener
 		  event.setCancelled(true);
 		  Block to = d.getBlock();
 		  V10Location from = new V10Location(to);
-		  if(activeGelTubes.contains(from))
+		  if(plugin.gelManager.activeGelTubes.contains(from))
 			return;
 		  BlockFace direction;
 		  switch(d.getData().getData())
@@ -384,8 +378,8 @@ public class PortalStickBlockListener implements Listener
 		  	default:
 			  direction = BlockFace.SOUTH;
 		  }
-		  tubePids.put(from, plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new GelTube(from, direction, mat.getId(), is.getData().getData()), 0L, 20L));
-		  activeGelTubes.add(from);
+		  plugin.gelManager.tubePids.put(from, plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new GelTube(from, direction, mat.getId(), is.getData().getData()), 0L, 5L));
+		  plugin.gelManager.activeGelTubes.add(from);
 		  return;
 		}
 		gel = plugin.util.getItemData(region.getString(RegionSetting.BLUE_GEL_BLOCK));
@@ -399,8 +393,6 @@ public class PortalStickBlockListener implements Listener
 		  is.setAmount(is.getAmount() + 1);
 	  }
 	}
-	
-	private final HashMap<V10Location, Integer> tubePids = new HashMap<V10Location, Integer>();
 	
 	private class GelTube implements Runnable
 	{
@@ -422,7 +414,7 @@ public class PortalStickBlockListener implements Listener
 		Block to = loc.getHandle().getBlock();
 		if(to.getType() != Material.DISPENSER || to.getBlockPower() == 0)
 		{
-		  stopGelTube(loc);
+		  plugin.gelManager.stopGelTube(loc);
 		  return;
 		}
 		to = to.getRelative(direction);
@@ -459,30 +451,6 @@ public class PortalStickBlockListener implements Listener
 		fb.setVelocity(vector);
 		plugin.flyingRedGels.put(fb.getUniqueId(), loc);
 	  }
-	}
-	
-	private void stopGelTube(V10Location loc)
-	{
-	  if(!tubePids.containsKey(loc))
-		return;
-	  plugin.getServer().getScheduler().cancelTask(tubePids.get(loc));
-	  tubePids.remove(loc);
-	  activeGelTubes.remove(loc);
-	  for(BlockHolder bh: plugin.redGels.get(loc))
-		  bh.reset();
-	  plugin.redGels.remove(loc);
-	  World world = plugin.getServer().getWorld(loc.world);
-	  UUID uuid;
-	  for(Chunk c: world.getLoadedChunks())
-		for(Entity e: c.getEntities())
-		{
-		  uuid = e.getUniqueId();
-		  if(plugin.flyingRedGels.containsKey(uuid))
-		  {
-			e.remove();
-			plugin.flyingRedGels.remove(uuid);
-		  }
-		}
 	}
 	
 	@EventHandler()
