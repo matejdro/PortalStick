@@ -180,6 +180,8 @@ public class PortalStickEntityListener implements Listener {
 	  }
 	  
 	  User user = plugin.userManager.getUser(entity);
+	  if(user == null) //TODO: This shouldn't happen. Bug in BKCommonLib.
+		return;
 //	  System.out.print("Despawned: "+entity.getType());
 	  
 	  Region region = plugin.regionManager.getRegion(new V10Location(entity.getLocation()));
