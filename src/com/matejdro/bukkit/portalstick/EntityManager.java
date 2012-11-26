@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Arrow;
@@ -15,10 +14,8 @@ import org.bukkit.entity.Boat;
 import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
-import org.bukkit.entity.Vehicle;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
@@ -270,25 +267,6 @@ public class EntityManager implements Runnable {
 	@Override
 	public void run()
 	{
-		UUID uuid;
-		Location loc, to;
-		for (World w : plugin.getServer().getWorlds())
-		{
-			if(plugin.config.DisabledWorlds.contains(w.getName()))
-			  continue;
-			for(Entity e: w.getEntities())
-			{
-				if (e instanceof Player || (e instanceof Vehicle && !(e instanceof Pig)) || e.isDead())
-				  continue;
-				uuid = e.getUniqueId();
-				loc = oldLocations.get(e.getUniqueId());
-				to = onEntityMove(e, loc, e.getLocation(), true);
-				if(to != null)
-				  oldLocations.put(uuid, to);
-				else
-				  oldLocations.put(uuid, loc);
-			}
-		}
 		faceCache.clear();
 	}
 	

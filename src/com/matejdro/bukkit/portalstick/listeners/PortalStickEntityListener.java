@@ -5,11 +5,14 @@ import java.util.Iterator;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Vehicle;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -20,6 +23,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
 import com.bergerkiller.bukkit.common.events.EntityAddEvent;
+import com.bergerkiller.bukkit.common.events.EntityMoveEvent;
 import com.bergerkiller.bukkit.common.events.EntityRemoveEvent;
 import com.matejdro.bukkit.portalstick.Grill;
 import com.matejdro.bukkit.portalstick.Portal;
@@ -188,5 +192,15 @@ public class PortalStickEntityListener implements Listener {
 	  plugin.userManager.deleteUser(user);
 	  if(entity instanceof Player) //TODO
 		plugin.gelManager.resetPlayer((Player)entity);
+	}
+	
+	@EventHandler
+	public void entityMove(EntityMoveEvent event)
+	{
+	  Entity entity = event.getEntity();
+	  if(entity instanceof Player || (entity instanceof Vehicle && !(entity instanceof Pig)))
+		return;
+	  World world = entity.getWorld();
+	  plugin.entityManager.onEntityMove(event.getEntity(), new Location(world, event.getFromX(), event.getFromY(), event.getFromZ(), event.getFromYaw(), event.getFromPitch()), new Location(world, event.getToX(), event.getToY(), event.getToZ(), event.getToYaw(), event.getToPitch()), true);
 	}
 }

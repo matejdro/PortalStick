@@ -67,12 +67,14 @@ public class PortalStick extends JavaPlugin {
 	}
 	
 	public void onEnable() {
-		int bklv = Common.VERSION;
-		if(bklv < 10)
+		if(Common.VERSION < 139)
 		{
 		  getLogger().info("BKCommonLib outdated!");
+		  getServer().getPluginManager().disablePlugin(this);
 		  return;
 		}
+		else if(Common.VERSION > 139)
+		  getLogger().info("WARNING: BKCommonLib to new. Things may be broken!");
 		
 		config = new Config(this);
 		
