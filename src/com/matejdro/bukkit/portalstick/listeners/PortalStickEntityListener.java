@@ -168,7 +168,11 @@ public class PortalStickEntityListener implements Listener {
 			bh = new BlockHolder(b2);
 			if(!blocks.contains(bh))
 			{
-			  blocks.add(new BlockHolder(b2));
+			  if(plugin.gelManager.gelMap.containsKey(bh))
+				bh = plugin.gelManager.gelMap.get(bh);
+			  else
+				plugin.gelManager.gelMap.put(bh, bh);
+			  blocks.add(bh);
 			  b2.setTypeIdAndData(mat, data, true);
 			}
 		  }

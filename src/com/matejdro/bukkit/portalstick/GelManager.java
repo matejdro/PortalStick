@@ -3,6 +3,7 @@ package com.matejdro.bukkit.portalstick;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.bukkit.Chunk;
@@ -29,6 +30,7 @@ public class GelManager {
 	public final HashSet<V10Location> activeGelTubes = new HashSet<V10Location>();
 	public final HashMap<UUID, V10Location> flyingGels = new HashMap<UUID, V10Location>();
 	public final HashMap<V10Location, ArrayList<BlockHolder>> gels = new HashMap<V10Location, ArrayList<BlockHolder>>();
+	public final HashMap<BlockHolder, BlockHolder> gelMap = new HashMap<BlockHolder, BlockHolder>();
 	
 	GelManager(PortalStick plugin)
 	{
@@ -166,11 +168,19 @@ public class GelManager {
 	  plugin.getServer().getScheduler().cancelTask(tubePids.get(loc));
 	  tubePids.remove(loc);
 	  activeGelTubes.remove(loc);
+	  ArrayList<BlockHolder> tc = new ArrayList<BlockHolder>();
 	  if(gels.containsKey(loc))
 	  {
 		for(BlockHolder bh: gels.get(loc))
+		{
 		  bh.reset();
+		  gelMap.remove(bh);
+		  tc.add(bh);
+		}
 		gels.remove(loc);
+		for(ArrayList<BlockHolder> blocks: gels.values())
+		  for(BlockHolder bh: tc)
+			blocks.remove(bh);
 	  }
 	  World world = plugin.getServer().getWorld(loc.world);
 	  UUID uuid;
