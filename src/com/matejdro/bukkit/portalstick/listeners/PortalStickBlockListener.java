@@ -273,15 +273,17 @@ public class PortalStickBlockListener implements Listener
 				if (portal != null && portal.open)
 				{
 					int blockt = Material.AIR.getId();
+					int blockt2 = blockt;
 					switch (from.getType())
 					{
 						case WATER:
 						case STATIONARY_WATER:
-							blockt = Material.STATIONARY_WATER.getId();
+							blockt = Material.WATER.getId();
+							blockt2 = Material.STATIONARY_WATER.getId();
 							break;
 						default:
-							blockt = Material.STATIONARY_LAVA.getId();
-							break;
+							blockt = Material.LAVA.getId();
+							blockt2 = Material.STATIONARY_LAVA.getId();
 					}
 					
 					V10Location dest;
@@ -295,7 +297,7 @@ public class PortalStickBlockListener implements Listener
 					if (destb.getType() == Material.AIR)
 					{
 					  destb.setTypeId(blockt);
-					  LiquidCheck lc = new LiquidCheck(loc, dest, destination, blockt);
+					  LiquidCheck lc = new LiquidCheck(loc, dest, destination, blockt2, blockt);
 					  lc.setPid(plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, lc, 10L, 10L));  
 					}
 					event.setCancelled(true);
@@ -734,15 +736,16 @@ public class PortalStickBlockListener implements Listener
 	  private final V10Location source;
 	  private final V10Location destination;
 	  private final Portal exit;
-	  private final int mat;
+	  private final int mat1, mat2;
 	  private int pid;
 	  
-	  private LiquidCheck(V10Location source, V10Location destination, Portal exit, int mat)
+	  private LiquidCheck(V10Location source, V10Location destination, Portal exit, int mat1, int mat2)
 	  {
 		this.source = source;
 		this.destination = destination;
 		this.exit = exit;
-		this.mat = mat;
+		this.mat1 = mat1;
+		this.mat2 = mat2;
 	  }
 	  
 	  private void setPid(int pid)
@@ -767,14 +770,14 @@ public class PortalStickBlockListener implements Listener
 		  return;
 		}
 		Block destination = loc.getBlock();
-		if(!exit.open || source.getTypeId() != mat)
+		if(!exit.open || source.getTypeId() != mat1 || source.getTypeId() != mat2)
 		{
-		  if(destination.getTypeId() == mat)
+		  if(destination.getTypeId() == mat1)
 			destination.setType(Material.AIR);
 		  plugin.getServer().getScheduler().cancelTask(pid);
 		}
 		else if(destination.getType() == Material.AIR)
-		  destination.setTypeId(mat);
+		  destination.setTypeId(mat2);
 	  }
 	}
 }
