@@ -61,7 +61,7 @@ public class Portal {
 				{
 					plugin.gelManager.gelMap.remove(bh);
 					for(ArrayList<BlockHolder> blocks: plugin.gelManager.gels.values())
-						if(blocks.remove(bh));
+						blocks.remove(bh);
 				}
 				plugin.portalManager.oldBlocks.remove(loc);
 			}
@@ -79,7 +79,7 @@ public class Portal {
 				{
 					plugin.gelManager.gelMap.remove(bh);
 					for(ArrayList<BlockHolder> blocks: plugin.gelManager.gels.values())
-						if(blocks.remove(bh));
+						blocks.remove(bh);
 				}
 				plugin.portalManager.oldBlocks.remove(loc);
 			}
@@ -97,7 +97,7 @@ public class Portal {
 					{
 						plugin.gelManager.gelMap.remove(bh);
 						for(ArrayList<BlockHolder> blocks: plugin.gelManager.gels.values())
-							if(blocks.remove(bh));
+							blocks.remove(bh);
 					}
 					plugin.portalManager.oldBlocks.remove(loc);
 				}
