@@ -1,5 +1,6 @@
 package com.matejdro.bukkit.portalstick.listeners;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.bukkit.Location;
@@ -33,6 +34,7 @@ import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.Region;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
+import de.V10lator.PortalStick.BlockHolder;
 import de.V10lator.PortalStick.V10Location;
 
 public class PortalStickBlockListener implements Listener
@@ -53,6 +55,15 @@ public class PortalStickBlockListener implements Listener
 	  V10Location loc = new V10Location(block);
 	  if(plugin.config.DisabledWorlds.contains(loc.world))
 		return;
+	  
+	  //Delete from gel maps
+	  BlockHolder bh = new BlockHolder(block);
+	  if(plugin.gelManager.gelMap.containsKey(bh))
+	  {
+		plugin.gelManager.gelMap.remove(bh);
+		for(ArrayList<BlockHolder> blocks: plugin.gelManager.gels.values())
+		  blocks.remove(bh);
+	  }
 	  
 	  //Update bridge if destroyed block made space.
 	  //We call this as early as possible to not be suppressed by one of the returns.
