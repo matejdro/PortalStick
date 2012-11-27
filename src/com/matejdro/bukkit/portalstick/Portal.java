@@ -1,6 +1,5 @@
 package com.matejdro.bukkit.portalstick;
 
-import java.util.HashMap;
 import java.util.HashSet;
 
 import org.bukkit.Material;
@@ -9,6 +8,7 @@ import org.bukkit.block.BlockFace;
 
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
 
+import de.V10lator.PortalStick.BlockHolder;
 import de.V10lator.PortalStick.V10Location;
 
 public class Portal {
@@ -27,7 +27,6 @@ public class Portal {
 	public final BlockFace teleportFace;
 	private final HashSet<V10Location> awayBlocks;
 	final V10Location[] awayBlocksY = new V10Location[2];
-	private final HashMap<V10Location, String> oldBlocks = new HashMap<V10Location, String>();
 	private boolean placetorch = false;
 	
 	public Portal(PortalStick plugin, V10Location[] teleport, V10Location CenterBlock, HashSet<V10Location> Border, V10Location[] inside, V10Location[] behind, User Owner, boolean Orange, boolean horizontal, BlockFace Teleportface)
@@ -52,24 +51,33 @@ public class Portal {
 	{
 		for (V10Location loc: border)
 		{
-			if (oldBlocks.containsKey(loc))
-				plugin.blockUtil.setBlockData(loc, oldBlocks.get(loc));
+			if (plugin.portalManager.oldBlocks.containsKey(loc))
+			{
+				plugin.portalManager.oldBlocks.get(loc).reset();
+				plugin.portalManager.oldBlocks.remove(loc);
+			}
 			plugin.portalManager.borderBlocks.remove(loc);
 		}
 		for (V10Location loc: inside)
 		{
 		  if(loc == null)
 			continue;
-		  if (oldBlocks.containsKey(loc))
-			plugin.blockUtil.setBlockData(loc, oldBlocks.get(loc));
+		  if (plugin.portalManager.oldBlocks.containsKey(loc))
+			{
+				plugin.portalManager.oldBlocks.get(loc).reset();
+				plugin.portalManager.oldBlocks.remove(loc);
+			}
 		  plugin.portalManager.insideBlocks.remove(loc);
 		}
 		if (plugin.config.FillPortalBack > -1)
 		{
 			for (V10Location loc: behind)
 			{
-				if (oldBlocks.containsKey(loc))
-					plugin.blockUtil.setBlockData(loc, oldBlocks.get(loc));
+				if (plugin.portalManager.oldBlocks.containsKey(loc))
+				{
+					plugin.portalManager.oldBlocks.get(loc).reset();
+					plugin.portalManager.oldBlocks.remove(loc);
+				}
 				plugin.portalManager.behindBlocks.remove(loc);
 			}
 		}
@@ -201,6 +209,7 @@ public class Portal {
 			color = (byte) plugin.util.getLeftPortalColor(owner.colorPreset);			
 
 		Block rb;
+		BlockHolder bh;
     	for (V10Location loc: border)
     	{
     		if (plugin.portalManager.insideBlocks.containsKey(loc))
@@ -209,7 +218,10 @@ public class Portal {
     			plugin.portalManager.behindBlocks.get(loc).delete();
     		
     		rb = loc.getHandle().getBlock();
-    		oldBlocks.put(loc, plugin.blockUtil.getBlockData(rb));
+    		bh = new BlockHolder(rb);
+    		if(plugin.gelManager.gelMap.containsKey(bh))
+    		  bh = plugin.gelManager.gelMap.get(bh);
+    		plugin.portalManager.oldBlocks.put(loc, bh);
     		rb.setType(Material.WOOL);
     		rb.setData(color);
     		plugin.portalManager.borderBlocks.put(loc, this);
@@ -219,7 +231,10 @@ public class Portal {
     	  if(loc != null)
     	  {
     		rb = loc.getHandle().getBlock();
-			oldBlocks.put(loc, plugin.blockUtil.getBlockData(rb));
+    		bh = new BlockHolder(rb);
+    		if(plugin.gelManager.gelMap.containsKey(bh))
+      		  bh = plugin.gelManager.gelMap.get(bh);
+    		plugin.portalManager.oldBlocks.put(loc, bh);
     	  }
     	}
     	if (plugin.config.FillPortalBack > -1)
@@ -232,7 +247,10 @@ public class Portal {
         			plugin.portalManager.insideBlocks.get(loc).delete();
 
         		rb = loc.getHandle().getBlock();
-        		oldBlocks.put(loc, plugin.blockUtil.getBlockData(rb));
+        		bh = new BlockHolder(rb);
+        		if(plugin.gelManager.gelMap.containsKey(bh))
+          		  bh = plugin.gelManager.gelMap.get(bh);
+        		plugin.portalManager.oldBlocks.put(loc, bh);
         		if (plugin.config.CompactPortal)
         		{
         			rb.setType(Material.WOOL);

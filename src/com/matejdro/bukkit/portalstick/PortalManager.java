@@ -39,6 +39,7 @@ public class PortalManager {
 	public final HashMap<V10Location, Portal> insideBlocks = new HashMap<V10Location, Portal>();
 	final HashMap<V10Location, Portal> awayBlocks = new HashMap<V10Location, Portal>();
 	final HashMap<V10Location, Portal> awayBlocksY = new HashMap<V10Location, Portal>();
+	public final HashMap<V10Location, BlockHolder> oldBlocks = new HashMap<V10Location, BlockHolder>();
 
 	public void checkEntityMove(Entity e, Region regionFrom, Region regionTo)
 	{
@@ -73,6 +74,8 @@ public class PortalManager {
 		int id;
 		ArrayList<Portal> overlap = new ArrayList<Portal>();
 		boolean ol;
+		BlockHolder bh;
+		Block block;
 		for (V10Location loc: portal.border)
 		{
 			if(borderBlocks.containsKey(loc))
@@ -95,10 +98,22 @@ public class PortalManager {
 			
 			if(!ol)
 			{
-			  id = loc.getHandle().getBlock().getTypeId();
+			  block = loc.getHandle().getBlock();
+			  id = block.getTypeId();
 			  region = plugin.regionManager.getRegion(loc);
-			  if(region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(id) || (!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(id)))
-				return false;
+			  if(!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL))
+			  {
+				bh = new BlockHolder(block);
+				if(plugin.gelManager.gelMap.containsKey(bh))
+				{
+				  bh = plugin.gelManager.gelMap.get(bh);
+				  id = bh.id;
+				  bh.id = block.getTypeId();
+				  bh.data = block.getData();
+				}
+				if(!region.getList(RegionSetting.PORTAL_BLOCKS).contains(id))
+				  return false;
+			  }
 			}
 		}
 		for (V10Location loc: portal.inside)
@@ -125,10 +140,22 @@ public class PortalManager {
 			
 			if(!ol)
 			{
-			  id = loc.getHandle().getBlock().getTypeId();
+			  block = loc.getHandle().getBlock();
+			  id = block.getTypeId();
 			  region = plugin.regionManager.getRegion(loc);
-			  if(region.getList(RegionSetting.TRANSPARENT_BLOCKS).contains(id) || (!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(id)))
-				return false;
+			  if(!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL))
+			  {
+				bh = new BlockHolder(block);
+				if(plugin.gelManager.gelMap.containsKey(bh))
+				{
+				  bh = plugin.gelManager.gelMap.get(bh);
+				  id = bh.id;
+				  bh.id = block.getTypeId();
+				  bh.data = block.getData();
+				}
+				if(!region.getList(RegionSetting.PORTAL_BLOCKS).contains(id))
+				  return false;
+			  }
 			}
 		}
 		for(Portal p: overlap)

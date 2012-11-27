@@ -5,12 +5,12 @@ import org.bukkit.block.Block;
 public class BlockHolder
 {
   private final V10Location loc;
-  private final int id;
-  private final byte data;
+  public int id;
+  public byte data;
   
   public BlockHolder(Block block)
   {
-	loc = new V10Location(block.getLocation());
+	loc = new V10Location(block);
 	id = block.getTypeId();
 	data = block.getData();
   }

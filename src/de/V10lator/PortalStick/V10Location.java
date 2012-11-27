@@ -40,6 +40,7 @@ public class V10Location
 	return world == null ? null : new Location(world, x, y, z);
   }
   
+  @Override
   public int hashCode()
   {
 	final int prime = 31;
@@ -51,6 +52,7 @@ public class V10Location
 	return result;
   }
   
+  @Override
   public boolean equals(Object obj)
   {
 	if(this == obj)
@@ -61,6 +63,7 @@ public class V10Location
 	return x == other.x && y == other.y && z == other.z && world.equals(other.world);
   }
   
+  @Override
   public V10Location clone()
   {
 	return new V10Location(world, x, y, z);
