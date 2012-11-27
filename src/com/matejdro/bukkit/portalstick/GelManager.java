@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -180,11 +181,21 @@ public class GelManager {
 	  tubePids.remove(loc);
 	  activeGelTubes.remove(loc);
 	  ArrayList<BlockHolder> tc = new ArrayList<BlockHolder>();
+	  Portal portal;
 	  if(gels.containsKey(loc))
 	  {
 		for(BlockHolder bh: gels.get(loc))
 		{
-		  bh.reset();
+		  if(plugin.portalManager.insideBlocks.containsKey(loc))
+		  {
+			portal = plugin.portalManager.insideBlocks.get(loc);
+			if(portal.open)
+			  loc.getHandle().getBlock().setType(Material.AIR);
+			else
+			  portal.close();
+		  }
+		  else
+			bh.reset();
 		  gelMap.remove(bh);
 		  tc.add(bh);
 		}

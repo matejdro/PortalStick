@@ -1,5 +1,6 @@
 package com.matejdro.bukkit.portalstick;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.bukkit.Material;
@@ -49,11 +50,19 @@ public class Portal {
 	
 	public void delete()
 	{
+		BlockHolder bh;
 		for (V10Location loc: border)
 		{
 			if (plugin.portalManager.oldBlocks.containsKey(loc))
 			{
-				plugin.portalManager.oldBlocks.get(loc).reset();
+				bh = plugin.portalManager.oldBlocks.get(loc);
+				bh.reset();
+				if(plugin.gelManager.gelMap.containsKey(bh))
+				{
+					plugin.gelManager.gelMap.remove(bh);
+					for(ArrayList<BlockHolder> blocks: plugin.gelManager.gels.values())
+						if(blocks.remove(bh));
+				}
 				plugin.portalManager.oldBlocks.remove(loc);
 			}
 			plugin.portalManager.borderBlocks.remove(loc);
@@ -64,7 +73,14 @@ public class Portal {
 			continue;
 		  if (plugin.portalManager.oldBlocks.containsKey(loc))
 			{
-				plugin.portalManager.oldBlocks.get(loc).reset();
+				bh = plugin.portalManager.oldBlocks.get(loc);
+				bh.reset();
+				if(plugin.gelManager.gelMap.containsKey(bh))
+				{
+					plugin.gelManager.gelMap.remove(bh);
+					for(ArrayList<BlockHolder> blocks: plugin.gelManager.gels.values())
+						if(blocks.remove(bh));
+				}
 				plugin.portalManager.oldBlocks.remove(loc);
 			}
 		  plugin.portalManager.insideBlocks.remove(loc);
@@ -75,7 +91,14 @@ public class Portal {
 			{
 				if (plugin.portalManager.oldBlocks.containsKey(loc))
 				{
-					plugin.portalManager.oldBlocks.get(loc).reset();
+					bh = plugin.portalManager.oldBlocks.get(loc);
+					bh.reset();
+					if(plugin.gelManager.gelMap.containsKey(bh))
+					{
+						plugin.gelManager.gelMap.remove(bh);
+						for(ArrayList<BlockHolder> blocks: plugin.gelManager.gels.values())
+							if(blocks.remove(bh));
+					}
 					plugin.portalManager.oldBlocks.remove(loc);
 				}
 				plugin.portalManager.behindBlocks.remove(loc);

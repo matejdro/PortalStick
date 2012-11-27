@@ -108,8 +108,6 @@ public class PortalManager {
 				{
 				  bh = plugin.gelManager.gelMap.get(bh);
 				  id = bh.id;
-				  bh.id = block.getTypeId();
-				  bh.data = block.getData();
 				}
 				if(!region.getList(RegionSetting.PORTAL_BLOCKS).contains(id))
 				  return false;
@@ -150,8 +148,6 @@ public class PortalManager {
 				{
 				  bh = plugin.gelManager.gelMap.get(bh);
 				  id = bh.id;
-				  bh.id = block.getTypeId();
-				  bh.data = block.getData();
 				}
 				if(!region.getList(RegionSetting.PORTAL_BLOCKS).contains(id))
 				  return false;
