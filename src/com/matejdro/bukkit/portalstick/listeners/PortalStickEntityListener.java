@@ -201,6 +201,6 @@ public class PortalStickEntityListener implements Listener {
 	  if(entity instanceof Player || (entity instanceof Vehicle && !(entity instanceof Pig)))
 		return;
 	  World world = entity.getWorld();
-	  plugin.entityManager.onEntityMove(event.getEntity(), new Location(world, event.getFromX(), event.getFromY(), event.getFromZ(), event.getFromYaw(), event.getFromPitch()), new Location(world, event.getToX(), event.getToY(), event.getToZ(), event.getToYaw(), event.getToPitch()), true);
+	  plugin.entityManager.onEntityMove(entity, new Location(world, event.getFromX(), event.getFromY(), event.getFromZ(), event.getFromYaw(), event.getFromPitch()), new Location(world, event.getToX(), event.getToY(), event.getToZ(), event.getToYaw(), event.getToPitch()), true);
 	}
 }
