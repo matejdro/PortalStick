@@ -52,7 +52,7 @@ public class PortalStickPlayerListener implements Listener {
 			{
 				Block block = event.getClickedBlock();
 				Material mat = block.getType();
-				if(mat == Material.STONE_BUTTON || mat == Material.WOOD_BUTTON)
+				if(mat == Material.STONE_BUTTON || mat == Material.WOOD_BUTTON || mat == Material.LEVER)
 					return;
 			}
 			
