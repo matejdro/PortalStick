@@ -1,6 +1,5 @@
 package com.matejdro.bukkit.portalstick.listeners;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.bukkit.Location;
