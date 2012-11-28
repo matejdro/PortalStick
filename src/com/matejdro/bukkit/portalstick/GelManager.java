@@ -217,4 +217,11 @@ public class GelManager {
 		  }
 		}
 	}
+	
+	public void removeGel(BlockHolder bh)
+	{
+	  gelMap.remove(bh);
+	  for(ArrayList<BlockHolder> blocks: gels.values())
+		blocks.remove(bh);
+	}
 }

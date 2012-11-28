@@ -59,11 +59,7 @@ public class PortalStickBlockListener implements Listener
 	  //Delete from gel maps
 	  BlockHolder bh = new BlockHolder(block);
 	  if(plugin.gelManager.gelMap.containsKey(bh))
-	  {
-		plugin.gelManager.gelMap.remove(bh);
-		for(ArrayList<BlockHolder> blocks: plugin.gelManager.gels.values())
-		  blocks.remove(bh);
-	  }
+	    plugin.gelManager.removeGel(bh);
 	  
 	  //Update bridge if destroyed block made space.
 	  //We call this as early as possible to not be suppressed by one of the returns.
