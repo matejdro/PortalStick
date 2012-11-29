@@ -103,67 +103,51 @@ public class GelManager {
 	{
 //		Vector vector = player.getVelocity(); //We need a self-calculated vector from the player move event as this has 0.0 everywhere.
 //		vector.multiply(region.getDouble(RegionSetting.BLUE_GEL_VELOCITY_MULTIPLIER));
+		Location loc = entity.getLocation();
 		double y = vector.getY();
-		boolean tp;
-		if(dir != 0)
+		if(dir == 0)
+		{
+		  y = -y;
+		  if(entity instanceof Player && onRedGel.containsKey(((Player)entity).getName()) && y < min)
+			y = -min;
+		  else if(y < 0.1D)
+			return;
+		  if(y < min)
+			y = min;
+		  vector.setY(y);
+		}
+		else
 		{
 		  if(y < min/3.0D)
 			vector.setY(min / 3.0D);
-		  //min *= 5.0D;
-		  tp = true;
-		}
-		else
-		  tp = false;
-		boolean m;
-		switch(dir)
-		{
-		  case 0:
-			y = -y;
-			if(entity instanceof Player && onRedGel.containsKey(((Player)entity).getName()) && y < min)
-			  y = -min;
-			else if(y < 0.1D)
-			  return;
-			if(y < min)
-			  y = min;
-			vector.setY(y);
-			break;
-		  case 1:
+		  boolean m;
+		  if(dir == 1)
 			y = vector.getX();
-			if(y < 0)
-			{
-			  m = true;
-			  y = -y;
-			}
-			else
-			  m = false;
-			if(y < min)
-			  y = min;
-			if(!m)
-			  y = -y;
-			vector.setX(y);
-		  	break;
-		  default:
+		  else
 			y = vector.getZ();
-			if(y < 0)
-			{
-			  m = true;
-			  y = -y;
-			}
-			else
-			  m = false;
-			if(y < min)
-			  y = min;
-			if(!m)
-			  y = -y;
+		  if(y == 0)
+			return;
+		  if(y < 0)
+		  {
+			m = true;
+			y = -y;
+		  }
+		  else
+			m = false;
+		  if(y < min)
+			y = min;
+		  if(!m)
+			y = -y;
+		  if(dir == 1)
+			vector.setX(y);
+		  else
 			vector.setZ(y);
-		}
-		Location loc = entity.getLocation();
-		if(tp)
 		  loc.setY(loc.getY()+0.01D);
-		entity.teleport(loc);
+		  entity.teleport(loc);
+		}
 		entity.setVelocity(vector);
 		
-		plugin.util.playSound(Sound.GEL_BLUE_BOUNCE, new V10Location(entity.getLocation()));
+		plugin.util.playSound(Sound.GEL_BLUE_BOUNCE, new V10Location(loc));
 		
 		ignore.add(entity);
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() { public void run() { ignore.remove(entity); }}, 10L);
