@@ -1,6 +1,9 @@
 package com.matejdro.bukkit.portalstick.listeners;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
+
+import net.minecraft.server.EntityFallingBlock;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -8,6 +11,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Dispenser;
+import org.bukkit.craftbukkit.entity.CraftFallingSand;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -41,10 +45,24 @@ public class PortalStickBlockListener implements Listener
 	private PortalStick plugin;
 	private HashSet<Block> blockedPistonBlocks = new HashSet<Block>();	
 	private boolean fakeBBE;
+	private final Field f;
 	
 	public PortalStickBlockListener(PortalStick instance)
 	{
 		plugin = instance;
+		
+		Field f;
+		try
+		{
+		  f = EntityFallingBlock.class.getDeclaredField("e");
+		  f.setAccessible(true);
+		}
+		catch(Exception e)
+		{
+		  e.printStackTrace();
+		  f = null;
+		}
+		this.f = f;
 	}
 
 	@EventHandler()
@@ -481,6 +499,15 @@ public class PortalStickBlockListener implements Listener
 		FallingBlock fb = loc2.getWorld().spawnFallingBlock(loc2, mat, data);
 		fb.setDropItem(false);
 		fb.setVelocity(vector);
+		EntityFallingBlock nmsFB = ((CraftFallingSand)fb).getHandle();
+		try
+		{
+		  f.setBoolean(nmsFB, true);
+		}
+		catch(Exception e)
+		{
+		  e.printStackTrace();
+		}
 		plugin.gelManager.flyingGels.put(fb.getUniqueId(), loc);
 	  }
 	}

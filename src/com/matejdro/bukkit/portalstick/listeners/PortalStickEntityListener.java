@@ -139,13 +139,9 @@ public class PortalStickEntityListener implements Listener {
 		V10Location from = plugin.gelManager.flyingGels.get(entity.getUniqueId());
 		Location loc = entity.getLocation();
 		V10Location vloc = new V10Location(loc);
-		Block b = loc.getBlock();
-		if(!plugin.grillManager.insideBlocks.containsKey(vloc))
-		  b.setType(Material.AIR);
-		FallingBlock fb = (FallingBlock)entity;
-		Block b2;
-		int mat = fb.getBlockId();
-		byte data = fb.getBlockData();
+//		if(b.getTypeId() == mat && b.getData() == data)
+//		if(!plugin.grillManager.insideBlocks.containsKey(vloc))
+//		  b.setType(Material.AIR);
 		ArrayList<BlockHolder> blocks;
 		if(plugin.gelManager.gels.containsKey(from))
 		  blocks = plugin.gelManager.gels.get(from);
@@ -154,7 +150,12 @@ public class PortalStickEntityListener implements Listener {
 		  blocks = new ArrayList<BlockHolder>();
 		  plugin.gelManager.gels.put(from, blocks);
 		}
+		Block b = loc.getBlock();
+		FallingBlock fb = (FallingBlock)entity;
+		int mat = fb.getBlockId();
+		byte data = fb.getBlockData();
 		BlockHolder bh;
+		Block b2;
 		for(BlockFace face: new BlockFace[] {BlockFace.DOWN, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP})
 		{
 		  b2 = b.getRelative(face);
