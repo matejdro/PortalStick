@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -102,11 +103,22 @@ public class GelManager {
 	{
 //		Vector vector = player.getVelocity(); //We need a self-calculated vector from the player move event as this has 0.0 everywhere.
 //		vector.multiply(region.getDouble(RegionSetting.BLUE_GEL_VELOCITY_MULTIPLIER));
-		
+		double y = vector.getY();
+		boolean tp;
+		if(dir != 0)
+		{
+		  if(y < min/3.0D)
+			vector.setY(min / 3.0D);
+		  //min *= 5.0D;
+		  tp = true;
+		}
+		else
+		  tp = false;
+		boolean m;
 		switch(dir)
 		{
 		  case 0:
-			double y = -vector.getY();
+			y = -y;
 			if(entity instanceof Player && onRedGel.containsKey(((Player)entity).getName()) && y < min)
 			  y = -min;
 			else if(y < 0.1D)
@@ -116,12 +128,39 @@ public class GelManager {
 			vector.setY(y);
 			break;
 		  case 1:
-			vector.setX(-vector.getX());
+			y = vector.getX();
+			if(y < 0)
+			{
+			  m = true;
+			  y = -y;
+			}
+			else
+			  m = false;
+			if(y < min)
+			  y = min;
+			if(!m)
+			  y = -y;
+			vector.setX(y);
 		  	break;
 		  default:
-			vector.setZ(-vector.getZ());
+			y = vector.getZ();
+			if(y < 0)
+			{
+			  m = true;
+			  y = -y;
+			}
+			else
+			  m = false;
+			if(y < min)
+			  y = min;
+			if(!m)
+			  y = -y;
+			vector.setZ(y);
 		}
-		
+		Location loc = entity.getLocation();
+		if(tp)
+		  loc.setY(loc.getY()+0.01D);
+		entity.teleport(loc);
 		entity.setVelocity(vector);
 		
 		plugin.util.playSound(Sound.GEL_BLUE_BOUNCE, new V10Location(entity.getLocation()));
