@@ -637,7 +637,14 @@ public class PortalStickBlockListener implements Listener
 		 Region region = plugin.regionManager.getRegion(new V10Location(event.getBlock()));
 
 		 BlockBreakEvent bbe;
-		 V10Location loc;
+		 V10Location loc = new V10Location(event.getBlock().getRelative(event.getDirection()));
+		 if(plugin.portalManager.insideBlocks.containsKey(loc))
+		 {
+			 Portal portal = plugin.portalManager.insideBlocks.get(loc);
+			 portal.delete();
+			 return;
+		 }
+		 
 		 for (final Block b : event.getBlocks())
 		 {
 			 fakeBBE = true;
