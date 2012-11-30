@@ -200,11 +200,11 @@ public class PortalStickPlayerListener implements Listener {
 	  if(!region.getBoolean(RegionSetting.GRILLS_REMOVE_ITEMS) || user.usingTool)
 		return;
 	  ItemStack is = item.getItemStack();
-	  ItemStack item2;
+	  int id;
 	  for(Object iss: region.getList(RegionSetting.GRILL_REMOVE_EXCEPTIONS))
 	  {
-		item2 = plugin.util.getItemData((String)iss);
-		if(is.getTypeId() == item2.getTypeId() && is.getDurability() == item2.getDurability())
+		id = (Integer)iss;
+		if(is.getTypeId() == id)
 		  return;
 	  }
 	  V10Location ploc = new V10Location(player.getLocation());
@@ -267,11 +267,11 @@ public class PortalStickPlayerListener implements Listener {
 	  Item item = event.getItemDrop();
 	  ItemStack is = item.getItemStack();
 	  
-	  ItemStack item2;
+	  int id;
 	  for(Object iss: region.getList(RegionSetting.GRILL_REMOVE_EXCEPTIONS))
 	  {
-		item2 = plugin.util.getItemData((String)iss);
-		if(is.getTypeId() == item2.getTypeId() && is.getDurability() == item2.getDurability())
+		id = (Integer)iss;
+		if(is.getTypeId() == id)
 		  return;
 	  }
 	  plugin.userManager.getUser(player).droppedItems.add(item);

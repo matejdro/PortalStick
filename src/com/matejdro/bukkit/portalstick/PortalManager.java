@@ -16,7 +16,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.material.Wool;
 
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
@@ -404,52 +403,16 @@ public class PortalManager {
 
 	public void setPortalInventory(InventoryHolder ih, Region region)
 	{
-		Inventory inv = ih.getInventory();
-		List<?> ice = region.getList(RegionSetting.GRILL_REMOVE_EXCEPTIONS);
-		ItemStack item, item2;
-		for (int i = 0; i < inv.getSize(); i++)
-		{
-			item = inv.getItem(i);
-			if(item == null || item.getTypeId() == 0)
-			  continue;
-			for (Object is: ice)
-			{
-				item2 = plugin.util.getItemData((String)is);
-				if(item.getTypeId() != item2.getTypeId() || item.getDurability() != item2.getDurability())
-				{
-				  inv.clear(i);
-				  break;
-				}
-			}
-		}
-		if(inv instanceof PlayerInventory)
-		{
-		  PlayerInventory pi = (PlayerInventory)inv;
-		  ItemStack[] armor = pi.getArmorContents();
-		  
-		  for(int i = 0; i < armor.length; i++)
-		  {
-			if(armor[i] == null || armor[i].getTypeId() == 0)
-			  continue;
-			for (Object is: ice)
-			{
-				item2 = plugin.util.getItemData((String)is);
-				if(armor[i].getTypeId() != item2.getTypeId() || armor[i].getDurability() != item2.getDurability())
-				{
-				  armor[i] = null;
-				  break;
-				}
-			}
-		  }
-		  pi.setArmorContents(armor);
-		}
-		
 		if(region.getBoolean(RegionSetting.UNIQUE_INVENTORY))
+		{
+		  ItemStack item;
+		  Inventory inv = ih.getInventory();
 		  for (Object is : region.getList(RegionSetting.UNIQUE_INVENTORY_ITEMS))
 		  {
 			item = plugin.util.getItemData((String)is);
 			inv.addItem(item);
 		  }
+		}
 	}
 	
 	public final HashMap<V10Location, HashMap<V10Location, BlockHolder>> openAutoPortals = new HashMap<V10Location, HashMap<V10Location, BlockHolder>>();

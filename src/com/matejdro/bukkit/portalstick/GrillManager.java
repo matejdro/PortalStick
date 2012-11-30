@@ -14,8 +14,10 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
@@ -191,11 +193,9 @@ public class GrillManager {
 		if(entity instanceof Item)
 		{
 		  ItemStack item = ((Item)entity).getItemStack();
-		  ItemStack item2;
 		  for(Object is: region.getList(RegionSetting.GRILL_REMOVE_EXCEPTIONS))
 		  {
-			item2 = plugin.util.getItemData((String)is);
-			if(item.getTypeId() == item2.getTypeId() && item.getDurability() == item2.getDurability())
+			if(item.getTypeId() == (Integer)is)
 			  return;
 		  }
 		  entity.remove();
@@ -205,12 +205,9 @@ public class GrillManager {
 		{
 		  FallingBlock fb = (FallingBlock)entity;
 		  int id = fb.getBlockId();
-		  byte data = fb.getBlockData();
-		  ItemStack item2;
 		  for(Object is: region.getList(RegionSetting.GRILL_REMOVE_EXCEPTIONS))
 		  {
-			item2 = plugin.util.getItemData((String)is);
-			if(id == item2.getTypeId() && data == item2.getDurability())
+			if(id == (Integer)is)
 			  return;
 		  }
 		  entity.remove();
@@ -218,13 +215,124 @@ public class GrillManager {
 		}
 		return;
 	  }
-	  InventoryHolder ih = (InventoryHolder)entity;
 	  plugin.portalManager.deletePortals(user);
-	  
-	  if (clear)
+	  InventoryHolder ih = (InventoryHolder)entity;
+	  Inventory inv = ih.getInventory();
+	  ItemStack slot;
+	  boolean roe = region.getBoolean(RegionSetting.GRILL_ONE_EXCEPTION);
+	  if(clear)
 	  {
-		plugin.portalManager.setPortalInventory(ih, region);
 		playGrillAnimation(entity.getLocation());
+		List<?> ice = region.getList(RegionSetting.GRILL_REMOVE_EXCEPTIONS);
+		HashSet<Integer> rm;
+		boolean remove;
+		if(roe)
+		  rm = new HashSet<Integer>();
+		else
+		  rm = null;
+		int id;
+		if(inv instanceof PlayerInventory)
+		{
+		  PlayerInventory pi = (PlayerInventory)inv;
+		  ItemStack[] armor = pi.getArmorContents();
+		  
+		  for(int i = 0; i < armor.length; i++)
+		  {
+			if(armor[i] == null)
+			  continue;
+			remove = true;
+			for (Object is: ice)
+			{
+			  id = (Integer)is;
+			  if(armor[i].getTypeId() == id)
+			  {
+				remove = false;
+				break;
+			  }
+			}
+			if(remove)
+			  inv.clear(i);
+			else if(roe)
+			{
+			  if(rm.contains(armor[i].getTypeId()))
+				armor[i] = null;
+			  else
+			  {
+			    if(armor[i].getAmount() > 1)
+			      armor[i].setAmount(1);
+			    rm.add(armor[i].getTypeId());
+			  }
+			}
+		  }
+		  pi.setArmorContents(armor);
+		}
+		for (int i = 0; i < inv.getSize(); i++)
+		{
+		  slot = inv.getItem(i);
+		  if(slot == null)
+			continue;
+		  remove = true;
+		  for (Object is: ice)
+		  {
+			id = (Integer)is;
+			if(slot.getTypeId() == id)
+			{
+			  remove = false;
+			  break;
+			}
+		  }
+		  if(remove)
+			inv.clear(i);
+		  else if(roe)
+		  {
+			if(rm.contains(slot.getTypeId()))
+			  inv.clear(i);
+			else
+			{
+			  if(slot.getAmount() > 1)
+			    slot.setAmount(1);
+			  rm.add(slot.getTypeId());
+			}
+		  }
+		}
+	  }
+	  if(!roe && region.getBoolean(RegionSetting.GRILL_GIVE_GUN_IF_NEEDED))
+	  {
+		ItemStack[] inv2 = ih.getInventory().getContents();
+		boolean hasGun = false;
+		for(int i = 0; i < inv2.length; i++)
+		{
+		  slot = inv2[i];
+		  if(slot != null && slot.getTypeId() == plugin.config.PortalTool && slot.getDurability() == plugin.config.portalToolData)
+		  {
+			hasGun = true;
+			break;
+		  }
+		}
+		if(!hasGun)
+		  inv.addItem(new ItemStack(plugin.config.PortalTool, 1, plugin.config.portalToolData));
+	  }
+	  
+	  if(region.getBoolean(RegionSetting.GRILL_REMOVE_EXTRA_GUNS))
+	  {
+		boolean hasGun = false;
+		ItemStack[] inv2 = ih.getInventory().getContents();
+		for(int i = 0; i < inv2.length; i++)
+		{
+		  slot = inv2[i];
+		  if(slot != null && slot.getTypeId() == plugin.config.PortalTool && slot.getDurability() == plugin.config.portalToolData)
+		  {
+			if(hasGun)
+			  inv2[i] = null;
+			else
+			{
+			  if(slot.getAmount() != 1)
+				slot.setAmount(1);
+			  hasGun = true;
+			}
+		  }
+		}
+		inv.setContents(inv2);
 	  }
 	}
 	
