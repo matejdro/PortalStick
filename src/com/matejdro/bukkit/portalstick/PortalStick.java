@@ -61,7 +61,7 @@ public class PortalStick extends JavaPlugin {
 	public final Random rand = new Random();
 
 	public void onDisable() {
-		//config.unLoad() hancles cleanup, so let's call it
+		//config.unLoad() handles cleanup, so let's call it
 		config.unLoad();
 		getServer().getScheduler().cancelTasks(this);
 	}
