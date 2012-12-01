@@ -267,12 +267,15 @@ public class PortalStickPlayerListener implements Listener {
 	  Item item = event.getItemDrop();
 	  ItemStack is = item.getItemStack();
 	  
-	  int id;
-	  for(Object iss: region.getList(RegionSetting.GRILL_REMOVE_EXCEPTIONS))
+	  if(!region.getBoolean(RegionSetting.GRILL_GIVE_GUN_IF_NEEDED))
 	  {
-		id = (Integer)iss;
-		if(is.getTypeId() == id)
-		  return;
+		int id;
+		for(Object iss: region.getList(RegionSetting.GRILL_REMOVE_EXCEPTIONS))
+		{
+		  id = (Integer)iss;
+		  if(is.getTypeId() == id)
+			return;
+		}
 	  }
 	  plugin.userManager.getUser(player).droppedItems.add(item);
 	}

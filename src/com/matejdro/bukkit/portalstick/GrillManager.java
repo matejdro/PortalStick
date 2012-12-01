@@ -218,122 +218,134 @@ public class GrillManager {
 	  plugin.portalManager.deletePortals(user);
 	  InventoryHolder ih = (InventoryHolder)entity;
 	  Inventory inv = ih.getInventory();
-	  ItemStack slot;
+	  ItemStack[] inv2 = null;
 	  boolean roe = region.getBoolean(RegionSetting.GRILL_ONE_EXCEPTION);
+	  boolean changed = false;
 	  if(clear)
 	  {
 		playGrillAnimation(entity.getLocation());
 		List<?> ice = region.getList(RegionSetting.GRILL_REMOVE_EXCEPTIONS);
 		HashSet<Integer> rm;
-		boolean remove;
 		if(roe)
 		  rm = new HashSet<Integer>();
 		else
 		  rm = null;
-		int id;
+		ItemStack newSlot;
 		if(inv instanceof PlayerInventory)
 		{
 		  PlayerInventory pi = (PlayerInventory)inv;
-		  ItemStack[] armor = pi.getArmorContents();
+		  inv2 = pi.getArmorContents();
 		  
-		  for(int i = 0; i < armor.length; i++)
+		  for(int i = 0; i < inv2.length; i++)
 		  {
-			if(armor[i] == null)
+			if(inv2[i] == null)
 			  continue;
-			remove = true;
-			for (Object is: ice)
+			newSlot = checkItemSlot(inv2[i], ice, roe, rm);
+			if(newSlot != inv2[i])
 			{
-			  id = (Integer)is;
-			  if(armor[i].getTypeId() == id)
-			  {
-				remove = false;
-				break;
-			  }
-			}
-			if(remove)
-			  inv.clear(i);
-			else if(roe)
-			{
-			  if(rm.contains(armor[i].getTypeId()))
-				armor[i] = null;
-			  else
-			  {
-			    if(armor[i].getAmount() > 1)
-			      armor[i].setAmount(1);
-			    rm.add(armor[i].getTypeId());
-			  }
+			  inv2[i] = newSlot;
+			  changed = true;
 			}
 		  }
-		  pi.setArmorContents(armor);
+		  if(changed)
+			pi.setArmorContents(inv2);
 		}
-		for (int i = 0; i < inv.getSize(); i++)
+		changed = false;
+		inv2 = inv.getContents();
+		for(int i = 0; i < inv2.length; i++)
 		{
-		  slot = inv.getItem(i);
-		  if(slot == null)
+		  if(inv2[i] == null)
 			continue;
-		  remove = true;
-		  for (Object is: ice)
+		  newSlot = checkItemSlot(inv2[i], ice, roe, rm);
+		  if(newSlot != inv2[i])
 		  {
-			id = (Integer)is;
-			if(slot.getTypeId() == id)
-			{
-			  remove = false;
-			  break;
-			}
-		  }
-		  if(remove)
-			inv.clear(i);
-		  else if(roe)
-		  {
-			if(rm.contains(slot.getTypeId()))
-			  inv.clear(i);
-			else
-			{
-			  if(slot.getAmount() > 1)
-			    slot.setAmount(1);
-			  rm.add(slot.getTypeId());
-			}
+			inv2[i] = newSlot;
+			changed = true;
 		  }
 		}
 	  }
-	  if(!roe && region.getBoolean(RegionSetting.GRILL_GIVE_GUN_IF_NEEDED))
+	  if(inv2 == null)
+		inv2 = inv.getContents();
+	  if(region.getBoolean(RegionSetting.GRILL_GIVE_GUN_IF_NEEDED))
 	  {
-		ItemStack[] inv2 = ih.getInventory().getContents();
 		boolean hasGun = false;
 		for(int i = 0; i < inv2.length; i++)
 		{
-		  slot = inv2[i];
-		  if(slot != null && slot.getTypeId() == plugin.config.PortalTool && slot.getDurability() == plugin.config.portalToolData)
+		  if(inv2[i] != null && inv2[i].getTypeId() == plugin.config.PortalTool && inv2[i].getDurability() == plugin.config.portalToolData)
 		  {
 			hasGun = true;
 			break;
 		  }
 		}
 		if(!hasGun)
-		  inv.addItem(new ItemStack(plugin.config.PortalTool, 1, plugin.config.portalToolData));
+		{
+		  for(int i = 0; i < inv2.length; i++)
+		  {
+			if(inv2[i] == null)
+			{
+			  inv2[i] = new ItemStack(plugin.config.PortalTool, 1, plugin.config.portalToolData);
+			  changed = hasGun = true;
+			  break;
+			}
+		  }
+		  if(!hasGun)
+			entity.getLocation().getWorld().dropItemNaturally(entity.getLocation(), new ItemStack(plugin.config.PortalTool, 1, plugin.config.portalToolData));
+		}
 	  }
 	  
 	  if(region.getBoolean(RegionSetting.GRILL_REMOVE_EXTRA_GUNS))
 	  {
 		boolean hasGun = false;
-		ItemStack[] inv2 = ih.getInventory().getContents();
 		for(int i = 0; i < inv2.length; i++)
 		{
-		  slot = inv2[i];
-		  if(slot != null && slot.getTypeId() == plugin.config.PortalTool && slot.getDurability() == plugin.config.portalToolData)
+		  if(inv2[i] != null && inv2[i].getTypeId() == plugin.config.PortalTool && inv2[i].getDurability() == plugin.config.portalToolData)
 		  {
 			if(hasGun)
+			{
 			  inv2[i] = null;
+			  changed = true;
+			}
 			else
 			{
-			  if(slot.getAmount() != 1)
-				slot.setAmount(1);
+			  if(inv2[i].getAmount() != 1)
+				inv2[i].setAmount(1);
 			  hasGun = true;
 			}
 		  }
 		}
-		inv.setContents(inv2);
 	  }
+	  if(changed)
+		inv.setContents(inv2);
+	}
+	
+	private ItemStack checkItemSlot(ItemStack slot, List<?> ice, boolean roe, HashSet<Integer> rm)
+	{
+	  boolean remove = true;
+	  int slotId = slot.getTypeId();
+	  int id;
+	  for (Object is: ice)
+	  {
+		id = (Integer)is;
+		if(slotId == id)
+		{
+		  remove = false;
+		  break;
+		}
+	  }
+	  if(remove)
+		slot = null;
+	  else if(roe)
+	  {
+		if(rm.contains(slotId))
+		  slot = null;
+		else
+		{
+		  if(slot.getAmount() > 1)
+		    slot.setAmount(1);
+		  rm.add(slotId);
+		}
+	  }
+	  return slot;
 	}
 	
 	public void playGrillAnimation(Location loc)
