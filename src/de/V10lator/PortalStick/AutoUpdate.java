@@ -45,7 +45,7 @@ import org.json.simple.parser.ParseException;
 /**
  * 
  * @author V10lator
- * @version 1.3
+ * @version 1.4
  * website: http://forums.bukkit.org/threads/autoupdate-update-your-plugins.84421/
  *
  */
@@ -76,7 +76,7 @@ public class AutoUpdate implements Runnable, Listener, CommandExecutor, CommandS
    * plugin and change the version to something unique (like adding -<yourName>).
    */
   
-  private final String version = "1.3";
+  private final String version = "1.4";
   
   private final Plugin plugin;
   private int pid = -1;
@@ -336,17 +336,16 @@ public class AutoUpdate implements Runnable, Listener, CommandExecutor, CommandS
 		  }
 		  
 		  JSONObject jo = (JSONObject)o;
-		  pluginURL = (String)jo.get("link");
 		  jo = (JSONObject)jo.get("versions");
 		  nv = (String)jo.get("version");
 		  if(av.equals(nv) || (updateVersion != null && updateVersion.equals(nv)))
 		  {
 			ir.close();
-			pluginURL = null;
 			lock.set(false);
 			return;
 		  }
 		  updateURL = (String)jo.get("download");
+		  pluginURL = (String)jo.get("link");
 		  updateVersion = nv;
 		  type = (String)jo.get("type");
 		  needUpdate = true;
