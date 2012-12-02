@@ -338,6 +338,6 @@ public class Portal {
 	
 	public boolean isRegionPortal()
 	{
-		return owner.name.startsWith("§region§_");
+		return owner.name.startsWith("Â§regionÂ§_");
 	}
 }

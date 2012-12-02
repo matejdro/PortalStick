@@ -25,7 +25,7 @@ public class Region extends User
 	
 	Region(String name)
 	{
-		super("§region§_"+name);
+		super("Â§regionÂ§_"+name);
 		this.name = name;
 	}
 	
