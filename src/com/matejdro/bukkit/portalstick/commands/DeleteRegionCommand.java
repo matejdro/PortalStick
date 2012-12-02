@@ -2,33 +2,28 @@ package com.matejdro.bukkit.portalstick.commands;
 
 import org.bukkit.entity.Player;
 
-import com.matejdro.bukkit.portalstick.RegionManager;
-import com.matejdro.bukkit.portalstick.util.Config;
-import com.matejdro.bukkit.portalstick.util.Permission;
-import com.matejdro.bukkit.portalstick.util.Util;
+import com.matejdro.bukkit.portalstick.PortalStick;
 
 public class DeleteRegionCommand extends BaseCommand {
 
-	public DeleteRegionCommand() {
-		name = "deleteregion";
-		argLength = 1;
-		usage = "<name> <- deletes specified region";
+	public DeleteRegionCommand(PortalStick plugin) {
+		super(plugin, "deleteregion", 1, "<name> <- deletes specified region", false);
 	}
 	
 	public boolean execute() {
-		if (args.get(0).equalsIgnoreCase("global"))
-			Util.sendMessage(player, "&cYou cannot delete the global config!");
-		else if (RegionManager.getRegion(args.get(0)) != null) {
-			RegionManager.deleteRegion(args.get(0));
-			Config.reLoad();
-			Util.sendMessage(player, "&cRegion &7" + args.get(0) + " &cdeleted");
+		if (args[0].equalsIgnoreCase("global"))
+			plugin.util.sendMessage(sender, plugin.i18n.getString("CanNotDeleteGlobalRegion", playerName));
+		else if (plugin.regionManager.getRegion(args[0]) != null) {
+			plugin.regionManager.deleteRegion(args[0]);
+			plugin.config.reLoad();
+			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionDeleted", playerName, args[0]));
 		}
-		else Util.sendMessage(player, "&cRegion &7" + args.get(0) + " &cdoes not exist!");
+		else plugin.util.sendMessage(sender, plugin.i18n.getString("RegionNotFound", playerName, args[0]));
 		return true;
 	}
 	
 	public boolean permission(Player player) {
-		return Permission.adminRegions(player);
+		return plugin.hasPermission(player, plugin.PERM_ADMIN_REGIONS);
 	}
 
 }

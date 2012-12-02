@@ -1,53 +1,64 @@
 package com.matejdro.bukkit.portalstick.util;
 
+import java.util.HashMap;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.material.Directional;
 import org.bukkit.material.MaterialData;
 
-import com.matejdro.bukkit.portalstick.PortalStick;
+import de.V10lator.PortalStick.V10Location;
 
 public class BlockUtil {
-	public static boolean compareBlockToString(Block block, String blockData) {
+	public boolean compareBlockToString(V10Location block, String blockData)
+	{
+	  return compareBlockToString(block.getHandle().getBlock(), blockData);
+	}
+	
+	public boolean compareBlockToString(Block block, String blockData) {
 		String[] blockArr = blockData.split(":");
 		if (blockArr.length > 1)
 			return (block.getTypeId() == Integer.parseInt(blockArr[0]) && block.getData() == Integer.parseInt(blockArr[1]));
 		else
 			return block.getTypeId() == Integer.parseInt(blockArr[0]);
 	}
+	
+	public void setBlockData(V10Location block, String blockData) {
+	  setBlockData(block.getHandle().getBlock(), blockData);
+	}
 
-	public static void setBlockData(Block block, String blockData) {
+	public void setBlockData(Block block, String blockData) {
 		String[] blockArr = blockData.split(":");
 		block.setTypeId(Integer.parseInt(blockArr[0]));
 		if (blockArr.length > 1)
 			block.setData((byte) Integer.parseInt(blockArr[1]));
 	}
 
-	public static String getBlockData(Block block) {
+	public String getBlockData(Block block) {
 		if (block.getData() != 0)
 			return block.getTypeId() + ":" + block.getData();
 		return Integer.toString(block.getTypeId());
 	}
 	
-	public static BlockFace getFaceOfMaterial(Block block, BlockFace[] faces, String material) {
+	public BlockFace getFaceOfMaterial(Block block, BlockFace[] faces, String material, HashMap<BlockFace, Block> faceMap) {
+		Block block2;
 		for (BlockFace face : faces)
-			if (compareBlockToString(block.getRelative(face), material))
+		{
+			if(faceMap.containsKey(face))
+				block2 = faceMap.get(face);
+			else
+			{
+				block2 = block.getRelative(face);
+				faceMap.put(face, block2);
+			}
+			if (compareBlockToString(block2, material))
 				return face;
+		}
 		return null;
 	}
 	
-	public static void setBlockThreadSafe(final Block block, final Material material)
-	{
-		PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new Runnable() {
-
-		    public void run() {
-		       block.setType(material);
-		    }
-		}, 1L);
-	}
-	
-	public static Byte rotateBlock(Material block, Byte bdata, BlockFace origin, BlockFace newOrientation)
+	public Byte rotateBlock(Material block, Byte bdata, BlockFace origin, BlockFace newOrientation)
 	{
 		if (block.getNewData(bdata) instanceof Directional)
 		{

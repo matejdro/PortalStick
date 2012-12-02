@@ -1,125 +1,143 @@
 package com.matejdro.bukkit.portalstick;
 
-import java.util.HashMap;
 import java.util.HashSet;
 
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
-import com.matejdro.bukkit.portalstick.util.BlockUtil;
-import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
+
+import de.V10lator.PortalStick.BlockHolder;
+import de.V10lator.PortalStick.V10Location;
 
 public class Portal {
-	private Location teleport;
-	private HashSet<Block> border;
-	private HashSet<Block> inside;
-	private HashSet<Block> behind;
-	private boolean vertical;
-	private Block centerBlock;
-	private User owner;
-	private Boolean orange = false;
-	private Boolean open = false;
-	private boolean disabled = false;
-	private boolean transmitter = false;
+	private final PortalStick plugin;
+	final HashSet<V10Location> border;
+	public final V10Location[] inside;
+	public final V10Location[] teleport;
+	private final V10Location[] behind;
+	public final boolean horizontal;
+	private final V10Location centerBlock;
+	public final User owner;
+	public final boolean orange;
+	public boolean open = false;
+	boolean disabled = false;
+	public boolean transmitter = false;
+	public final BlockFace teleportFace;
+	private final HashSet<V10Location> awayBlocks;
+	final V10Location[] awayBlocksY = new V10Location[2];
 	private boolean placetorch = false;
-	BlockFace teleportFace;
-	private HashSet<Location> awayBlocks = new HashSet<Location>();
-	private HashMap<Location, String> oldBlocks = new HashMap<Location, String>();
 	
-	public Portal()
+	public Portal(PortalStick plugin, V10Location[] teleport, V10Location CenterBlock, HashSet<V10Location> Border, V10Location[] inside, V10Location[] behind, User Owner, boolean Orange, boolean horizontal, BlockFace Teleportface)
 	{
-		border = new HashSet<Block>();
-		inside = new HashSet<Block>();
-	}
-	
-	public Portal(Location Teleport, Block CenterBlock, HashSet<Block> Border, HashSet<Block> Inside, HashSet<Block> Behind, User Owner, Boolean Orange, Boolean Vertical, BlockFace Teleportface)
-	{
-		teleport = Teleport;
+		this.plugin = plugin;
+		this.teleport = teleport;
 		border = Border;
-		inside = Inside;
+		this.inside = inside;
 		orange = Orange;
 		owner = Owner;
-		vertical = Vertical;
+		this.horizontal = horizontal;
 		teleportFace = Teleportface;
-		behind = Behind;
+		this.behind = behind;
 		centerBlock = CenterBlock;
+		if(horizontal)
+		  awayBlocks = new HashSet<V10Location>();
+		else
+		  awayBlocks = null;
 	}
 	
 	public void delete()
 	{
-		if (orange != null && owner != null) {
-			for (Block b: border)
+		BlockHolder bh;
+		for (V10Location loc: border)
+		{
+			if (plugin.portalManager.oldBlocks.containsKey(loc))
 			{
-				if (oldBlocks.containsKey(b.getLocation()))
-					BlockUtil.setBlockData(b, oldBlocks.get(b.getLocation()));
-				PortalManager.borderBlocks.remove(b.getLocation());
+				bh = plugin.portalManager.oldBlocks.get(loc);
+				bh.reset();
+				if(plugin.gelManager.gelMap.containsKey(bh))
+					plugin.gelManager.removeGel(bh);
+				plugin.portalManager.oldBlocks.remove(loc);
 			}
-			for (Block b: inside)
+			plugin.portalManager.borderBlocks.remove(loc);
+		}
+		for (V10Location loc: inside)
+		{
+		  if(loc == null)
+			continue;
+		  if (plugin.portalManager.oldBlocks.containsKey(loc))
 			{
-				if (oldBlocks.containsKey(b.getLocation()))
-					BlockUtil.setBlockData(b, oldBlocks.get(b.getLocation()));
-				PortalManager.insideBlocks.remove(b.getLocation());
+				bh = plugin.portalManager.oldBlocks.get(loc);
+				bh.reset();
+				if(plugin.gelManager.gelMap.containsKey(bh))
+					plugin.gelManager.removeGel(bh);
+				plugin.portalManager.oldBlocks.remove(loc);
 			}
-			if (Config.FillPortalBack > -1)
+		  plugin.portalManager.insideBlocks.remove(loc);
+		}
+		if (plugin.config.FillPortalBack > -1)
+		{
+			for (V10Location loc: behind)
 			{
-				for (Block b: behind)
+				if (plugin.portalManager.oldBlocks.containsKey(loc))
 				{
-					if (oldBlocks.containsKey(b.getLocation()))
-						BlockUtil.setBlockData(b, oldBlocks.get(b.getLocation()));
-					PortalManager.behindBlocks.remove(b.getLocation());
+					bh = plugin.portalManager.oldBlocks.get(loc);
+					bh.reset();
+					if(plugin.gelManager.gelMap.containsKey(bh))
+						plugin.gelManager.removeGel(bh);
+					plugin.portalManager.oldBlocks.remove(loc);
 				}
+				plugin.portalManager.behindBlocks.remove(loc);
 			}
-			for (Location l : awayBlocks)
-			{
-				PortalManager.awayBlocksGeneral.remove(l);
-				PortalManager.awayBlocksX.remove(l);
-				PortalManager.awayBlocksY.remove(l);
-				PortalManager.awayBlocksZ.remove(l);
-			}
-			
-			
-			if (orange)
-			{
-				owner.setOrangePortal(null);
-			}
-			else
-			{
-				owner.setBluePortal(null);
-			}
-			
-			open = false;
-			
-			PortalManager.portals.remove(this);
-			RegionManager.getRegion(centerBlock.getLocation()).portals.remove(this);
-						
-	    	if (getDestination() != null && getDestination().isOpen())
+		}
+		if(horizontal)
+		{
+		  for(V10Location l: awayBlocks)
+			plugin.portalManager.awayBlocks.remove(l);
+		  plugin.portalManager.awayBlocksY.remove(awayBlocksY[0]);
+		  plugin.portalManager.awayBlocksY.remove(awayBlocksY[1]);
+		}
+		
+		if (orange)
+			owner.orangePortal = null;
+		else
+			owner.bluePortal = null;
+		
+		open = false;
+		
+		plugin.portalManager.portals.remove(this);
+		plugin.regionManager.getRegion(centerBlock).portals.remove(this);
+					
+	    if (getDestination() != null && getDestination().open)
+	    {
+	    	if (getDestination().isRegionPortal())
 	    	{
-	    		if (getDestination().isRegionPortal())
-	    		{
-					RegionManager.getRegion(getDestination().getCenterBlock().getLocation()).regionPortalClosed(orange);
-	    		}
-	    		else
-	    		{
-	    			getDestination().close();
-	    		}
+	    		V10Location loc = getDestination().centerBlock;
+	    		plugin.regionManager.getRegion(loc).regionPortalClosed(orange);
 	    	}
-	    		    	
-    		if (isRegionPortal())
-    			RegionManager.getRegion(centerBlock.getLocation()).regionPortalDeleted(this);
-	    		
-		}				
+	    	else
+	    		getDestination().close();
+	    }
+	    	    	
+    	if (isRegionPortal())
+    		plugin.regionManager.getRegion(centerBlock).regionPortalDeleted(this);				
 	}
 	
 	public void open()
 	{
-		Region region = RegionManager.getRegion(((Block)inside.toArray()[0]).getLocation());
-	
-		for (Block b: inside)
+		Region region = plugin.regionManager.getRegion(inside[0]);
+		
+		Block b;
+//		BlockHolder bh;
+		for (V10Location loc: inside)
     	{
+		  if(loc == null)
+			continue;
+			b = loc.getHandle().getBlock();
+//			bh = new BlockHolder(b);
+//			if(plugin.gelManager.gelMap.containsKey(bh))
+//			  plugin.gelManager.removeGel(bh);
 			b.setType(Material.AIR); 
 			
 			if (region.getBoolean(RegionSetting.ENABLE_REDSTONE_TRANSFER))
@@ -130,15 +148,15 @@ public class Portal {
 					 if (b.getRelative(face).getBlockPower() > 0) 
 						 {						 
 						 	Portal destination = getDestination();
-						 	if (destination == null || destination.isTransmitter()) continue;
+						 	if (destination == null || destination.transmitter) continue;
 						 
-						 		setTransmitter(true);
-						 		if (destination.isOpen())
-							 		for (Block b2: destination.getInside())
-							 			b2.setType(Material.REDSTONE_TORCH_ON);
-
+						 		transmitter = true;
+						 		if (destination.open)
+							 		for (V10Location b2: destination.inside)
+							 		  if(b2 != null)
+							 			b2.getHandle().getBlock().setType(Material.REDSTONE_TORCH_ON);
 						 		else
-						 			destination.setPlaceTorch(true);
+						 			destination.placetorch = true;
 						 }
 				 }
 			 }
@@ -147,284 +165,204 @@ public class Portal {
 		
 		if (placetorch)
 		{
-			((Block)inside.toArray()[0]).setType(Material.REDSTONE_TORCH_ON);
+			inside[0].getHandle().getBlock().setType(Material.REDSTONE_TORCH_ON);
 			placetorch = false;
 		}
 		
 		open = true;
-		FunnelBridgeManager.reorientBridge(this);
+		plugin.funnelBridgeManager.reorientBridge(this);
 	}
 	
 	public void close()
 	{
 		byte color;
 		if (orange)
-			color = (byte) Util.getRightPortalColor(getOwner().getColorPreset());
+			color = (byte) plugin.util.getRightPortalColor(owner.colorPreset);
 		else
-			color = (byte) Util.getLeftPortalColor(getOwner().getColorPreset());			
-		for (Block b: inside)
+			color = (byte) plugin.util.getLeftPortalColor(owner.colorPreset);
+		int w = Material.WOOL.getId();
+		for (V10Location b: inside)
     	{
-    		b.setType(Material.WOOL);
-    		b.setData(color);
+		  if(b != null)
+		  {
+    		b.getHandle().getBlock().setTypeIdAndData(w, color, true);
     		open = false;
+		  }
     	}
 		
-		FunnelBridgeManager.reorientBridge(this);
+		plugin.funnelBridgeManager.reorientBridge(this);
 	}
 	
 	public void recreate()
 	{
 		byte color;
 		if (orange)
-			color = (byte) Util.getRightPortalColor(getOwner().getColorPreset());
+			color = (byte) plugin.util.getRightPortalColor(owner.colorPreset);
 		else
-			color = (byte) Util.getLeftPortalColor(getOwner().getColorPreset());			
+			color = (byte) plugin.util.getLeftPortalColor(owner.colorPreset);			
 		
-		for (Block b: border)
-    	{
-    		b.setData(color);
-    	}
+		for (V10Location b: border)
+    		b.getHandle().getBlock().setData(color);
 
-		if (!isOpen())
-		{
-			for (Block b: inside)
-	    	{
-	    		b.setData(color);
-	    	}
-		}
+		if (!open)
+			for (V10Location b: inside)
+			  if(b != null)
+	    		b.getHandle().getBlock().setData(color);
 		
-		if (Config.CompactPortal)
-		{
-			for (Block b: behind)
-	    	{
-	    		b.setData(color);
-	    	}
-		}
+		if (plugin.config.CompactPortal)
+			for (V10Location b: behind)
+	    		b.getHandle().getBlock().setData(color);
 	}
 	
 	public void create()
 	{
 		byte color;
 		if (orange)
-			color = (byte) Util.getRightPortalColor(getOwner().getColorPreset());
+			color = (byte) plugin.util.getRightPortalColor(owner.colorPreset);
 		else
-			color = (byte) Util.getLeftPortalColor(getOwner().getColorPreset());			
+			color = (byte) plugin.util.getLeftPortalColor(owner.colorPreset);			
 
-    	for (Block b: border)
+		Block rb;
+		BlockHolder bh;
+    	for (V10Location loc: border)
     	{
-    		if (PortalManager.borderBlocks.containsKey((b.getLocation())))
-    			PortalManager.borderBlocks.get(b.getLocation()).delete();
-    		if (PortalManager.insideBlocks.containsKey((b.getLocation())))
-    			PortalManager.insideBlocks.get(b.getLocation()).delete();
-    		if (PortalManager.behindBlocks.containsKey((b.getLocation())))
-    			PortalManager.behindBlocks.get(b.getLocation()).delete();
+    		if (plugin.portalManager.insideBlocks.containsKey(loc))
+    			plugin.portalManager.insideBlocks.get(loc).delete();
+    		if (plugin.portalManager.behindBlocks.containsKey(loc))
+    			plugin.portalManager.behindBlocks.get(loc).delete();
     		
-    		oldBlocks.put(b.getLocation(), BlockUtil.getBlockData(b));
-    		b.setType(Material.WOOL);
-    		b.setData(color);
-    		PortalManager.borderBlocks.put(b.getLocation(), this);
+    		rb = loc.getHandle().getBlock();
+    		bh = new BlockHolder(rb);
+    		if(plugin.gelManager.gelMap.containsKey(bh))
+    		{
+    		  bh = plugin.gelManager.gelMap.get(bh);
+    		  plugin.gelManager.removeGel(bh);
+    		}
+    		plugin.portalManager.oldBlocks.put(loc, bh);
+    		rb.setType(Material.WOOL);
+    		rb.setData(color);
+    		plugin.portalManager.borderBlocks.put(loc, this);
        	}
-    	for (Block b: inside)
+    	for (V10Location loc: inside)
     	{
-			oldBlocks.put(b.getLocation(), BlockUtil.getBlockData(b));
+    	  if(loc != null)
+    	  {
+    		rb = loc.getHandle().getBlock();
+    		bh = new BlockHolder(rb);
+    		if(plugin.gelManager.gelMap.containsKey(bh))
+    		{
+      		  bh = plugin.gelManager.gelMap.get(bh);
+      		  plugin.gelManager.removeGel(bh);
+    		}
+    		plugin.portalManager.oldBlocks.put(loc, bh);
+    	  }
     	}
-    	if (Config.FillPortalBack > -1)
+    	if (plugin.config.FillPortalBack > -1)
     	{
-    		for (Block b: behind)
+    		for (V10Location loc: behind)
         	{
-        		if (PortalManager.borderBlocks.containsKey((b.getLocation())))
-        			PortalManager.borderBlocks.get(b.getLocation()).delete();
-        		if (PortalManager.insideBlocks.containsKey((b.getLocation())))
-        			PortalManager.insideBlocks.get(b.getLocation()).delete();
-        		if (PortalManager.behindBlocks.containsKey((b.getLocation())))
-        			PortalManager.behindBlocks.get(b.getLocation()).delete();
+        		if (plugin.portalManager.borderBlocks.containsKey(loc))
+        			plugin.portalManager.borderBlocks.get(loc).delete();
+        		if (plugin.portalManager.insideBlocks.containsKey(loc))
+        			plugin.portalManager.insideBlocks.get(loc).delete();
 
-        		oldBlocks.put(b.getLocation(), BlockUtil.getBlockData(b));
-        		if (Config.CompactPortal)
+        		rb = loc.getHandle().getBlock();
+        		bh = new BlockHolder(rb);
+        		if(plugin.gelManager.gelMap.containsKey(bh))
         		{
-        			b.setType(Material.WOOL);
-            		b.setData(color);
+          		  bh = plugin.gelManager.gelMap.get(bh);
+          		  plugin.gelManager.removeGel(bh);
+        		}
+        		plugin.portalManager.oldBlocks.put(loc, bh);
+        		if (plugin.config.CompactPortal)
+        		{
+        			rb.setType(Material.WOOL);
+            		rb.setData(color);
         		}
         		else
         		{
-        			b.setTypeId(Config.FillPortalBack);
+        			rb.setTypeId(plugin.config.FillPortalBack);
         		}
-        		PortalManager.behindBlocks.put(b.getLocation(), this);
+        		plugin.portalManager.behindBlocks.put(loc, this);
         	}
     	}
     	
-    		if (getDestination() == null)
-    			close();
-    		else
-    		{
-    			open();
-	    		if (getDestination().isRegionPortal())
-	    		{
-					RegionManager.getRegion(getCenterBlock().getLocation()).regionPortalOpened(orange);
-	    		}
-	    		else
-	    		{
-	    			getDestination().open();
-	    		}
-
-    		}
-    		
-    		if (isRegionPortal())
-    		{
-    			RegionManager.getRegion(centerBlock.getLocation()).regionPortalCreated(orange);
-    		}
-    			    	
-    	for (Block b : inside)
+    	if (getDestination() == null)
+    		close();
+    	else
     	{
-    		PortalManager.insideBlocks.put(b.getLocation(), this);
-    		
-    		for (int x = -2;x<3;x++)
+    		open();
+	    	if (getDestination().isRegionPortal())
+	    		plugin.regionManager.getRegion(centerBlock).regionPortalOpened(orange);
+	    	else
+	    		getDestination().open();
+    	}
+    	
+    	if (isRegionPortal())
+    		plugin.regionManager.getRegion(centerBlock).regionPortalCreated(orange);
+    	
+    	V10Location oloc;
+    	V10Location loc;
+    	int i;
+    	oloc = inside[0].clone();
+    	plugin.portalManager.insideBlocks.put(inside[0], this);
+    	if(inside[1] != null)
+    	  plugin.portalManager.insideBlocks.put(inside[1], this);
+    	
+    	if(horizontal)
+    	{
+    	  for (int y = -1;y<2;y++)
+    	  {
+    		if(y != 0)
     		{
-    			for (int y = -2;y<3;y++)
-        		{
-    				for (int z = -2;z<3;z++)
-    	    		{
-    	    			PortalManager.awayBlocksGeneral.put(b.getRelative(x,y,z).getLocation(), this);
-    	    			awayBlocks.add(b.getRelative(x,y,z).getLocation());
-    	    		}
-        		}
+    		  loc = new V10Location(oloc.world, oloc.x, oloc.y + y, oloc.z);
+    		  plugin.portalManager.awayBlocksY.put(loc, this);
+    		  if(y < 1)
+    			i = 0;
+    		  else
+    			i = 1;
+    		  awayBlocksY[i] = loc;
     		}
-    		
-    			for (int y = -2;y<3;y++)
-        		{
-    				for (int z = -2;z<3;z++)
-    	    		{
-    	    			PortalManager.awayBlocksX.put(b.getRelative(3,y,z).getLocation(), this);
-    	    			PortalManager.awayBlocksX.put(b.getRelative(-3,y,z).getLocation(), this);
-    	    			awayBlocks.add(b.getRelative(3,y,z).getLocation());
-    	    			awayBlocks.add(b.getRelative(-3,y,z).getLocation());
-    	    		}
-        		}
-    			
-    			for (int x = -2;x<3;x++)
-        		{
-    				for (int z = -2;z<3;z++)
-    	    		{
-    	    			PortalManager.awayBlocksY.put(b.getRelative(x,3,z).getLocation(), this);
-    	    			PortalManager.awayBlocksY.put(b.getRelative(x,-3,z).getLocation(), this);
-    	    			awayBlocks.add(b.getRelative(x,3,z).getLocation());
-    	    			awayBlocks.add(b.getRelative(x,-3,z).getLocation());
-    	    		}
-        		}
-    			
-    			for (int x = -2;x<3;x++)
-        		{
-    				for (int y = -2;y<3;y++)
-    	    		{
-    	    			PortalManager.awayBlocksZ.put(b.getRelative(x,y,3).getLocation(), this);
-    	    			PortalManager.awayBlocksZ.put(b.getRelative(x,y,-3).getLocation(), this);
-    	    			awayBlocks.add(b.getRelative(x,y,3).getLocation());
-    	    			awayBlocks.add(b.getRelative(x,y,-3).getLocation());
-    	    		}
-        		}
-    		    		
+    		for (int x = -1;x<2;x++)
+    		{
+    		  for (int z = -1;z<2;z++)
+    		  {
+    			loc = new V10Location(oloc.world, oloc.x + x, oloc.y + y, oloc.z + z);
+    			plugin.portalManager.awayBlocks.put(loc, this);
+    			awayBlocks.add(loc);
+    		  }
+    		}
+    	  }
     	}
 	}
 	
-	public Location getTeleportLocation()
-	{
-		return teleport;
-	}
-	
-	public User getOwner()
-	{
-		return owner;
-	}
-	
-	public HashSet<Block> getBorder()
-	{
-		return border;
-	}
-	
-	public HashSet<Block> getInside()
-	{
-		return inside;
-	}
-	
-	public HashSet<Block> getBehind()
-	{
-		return behind;
-	}
-	
-	public Boolean isOpen()
-	{
-		return open;
-	}
-	
-	public Boolean isVertical()
-	{
-		return vertical;
-	}
-	
-	public BlockFace getTeleportFace()
-	{
-		return teleportFace;
-	}
-	
-	public Boolean isOrange()
-	{
-		return orange;
-	}
-	
-	public Boolean isDisabled()
-	{
-		return disabled;
-	}
-	
-	public void setDisabled(Boolean input)
-	{
-		disabled = input;
-	}
-	
-	public Boolean isTransmitter()
-	{
-		return transmitter;
-	}
-	
-	public void setTransmitter(Boolean input)
-	{
-		transmitter = input;
-	}
-	
-	public void setPlaceTorch(Boolean input)
-	{
-		placetorch = true;
-	}
 	public Portal getDestination()
 	{
-		Region region = RegionManager.getRegion(centerBlock.getLocation());
+		Region region = plugin.regionManager.getRegion(centerBlock);
 		
-		if (isOrange())
+		if (orange)
 		{
-			if (owner.getBluePortal() != null) 
-				return owner.getBluePortal();
+			if (owner.bluePortal != null) 
+				return owner.bluePortal;
 			else if (!isRegionPortal())
-				return region.getBluePortal();
+				return region.bluePortal;
 			else
 				return region.bluePortalDest;
 		}
 		else
 		{
-			if (owner.getOrangePortal() != null) 
-				return owner.getOrangePortal();
+			if (owner.orangePortal != null) 
+				return owner.orangePortal;
 			else if (!isRegionPortal())
-				return region.getOrangePortal();
+				return region.orangePortal;
 			else
 				return region.orangePortalDest;
 
 		}
 	}
-	public Block getCenterBlock()
+	
+	public boolean isRegionPortal()
 	{
-		return centerBlock;
-	}
-	public Boolean isRegionPortal()
-	{
-		return owner.name.startsWith("region_");
+		return owner.name.startsWith("§region§_");
 	}
 }

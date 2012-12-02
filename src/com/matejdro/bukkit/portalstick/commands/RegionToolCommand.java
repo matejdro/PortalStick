@@ -3,37 +3,31 @@ package com.matejdro.bukkit.portalstick.commands;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.matejdro.bukkit.portalstick.PortalStick;
 import com.matejdro.bukkit.portalstick.User;
-import com.matejdro.bukkit.portalstick.UserManager;
-import com.matejdro.bukkit.portalstick.util.Config;
-import com.matejdro.bukkit.portalstick.util.Permission;
-import com.matejdro.bukkit.portalstick.util.Util;
 
 public class RegionToolCommand extends BaseCommand {
 
-	public RegionToolCommand() {
-		name = "regiontool";
-		argLength = 0;
-		usage = "<- enable/disable region selection mode";
+	public RegionToolCommand(PortalStick plugin) {
+		super(plugin, "regiontool", 0, "<- enable/disable region selection mode", true);
 	}
 	
 	public boolean execute() {
-		User user = UserManager.getUser(player);
-		if (user.getUsingTool()) {
-			user.setUsingTool(false);
-			Util.sendMessage(sender, "&aPortal region tool disabled");
+		User user = plugin.userManager.getUser(player);
+		if (user.usingTool) {
+			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionToolDisabled", playerName));
 		}
 		else {
-			user.setUsingTool(true);
-			Util.sendMessage(sender, "&aPortal region tool enabled.`n- Left click to set position one`n- Right click to set position two");
-			if (!player.getInventory().contains(Config.RegionTool))
-					player.getInventory().addItem(new ItemStack(Config.RegionTool, 1));
+			plugin.util.sendMessage(sender, plugin.i18n.getString("RegionToolEnabled", playerName, args[0]));
+			if (!player.getInventory().contains(plugin.config.RegionTool))
+					player.getInventory().addItem(new ItemStack(plugin.config.RegionTool, 1));
 		}
+		user.usingTool = !user.usingTool;
 		return true;
 	}
 	
 	public boolean permission(Player player) {
-		return Permission.adminRegions(player);
+		return plugin.hasPermission(player, plugin.PERM_ADMIN_REGIONS);
 	}
 
 }

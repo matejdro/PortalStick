@@ -1,10 +1,42 @@
 name: PortalStick
 main: com.matejdro.bukkit.portalstick.PortalStick
-version: 3.0.0
-author: matejdro and oliverw92
-depend: []
+version: 4.0-beta1
+authors: [matejdro, oliverw92, V10lator]
+depend: [BKCommonLib]
+softdepend: [WorldGuard]
 commands:
   portalstick:
     description: Aperture Science Portal Stick
     aliases: portal
     usage: /<command> help
+permissions:
+  portalstick.placeportal:
+    description: Place portals
+    default: true
+  portalstick.creategrill:
+    description: Create grills
+    default: op
+  portalstick.deletegrill:
+    description: Delete grills
+    default: op
+  portalstick.createbridge:
+    description: Create bridges
+    default: op
+  portalstick.deletebridge:
+    description: Delete bridges
+    default: op
+  portalstick.teleport:
+    description: Use portals
+    default: true
+  portalstick.admin.regions:
+    description: Administrate regions
+    default: op
+  portalstick.admin.deleteall:
+    description: Delete all
+    default: op
+  portalstick.damageboots:
+    description: Damage boots
+    default: true
+  portalstick.language:
+    description: Change language
+    default: op

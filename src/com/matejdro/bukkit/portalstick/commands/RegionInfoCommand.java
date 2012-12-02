@@ -2,24 +2,25 @@ package com.matejdro.bukkit.portalstick.commands;
 
 import org.bukkit.entity.Player;
 
-import com.matejdro.bukkit.portalstick.util.Permission;
-import com.matejdro.bukkit.portalstick.util.Util;
+import com.matejdro.bukkit.portalstick.PortalStick;
+import com.matejdro.bukkit.portalstick.Region;
+
+import de.V10lator.PortalStick.V10Location;
 
 public class RegionInfoCommand extends BaseCommand {
 
-	public RegionInfoCommand() {
-		name = "regioninfo";
-		argLength = 0;
-		usage = "<- says the region you are in";
+	public RegionInfoCommand(PortalStick plugin) {
+		super(plugin, "regioninfo", 0, "<- says the region you are in", true);
 	}
 	
 	public boolean execute() {
-		Util.sendMessage(player, "&7- &c" + region.Name + " &7- &c" + region.Min.toString() + " &7-&c " + region.Max.toString());
+		Region region = plugin.regionManager.getRegion(new V10Location(player.getLocation()));
+		plugin.util.sendMessage(sender, "&7- &c" + region.name + " &7- &c" + region.min.toString() + " &7-&c " + region.max.toString());
 		return true;
 	}
 	
 	public boolean permission(Player player) {
-		return Permission.adminRegions(player);
+		return plugin.hasPermission(player, plugin.PERM_ADMIN_REGIONS);
 	}
 
 }

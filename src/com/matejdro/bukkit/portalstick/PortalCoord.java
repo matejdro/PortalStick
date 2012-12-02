@@ -2,25 +2,17 @@ package com.matejdro.bukkit.portalstick;
 
 import java.util.HashSet;
 
-import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
-public class PortalCoord {
-	public HashSet<Block> border;
-	public HashSet<Block> inside;
-	public HashSet<Block> behind;
-	public Block block;
-	public Location destLoc;
+import de.V10lator.PortalStick.V10Location;
+
+class PortalCoord {
+	public final HashSet<V10Location> border = new HashSet<V10Location>();
+	public final V10Location[] inside = new V10Location[2];
+	public final V10Location[] behind = new V10Location[2];
+	public V10Location block;
+	public V10Location[] destLoc = new V10Location[2];
 	public BlockFace tpFace;
-	public Boolean finished;
-	public Boolean vertical;
-	
-	public PortalCoord()
-	{
-		border = new HashSet<Block>();
-		inside = new HashSet<Block>();
-		behind = new HashSet<Block>();
-		finished = false;
-	}
+	public boolean finished = false;
+	public boolean vertical;
 }
