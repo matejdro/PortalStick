@@ -21,13 +21,11 @@ public class Region extends User
 	public String world;
 	
 	public HashSet<Portal> portals = new HashSet<Portal>();
-	public Portal bluePortalDest;
-	public Portal orangePortalDest;
 	public final String name;
 	
 	Region(String name)
 	{
-		super("Â§regionÂ§_"+name);
+		super("§region§_"+name);
 		this.name = name;
 	}
 	
@@ -54,83 +52,7 @@ public class Region extends User
 		settings.put(RegionSetting.LOCATION, a.getWorld().getName() + ":" + a.toVector().toString() + ":" + two.getHandle().toVector().toString());
 		updateLocation();
 	}
-	
-	public void regionPortalOpened(boolean orange)
-	{
-		for (Portal p : portals)
-		{
-			if (orange)
-			{
-				if (p.getDestination() == bluePortal && bluePortal != null) 
-				{
-					bluePortal.open();
-					if (orangePortalDest == null || !orangePortalDest.open) orangePortalDest = p;
-					break;
-				}
-			}
-			else
-			{
-				if (p.getDestination() == orangePortal && orangePortal != null) 
-				{
-					orangePortal.open();
-					if (bluePortalDest == null || !bluePortalDest.open) bluePortalDest = p;
-					break;
-				}
-			}
-		}			
-	}
-	
-	public void regionPortalClosed(boolean orange)
-	{
-		for (Portal p : portals)
-		{
-			if (orange)
-			{
-				if (p.open && p.getDestination() == bluePortal && bluePortal != null) 
-				{
-					if (orangePortalDest == null || !orangePortalDest.open) orangePortalDest = p;
-					break;
-				}
-			}
-			else
-			{
-				if (p.open && p.getDestination() == orangePortal && orangePortal != null) 
-				{
-					if (bluePortalDest == null || !bluePortalDest.open) bluePortalDest = p;
-					break;
-				}
-			}
-		}
 		
-		if (orange)
-		{
-			if (orangePortal != null) orangePortal.close();
-			orangePortalDest = null;
-		}
-		else
-		{
-			if (bluePortal != null) bluePortal.close();
-			bluePortalDest = null;
-		}
-
-	}
-	
-	public void regionPortalDeleted(Portal portal)
-	{
-		for (Portal p : portals)
-		{
-			if (p.getDestination() == portal) p.close();
-		}
-	}
-	
-	public void regionPortalCreated(boolean orange)
-	{
-		for (Portal p : portals)
-		{
-			if (p.orange != orange && p.getDestination() == null) p.open();
-		}
-	}
-	
 	public boolean contains(Vector vector) {
 		return vector.isInAABB(min, max);
 	}

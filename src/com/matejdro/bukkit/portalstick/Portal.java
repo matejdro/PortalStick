@@ -107,21 +107,7 @@ public class Portal {
 		open = false;
 		
 		plugin.portalManager.portals.remove(this);
-		plugin.regionManager.getRegion(centerBlock).portals.remove(this);
-					
-	    if (getDestination() != null && getDestination().open)
-	    {
-	    	if (getDestination().isRegionPortal())
-	    	{
-	    		V10Location loc = getDestination().centerBlock;
-	    		plugin.regionManager.getRegion(loc).regionPortalClosed(orange);
-	    	}
-	    	else
-	    		getDestination().close();
-	    }
-	    	    	
-    	if (isRegionPortal())
-    		plugin.regionManager.getRegion(centerBlock).regionPortalDeleted(this);				
+		plugin.regionManager.getRegion(centerBlock).portals.remove(this);					
 	}
 	
 	public void open()
@@ -292,14 +278,7 @@ public class Portal {
     	else
     	{
     		open();
-	    	if (getDestination().isRegionPortal())
-	    		plugin.regionManager.getRegion(centerBlock).regionPortalOpened(orange);
-	    	else
-	    		getDestination().open();
     	}
-    	
-    	if (isRegionPortal())
-    		plugin.regionManager.getRegion(centerBlock).regionPortalCreated(orange);
     	
     	V10Location oloc;
     	V10Location loc;
@@ -344,25 +323,21 @@ public class Portal {
 		{
 			if (owner.bluePortal != null) 
 				return owner.bluePortal;
-			else if (!isRegionPortal())
-				return region.bluePortal;
 			else
-				return region.bluePortalDest;
+				return region.bluePortal;
 		}
 		else
 		{
 			if (owner.orangePortal != null) 
 				return owner.orangePortal;
-			else if (!isRegionPortal())
-				return region.orangePortal;
 			else
-				return region.orangePortalDest;
+				return region.orangePortal;
 
 		}
 	}
 	
 	public boolean isRegionPortal()
 	{
-		return owner.name.startsWith("Â§regionÂ§_");
+		return owner.name.startsWith("§region§_");
 	}
 }
