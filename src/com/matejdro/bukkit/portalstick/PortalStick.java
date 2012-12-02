@@ -60,6 +60,8 @@ public class PortalStick extends JavaPlugin {
 	
 	public final Random rand = new Random();
 
+	//Tet
+	
 	public void onDisable() {
 		//config.unLoad() handles cleanup, so let's call it
 		config.unLoad();
