@@ -3,12 +3,10 @@ package com.matejdro.bukkit.portalstick;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -160,6 +158,7 @@ public class PortalManager {
 
 	public void deletePortals(User user)
 	{
+		if (user == null) return;
 		if (user.bluePortal != null) user.bluePortal.delete();
 		if (user.orangePortal != null) user.orangePortal.delete();
 	}
@@ -363,7 +362,7 @@ public class PortalManager {
 		return true;
 		
 	}
-
+ 
 	public void placePortal(V10Location block, Player player, boolean orange)
 	{
 		
@@ -497,7 +496,7 @@ public class PortalManager {
 			if (face2 == otherSide || face2.getOppositeFace() == otherSide)
 				continue;
 			Block firstPortalBlock = firstIronBar.getRelative(otherSide).getRelative(face2);
-			if (region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && region.getList(RegionSetting.PORTAL_BLOCKS).contains(firstPortalBlock.getTypeId()))
+			if (region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) || region.getList(RegionSetting.PORTAL_BLOCKS).contains(firstPortalBlock.getTypeId()))
 			{
 				portalFace = face2;
 				break;
@@ -505,18 +504,22 @@ public class PortalManager {
 			else
 			{
 				V10Location loc = new V10Location(firstPortalBlock);
-				if(borderBlocks.containsKey(loc))
+				
+				if (oldPortal == null)
 					oldPortal = borderBlocks.get(loc);
-				else
+				if (oldPortal == null)
 					oldPortal = insideBlocks.get(loc);
-				portalFace = face2;
-				break;
-
+				
+				if (oldPortal != null)
+				{
+					portalFace = face2;
+					break;
+				}
 			}
 		}
-		
+				
 		if (portalFace == null)
-		return;
+			return;
 		//Is portal generator right size?
 		if ((!plugin.config.CompactPortal &&
 		(((portalFace == BlockFace.UP || portalFace == BlockFace.DOWN) && ironBars.size() != 6 ) ||
@@ -556,10 +559,25 @@ public class PortalManager {
 		if (portalc.border.size() == 0 || portalc.inside[0] == null)
 		  return;
 		for (V10Location tb : portalc.border)
+		{
+			oldPortal = borderBlocks.get(tb);
+			if (oldPortal != null)
+				oldPortal.delete();
+			
 			if ((!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(tb.getHandle().getBlock().getTypeId())) || borderBlocks.containsKey(tb) || insideBlocks.containsKey(tb)) return;
+
+		}
 		for (V10Location tb : portalc.inside)
-		  if(tb != null)
-			if ((!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(tb.getHandle().getBlock().getTypeId())) || borderBlocks.containsKey(tb) || insideBlocks.containsKey(tb)) return;
+		{
+			if (tb != null)
+			{
+				oldPortal = borderBlocks.get(tb);
+				if (oldPortal != null)
+					oldPortal.delete();
+				
+				if ((!region.getBoolean(RegionSetting.ALL_BLOCKS_PORTAL) && !region.getList(RegionSetting.PORTAL_BLOCKS).contains(tb.getHandle().getBlock().getTypeId())) || borderBlocks.containsKey(tb) || insideBlocks.containsKey(tb)) return;
+			}
+		}
 		
 		if (portalc.vertical)
 		  portalc.destLoc[0] = new V10Location(portalc.inside[0].getHandle().getBlock().getRelative(portalFace.getOppositeFace()));

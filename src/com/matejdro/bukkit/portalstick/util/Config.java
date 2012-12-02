@@ -249,8 +249,7 @@ public class Config {
 			  plugin.eL.despawn(ere);
 			}
 		plugin.funnelBridgeManager.deleteAll();
-		for(Region region: plugin.regionManager.regions.values())
-		  for(Portal p: region.portals)
+		for(Portal p: plugin.portalManager.portals.toArray(new Portal[0]))
 			p.delete();
 		plugin.portalManager.portals.clear();
 		plugin.grillManager.deleteAll();

@@ -99,16 +99,22 @@ public class Portal {
 		  plugin.portalManager.awayBlocksY.remove(awayBlocksY[1]);
 		}
 		
+		Portal oldDestination = getDestination();
+		
 		if (orange)
 			owner.orangePortal = null;
 		else
 			owner.bluePortal = null;
-		
+			
 		open = false;
-		
+				
 		plugin.portalManager.portals.remove(this);
-		plugin.regionManager.getRegion(centerBlock).portals.remove(this);					
-	}
+		plugin.regionManager.getRegion(centerBlock).portals.remove(this);	
+		
+    	plugin.regionManager.getRegion(centerBlock).portalDeleted(this, oldDestination);
+		if (oldDestination != null && oldDestination.getDestination() == null) oldDestination.close();
+
+   	}
 	
 	public void open()
 	{
@@ -274,11 +280,16 @@ public class Portal {
     	}
     	
     	if (getDestination() == null)
+    	{
     		close();
+    	}
+    		
     	else
     	{
     		open();
+    		getDestination().open();
     	}
+    	
     	
     	V10Location oloc;
     	V10Location loc;
@@ -313,6 +324,8 @@ public class Portal {
     		}
     	  }
     	}
+    	
+    	plugin.regionManager.getRegion(centerBlock).portalCreated(this);
 	}
 	
 	public Portal getDestination()
@@ -323,15 +336,19 @@ public class Portal {
 		{
 			if (owner.bluePortal != null) 
 				return owner.bluePortal;
-			else
+			else if (!isRegionPortal())
 				return region.bluePortal;
+			else
+				return region.orangeDestination;
 		}
 		else
 		{
 			if (owner.orangePortal != null) 
 				return owner.orangePortal;
-			else
+			else if (!isRegionPortal())
 				return region.orangePortal;
+			else
+				return region.blueDestination;
 
 		}
 	}

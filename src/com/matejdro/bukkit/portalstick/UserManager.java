@@ -58,6 +58,8 @@ public class UserManager implements Runnable {
 	}
 	
 	public void deleteUser(User user) {
+		if (user == null) return;
+		
 		plugin.portalManager.deletePortals(user);
 		deleteDroppedItems(user);
 		playerUsers.values().remove(user);
@@ -76,6 +78,8 @@ public class UserManager implements Runnable {
 	
 	public void deleteDroppedItems(User user)
 	{
+		if (user == null) return;
+		
 	  Location loc;
 	  for(Item item: user.droppedItems)
 		if(item.isValid() && !item.isDead())
