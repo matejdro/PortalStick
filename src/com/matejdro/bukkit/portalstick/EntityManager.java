@@ -1,343 +1,396 @@
 package com.matejdro.bukkit.portalstick;
 
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-
-import net.minecraft.server.EntityFallingBlock;
-import net.minecraft.server.EntityItem;
-import net.minecraft.server.Item;
-import net.minecraft.server.WorldServer;
+import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.CraftWorld;
-import org.bukkit.craftbukkit.entity.CraftEntity;
-import org.bukkit.craftbukkit.entity.CraftFallingSand;
-import org.bukkit.craftbukkit.entity.CraftItem;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Bat;
 import org.bukkit.entity.Boat;
+import org.bukkit.entity.Chicken;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.FallingSand;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
-import org.bukkit.entity.Vehicle;
 import org.bukkit.util.Vector;
 
-import com.matejdro.bukkit.portalstick.util.Config;
 import com.matejdro.bukkit.portalstick.util.Config.Sound;
 import com.matejdro.bukkit.portalstick.util.RegionSetting;
-import com.matejdro.bukkit.portalstick.util.Util;
+
+import de.V10lator.PortalStick.V10Location;
+import de.V10lator.PortalStick.V10Teleport;
 
 public class EntityManager implements Runnable {
-	private PortalStick plugin;
-	private HashSet<World> processingWorlds = new HashSet<World>();
-	private static HashSet<Entity> blockedEntities = new HashSet<Entity>();
+	private final PortalStick plugin;
+	private final HashSet<Entity> blockedEntities = new HashSet<Entity>();
+	final HashMap<UUID, Location> oldLocations = new HashMap<UUID, Location>();
 
-	public EntityManager(PortalStick instance)
+	EntityManager(PortalStick instance)
 	{
 		plugin = instance;
 	}
 
-	public static Location teleport(Entity entity, Location LocTo, Vector vector)
+	public V10Teleport teleport(Entity entity, Location oloc, V10Location locTo, Vector vector, boolean really)
 	{
-		if (entity == null || entity.isDead()) return null;
-		
-		if (blockedEntities.contains(entity)) return null;
+		if (entity == null || entity.isDead() || blockedEntities.contains(entity))
+		  return null;
 
-		if (entity.isDead()) return null;
-		
-		Region regionTo = RegionManager.getRegion(LocTo);
-		Portal portal = PortalManager.insideBlocks.get(LocTo);
-		if (portal == null && ((Math.abs(vector.getX()) > 0.5 || (Math.abs(vector.getY()) > 1 || (Math.abs(vector.getZ()) > 0.5))) || entity instanceof Boat)) 
+		Region regionTo = plugin.regionManager.getRegion(locTo);
+		Portal portal = plugin.portalManager.insideBlocks.get(locTo);
+		Location teleport;
+		final Portal destination;
+		boolean ab = portal == null;
+		if(!ab)
 		{
-			portal = PortalManager.awayBlocksGeneral.get(LocTo);
-			if (portal == null && (Math.abs(vector.getX()) > 0.5)) portal = PortalManager.awayBlocksX.get(LocTo);
-			if (portal == null && (Math.abs(vector.getY()) > 1)) portal = PortalManager.awayBlocksY.get(LocTo);
-			if (portal == null && (Math.abs(vector.getZ()) > 0.5)) portal = PortalManager.awayBlocksZ.get(LocTo);
+		  if(!portal.open)
+			return null;
+		  destination = portal.getDestination();
+		  if(destination.horizontal || portal.inside[0].equals(locTo))
+			teleport = destination.teleport[0].getHandle();
+		  else
+			teleport = destination.teleport[1].getHandle();
 		}
-		if (portal == null && (entity instanceof FallingSand || entity instanceof TNTPrimed)) portal = PortalManager.awayBlocksY.get(LocTo);
-		if (portal != null)
+		else
 		{
-			if (!portal.isOpen() || portal.isDisabled()) return null;
-			if (Math.abs(vector.getY()) > 1 && !portal.isVertical()) return null;
+		  if((entity instanceof FallingBlock || entity instanceof TNTPrimed) && vector.getX() == 0.0D && vector.getZ() == 0.0D)
+		  {
+			portal = plugin.portalManager.awayBlocksY.get(locTo);
+			if(!plugin.portalManager.awayBlocksY.containsKey(locTo))
+			  return null;
+			portal = plugin.portalManager.awayBlocksY.get(locTo);
+			if(!portal.open)
+			  return null;
+			destination = portal.getDestination();
+			teleport = destination.teleport[0].getHandle();
+		  }
+		  else if((Math.abs(vector.getX()) > 0.5 || (Math.abs(vector.getY()) > 1 || (Math.abs(vector.getZ()) > 0.5))) || entity instanceof Boat)
+		  {
+			if(!plugin.portalManager.awayBlocks.containsKey(locTo))
+			  return null;
+			portal = plugin.portalManager.awayBlocks.get(locTo);
 			
-			for (Block b : portal.getInside())
+			if(!portal.open)
+			  return null;
+			
+			destination = portal.getDestination();
+			if(destination.horizontal || portal.teleport[0].y <= locTo.y)
+			  teleport = destination.teleport[0].getHandle();
+			else
+			  teleport = destination.teleport[1].getHandle();
+			
+			Block to = locTo.getHandle().getBlock();
+			for(int i = 0; i < 2; i++)
 			{
-				if (!portal.isVertical())
+			  BlockFace face = portal.awayBlocksY[i].getHandle().getBlock().getFace(to);
+			  if(face == null)
+				continue;
+			  if(face != BlockFace.SELF)
+			  {
+				double x = 1.0D, z = 1.0D;
+				boolean nef = false;
+				boolean nwf = false;
+				switch(face)
 				{
-					if (b.getX() + 0.5 < entity.getLocation().getX() && vector.getX() > 0) return null;
-					else if (b.getX() - 0.5 > entity.getLocation().getX() && vector.getX() < 0) return null;
-					else if (b.getZ() + 0.5 < entity.getLocation().getZ() && vector.getZ() > 0) return null;
-					else if (b.getZ() - 0.5 > entity.getLocation().getZ() && vector.getZ() < 0) return null;
+			  	  case NORTH_WEST:
+			  		z = 0.5D;
+			  	  case NORTH:
+			  		x = 0.5D;
+			  		nwf = true;
+				  break;
+			  	  case NORTH_EAST:
+			  		x = 1.5D;
+			  	  case EAST:
+			  		z = 0.5D;
+			  		nef = true;
+			  		break;
+			  	  case SOUTH_EAST:
+			  		z = 1.5D;
+			  	  case SOUTH:
+			  		x = 0.5D;
+			  		break;
+			  	  case SOUTH_WEST:
+			  		x = 0.5D;
+			  	  default:
+			  		z = 0.5D;
 				}
-				else
+				if(nef)
 				{
-					if (b.getY() + 0.5 < entity.getLocation().getY() && vector.getY() > 0) return null;
-					if (b.getY() - 0.5 > entity.getLocation().getY() && vector.getY() < -0.1) return null;
+				  if(oloc.getX() - locTo.x > x || oloc.getZ() - locTo.z < z)
+					return null;
 				}
-				
+				else if(nwf)
+				{
+				  if(oloc.getX() - locTo.x < x || oloc.getZ() - locTo.z > z)
+					return null;
+				}
+				else if(oloc.getX() - locTo.x > x || oloc.getZ() - locTo.z > z)
+				  return null; 
+			  }
+			  else
+				break;
 			}
-			Location teleport;
-			Portal destination = portal.getDestination();
-				 				 
-			teleport = destination.getTeleportLocation().clone();
-			if (destination.getTeleportFace() == BlockFace.DOWN) teleport = teleport.add(0, 1, 0);
-								 
-			float yaw = entity.getLocation().getYaw();
-			float pitch = entity.getLocation().getPitch();
-			float startyaw = yaw;
-			switch(portal.getTeleportFace())
-	        {
-	        	case EAST:
-	        		yaw -= 90;
-	        		break;
-	        	case SOUTH:
-	        		yaw -= 180;
-	        		break;
-	        	case WEST:
-	        		yaw = -270;
-	        		break;
-	        	case DOWN:
-	        		yaw = pitch;
-	        		pitch = 0;
-	        		break;
-	        	case UP:
-	        		yaw = pitch;
-	        		pitch = 0;
-	        		break;
-	        }
-				
-			//Read input velocity
-			Double momentum = 0.0;
-			switch(portal.getTeleportFace())
-	        {
-	        	case NORTH:
-	        	case SOUTH:
-	        		momentum = vector.getX();
-	        		break;
-	        	case EAST:
-	        	case WEST:
-	        		momentum = vector.getZ();
-	        		break;
-	        	case UP:
-	        	case DOWN:
-	        		momentum = vector.getY();
-	        		break;
-	        }
-				
-			momentum = Math.abs(momentum);
-			momentum = momentum * regionTo.getDouble(RegionSetting.VELOCITY_MULTIPLIER);
-
+		  }
+		  else
+			return null;
+		}
+		
+		if(portal.disabled || (Math.abs(vector.getY()) > 1 && !portal.horizontal))
+		  return null;
+		
+		teleport.setX(teleport.getX() + 0.5D);
+		teleport.setZ(teleport.getZ() + 0.5D);
+							 
+		float yaw = entity.getLocation().getYaw();
+		float pitch = entity.getLocation().getPitch();
+		float startyaw = yaw;
+		double momentum = 0.0;
+		switch(portal.teleportFace)
+	       {
+	       	case NORTH:
+	       		momentum = vector.getX();
+	       		break;
+	       	case EAST:
+	       		yaw -= 90;
+	       		momentum = vector.getZ();
+	       		break;
+	       	case SOUTH:
+	       		yaw -= 180;
+	       		momentum = vector.getX();
+	       		break;
+	       	case WEST:
+	       		yaw -= 270;
+	       		momentum = vector.getZ();
+	       		break;
+	       	case DOWN:
+	       	case UP:
+	       		momentum = vector.getY();
+	       		yaw = pitch;
+	       		pitch = 0;
+	       		break;
+	       }
+			
+		momentum = Math.abs(momentum);
+		momentum *= regionTo.getDouble(RegionSetting.VELOCITY_MULTIPLIER);
 			//reposition velocity to match output portal's orientation
-			Vector outvector = entity.getVelocity().zero();
-			switch(destination.getTeleportFace())
-	        {
-	        	case NORTH:
-	        		yaw += 180;
-	        		outvector = outvector.setX(momentum);
-	        		break;
-	        	case EAST:
-	        		yaw += 270;
-	        		outvector = outvector.setZ(momentum);
-	        		break;
-	        	case SOUTH:
-	        		yaw += 360;
-	        		outvector = outvector.setX(-momentum);
-	        		break;
-	        	case WEST:
-	        		yaw += 430;
-	        		outvector = outvector.setZ(-momentum);
-	        		break;
-	        	case DOWN:
-	        		if (portal.getTeleportFace() != BlockFace.UP || portal.getTeleportFace() != BlockFace.DOWN)
-	        		{
-		        		pitch = startyaw;
-		        		yaw = 0;
-	        		}
-	        		else
-	        		{
-	        			pitch = yaw;
-	        			startyaw = pitch;
-	        		}
-	        		outvector = outvector.setY(momentum);
-	        		break;
-	        	case UP:
-	        		if (portal.getTeleportFace() != BlockFace.UP || portal.getTeleportFace() != BlockFace.DOWN)
-	        		{
-		        		pitch = startyaw + 180;
-		        		yaw = 0;
-	        		}
-	        		else
-	        		{
-	        			pitch = yaw;
-	        			startyaw = pitch;
-	        		}
-	        		outvector = outvector.setY(-momentum);
-	        		break;
-	        }
-			
-			if (!(entity instanceof Player) && momentum < 0.5 && (portal.getTeleportFace() == BlockFace.UP || portal.getTeleportFace() == BlockFace.DOWN) && (destination.getTeleportFace() == BlockFace.UP || destination.getTeleportFace() == BlockFace.DOWN))
-			 	return null;
-			
-			entity.setFallDistance(0);	
-			entity.setVelocity(entity.getVelocity().zero());
-			
-			teleport.setPitch(pitch);
-			teleport.setYaw(yaw);
-			
-			if (entity instanceof Arrow)
-			{
-				teleport.setY(teleport.getY() + 0.5);
-				entity.remove();
-				teleport.getWorld().spawnArrow(teleport, outvector, (float) (momentum * 1.0f), 12.0f);
-			}			
-//			else if (entity instanceof FallingSand)
-//			{
-//				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
-//				
-//				EntityFallingSand sand = (EntityFallingSand) ((CraftFallingSand) entity).getHandle() ;
-//				EntityFallingSand newsand = new EntityFallingSand(world, teleport.getX(), teleport.getY(), teleport.getZ(), sand.a, 0);
-//				
-//				Material db = teleport.getBlock().getType();
-//				
-//				if (db == Material.AIR || db == Material.WATER || db == Material.STATIONARY_WATER || db == Material.LAVA || db == Material.STATIONARY_LAVA)
-//				{
-//					entity.remove();
-//					
-//					world.addEntity((net.minecraft.server.Entity) newsand);	
-//					newsand.getBukkitEntity().setVelocity(outvector);
-//				}
-//				
-//			}
-			else if (entity instanceof FallingSand)
-			{
-				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
-				
-				EntityFallingBlock sand = (EntityFallingBlock) ((CraftFallingSand) entity).getHandle() ;
-				EntityFallingBlock newsand = new EntityFallingBlock(world, teleport.getX(), teleport.getY(), teleport.getZ(), sand.id, sand.data);
-				
-				
-				Material db = teleport.getBlock().getType();
-				
-				if (db == Material.AIR || db == Material.WATER || db == Material.STATIONARY_WATER || db == Material.LAVA || db == Material.STATIONARY_LAVA)
-				{
-					entity.remove();
-					
-					world.addEntity((net.minecraft.server.Entity) newsand);	
-					newsand.getBukkitEntity().setVelocity(outvector);
-				}
-				
-			}
-			else if (entity instanceof Item)
-			{
-				WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
-								
-				net.minecraft.server.EntityItem item = (net.minecraft.server.EntityItem) ((CraftItem) entity).getHandle();
-				EntityItem newitem = new EntityItem(world, teleport.getX(), teleport.getY(), teleport.getZ(), item.itemStack);
-				
-				entity.remove();
-					
-				world.addEntity((net.minecraft.server.Entity) newitem);	
-				newitem.getBukkitEntity().setVelocity(outvector);
-			}
-			else if (entity instanceof Player || entity instanceof Vehicle)
-			{
-				blockedEntities.add(entity);
-				final Location tploc = teleport;
-				final Vector outVector = outvector;
-				final Entity Entity = entity;
-				PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new Runnable() {
-
-				    public void run() {
-				        Entity.teleport(tploc);
-				        Entity.setVelocity(outVector);
-				        PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new Runnable() {
-
-						    public void run() {
-						    	blockedEntities.remove(Entity);
-						    }
-						}, 1L);
-				    }
-				}, 1L);
-			} 
-			else
-			{	
-				World oldworld = entity.getWorld();
-				
-				entity.teleport(teleport);
-									
-				if (oldworld != teleport.getWorld())
-				{
-					net.minecraft.server.Entity bentity = ((CraftEntity) entity).getHandle();
-					WorldServer world = ((CraftWorld) teleport.getWorld()).getHandle();
-					world.addEntity(bentity);
-				}
-				
-				entity.setVelocity(outvector);
-			}
-			destination.setDisabled(true);
-			PortalStick.instance.getServer().getScheduler().scheduleSyncDelayedTask(PortalStick.instance, new enablePortal(destination), 10L);
+		Vector outvector = entity.getVelocity().zero();
+		switch(destination.teleportFace)
+        {
+        	case NORTH:
+        		yaw += 180;
+        		outvector = outvector.setX(momentum);
+        		break;
+        	case EAST:
+        		yaw += 270;
+        		outvector = outvector.setZ(momentum);
+        		break;
+        	case SOUTH:
+        		yaw += 360;
+        		outvector = outvector.setX(-momentum);
+        		break;
+        	case WEST:
+        		yaw += 450;
+        		outvector = outvector.setZ(-momentum);
+        		break;
+        	case DOWN:
+        		if (portal.teleportFace != BlockFace.UP && portal.teleportFace != BlockFace.DOWN)
+        		{
+        			yaw = pitch;
+	        		pitch = startyaw;
+        		}
+        		else
+        		{
+        			pitch = yaw;
+        			yaw = startyaw;
+        		}
+        		outvector = outvector.setY(momentum);
+        		break;
+        	case UP:
+        		if (portal.teleportFace != BlockFace.UP && portal.teleportFace != BlockFace.DOWN)
+        		{
+        			yaw = pitch;
+	        		pitch = startyaw + 180;
+        		}
+        		else
+        		{
+        			pitch = yaw;
+        			yaw = startyaw;
+        		}
+        		outvector = outvector.setY(-momentum);
+        		break;
+        }
 		
-			if (portal.isOrange())
-				Util.PlaySound(Sound.PORTAL_EXIT_ORANGE, entity instanceof Player ? (Player) entity : null, teleport);
-			else
-				Util.PlaySound(Sound.PORTAL_EXIT_BLUE, entity instanceof Player ? (Player) entity : null, teleport);
-
-			return teleport;
+		if (!(entity instanceof Player) && !(entity instanceof Chicken) && !(entity instanceof Bat) && (portal.teleportFace == BlockFace.UP || portal.teleportFace == BlockFace.DOWN) && (destination.teleportFace == BlockFace.UP || destination.teleportFace == BlockFace.DOWN) && plugin.rand.nextInt(100) < 5)
+		{
+		  double d = plugin.rand.nextDouble();
+		  if(d > 0.5D)
+			d -= 0.5D;
+		  if(ab)
+			d += 0.5D;
+		  if(plugin.rand.nextBoolean())
+			d = -d;
+		  if(plugin.rand.nextBoolean())
+			teleport.setX(teleport.getX() + d);
+		  else
+			teleport.setZ(teleport.getZ() + d);
 		}
-		return null;
+		
+		entity.setFallDistance(0);
+		
+		teleport.setPitch(pitch);
+		teleport.setYaw(yaw);
+		
+		if (entity instanceof Arrow)
+			teleport.setY(teleport.getY() + 0.5);
+		
+		if(really)
+		{
+		  if(!entity.teleport(teleport))
+			return null;
+		  entity.setVelocity(outvector);
+		}
+		
+		destination.disabled = true;
+		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){public void run(){destination.disabled = false;}}, 10L);
+		
+		if (portal.orange)
+			plugin.util.playSound(Sound.PORTAL_EXIT_ORANGE, new V10Location(teleport));
+		else
+			plugin.util.playSound(Sound.PORTAL_EXIT_BLUE, new V10Location(teleport));
+		
+		return new V10Teleport(teleport, outvector);
 	}
 	
 	@Override
-	public void run() {
-		for (World w : plugin.getServer().getWorlds())
-		{
-			if (Config.DisabledWorlds.contains(w.getName()) || processingWorlds.contains(w)) return;
-			final List<Entity> entities = w.getEntities();
-			final World world = w;
-			Thread checkworld = new Thread() {
-				public void run() {
-					for (Entity e : entities)
-					{
-						if (e instanceof Player || e instanceof Vehicle) continue;
-						if (e.isDead()) continue;
-						
-						Location LocTo = e.getLocation();
-						LocTo = new Location(LocTo.getWorld(), LocTo.getBlockX(), LocTo.getBlockY(), LocTo.getBlockZ());
-
-						//Util.info(e.toString());
-
-						Vector vector = e.getVelocity();
-										
-						teleport(e, LocTo, vector);
-						FunnelBridgeManager.EntityMoveCheck(e);
-					}
-					processingWorlds.remove(world);
-				}
-			};
-			processingWorlds.add(world);
-			checkworld.start();
-		}
-	    		
+	public void run()
+	{
+		faceCache.clear();
 	}
 	
-	public static class enablePortal implements Runnable
+	HashMap<V10Location, HashMap<BlockFace, Block>> faceCache = new HashMap<V10Location, HashMap<BlockFace, Block>>();
+	
+	public Location onEntityMove(final Entity entity, Location locFrom, Location locTo, boolean tp)
 	{
-		Portal portal;
-		public enablePortal(Portal instance)
+		if (entity.isInsideVehicle())
+		  return null;
+		
+		double d = locTo.getBlockY();
+		if(d > locTo.getWorld().getMaxHeight() - 1 || d < 0)
+		  return null;
+		
+		Vector vec2 = locTo.toVector();
+		V10Location vlocTo = new V10Location(locTo);
+		Location oloc = locTo;
+		locTo = vlocTo.getHandle();
+		Vector vec1 = locFrom.toVector();
+		V10Location vlocFrom = new V10Location(locFrom);
+		if(vlocTo.equals(vlocFrom))
+		  return null;
+		
+	    Vector vector = vec2.subtract(vec1);
+	    vector.setY(entity.getVelocity().getY());
+	    
+	    Region regionTo = plugin.regionManager.getRegion(vlocTo);
+		Region regionFrom = plugin.regionManager.getRegion(vlocFrom);
+		
+		//Check for changing regions
+	    plugin.portalManager.checkEntityMove(entity, regionFrom, regionTo);
+		
+		//Emancipation grill
+		if (regionTo.getBoolean(RegionSetting.ENABLE_GRILLS))
 		{
-			portal = instance;
-		}
-
-		@Override
-		public void run() {
-			if (portal != null) portal.setDisabled(false);
-			// TODO Auto-generated method stub
-			
+			Grill grill = plugin.grillManager.insideBlocks.get(vlocTo);
+			if (grill != null && !grill.disabled)
+			{
+				plugin.grillManager.emancipate(entity);
+				return null;
+			}
 		}
 		
+		//Aerial faith plate
+		Block blockIn = locTo.getBlock();
+		HashMap<BlockFace, Block> faceMap;
+		if(faceCache.containsKey(vlocTo))
+		  faceMap = faceCache.get(vlocTo);
+		else
+		{
+		  faceMap = new HashMap<BlockFace, Block>();
+		  faceCache.put(vlocTo, faceMap);
+		}
+		Block blockUnder;
+		if(faceMap.containsKey(BlockFace.DOWN))
+		  blockUnder = faceMap.get(BlockFace.DOWN);
+		else
+		{
+		  blockUnder = blockIn.getRelative(BlockFace.DOWN);
+		  faceMap.put(BlockFace.DOWN, blockUnder);
+		}
+		  
+		//  blockUnder = blockIn.getRelative(BlockFace.DOWN);
+		  
+		if (regionTo.getBoolean(RegionSetting.ENABLE_AERIAL_FAITH_PLATES))
+		{
+			Block blockStart = null;
+			d = Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[0]);
+			String faithBlock = regionTo.getString(RegionSetting.FAITH_PLATE_BLOCK);
+			Vector velocity = new Vector(0, Double.parseDouble(regionTo.getString(RegionSetting.FAITH_PLATE_POWER).split("-")[1]),0);
+			
+			if (blockIn.getType() == Material.STONE_PLATE && plugin.blockUtil.compareBlockToString(blockUnder, faithBlock))
+				blockStart = blockUnder;
+			else
+				blockStart = blockIn;
+			if (blockStart != null) {
+				BlockFace[] faces = new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST};
+				BlockFace face = plugin.blockUtil.getFaceOfMaterial(blockStart, faces, faithBlock, faceMap);
+				if (face != null) {
+					switch (face) {
+						case NORTH:
+							velocity.setX(d);
+							break;
+						case SOUTH:
+							velocity.setX(-d);
+							break;
+						case EAST:
+							velocity.setZ(d);
+							break;
+						case WEST:
+							velocity.setZ(-d);
+							break;
+					}
+					if (blockStart == blockUnder) {
+						velocity.setX(-velocity.getX());
+						velocity.setZ(-velocity.getZ());
+					}
+					entity.setVelocity(velocity);
+					plugin.util.playSound(Sound.FAITHPLATE_LAUNCH, new V10Location(blockStart.getLocation()));
+					return null;
+				}
+			}
+		
+		}
+		Location ret = null;
+		//Teleport
+		if (!(entity instanceof Player) || plugin.hasPermission((Player)entity, plugin.PERM_TELEPORT))
+		{
+		  final V10Teleport to = teleport(entity, oloc, vlocTo, vector, tp);
+		  if(to != null)
+		  {
+			ret = to.to;
+			vlocTo = new V10Location(ret);
+			plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){public void run(){entity.setVelocity(to.velocity);}});
+		  }
+		}
+		
+		//Gel
+		if(!plugin.gelManager.flyingGels.containsKey(entity.getUniqueId()))
+		  plugin.gelManager.useGel(entity, vlocTo, vector, blockIn, blockUnder, faceMap);
+		
+		//Funnel
+//		plugin.funnelBridgeManager.EntityMoveCheck(entity);
+		
+		return ret;
 	}
 }

@@ -7,34 +7,32 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 
+import de.V10lator.PortalStick.V10Location;
+
 public class Funnel extends Bridge {
-	private Boolean reversed = false;
+	private boolean reversed = false;
 	
-	public Funnel(Block CreationBlock, Block startingBlock, BlockFace face, HashSet<Block> machineBlocks) {
-		super(CreationBlock, startingBlock, face, machineBlocks);
+	Funnel(PortalStick plugin, V10Location CreationBlock, V10Location startingBlock, BlockFace face, HashSet<V10Location> machineBlocks) {
+		super(plugin, CreationBlock, startingBlock, face, machineBlocks);
 	}
 	
-	public void setReverse(Boolean value)
+	public void setReverse(boolean value)
 	{
 		reversed = value;
 		activate();
 	}
 	
-	public Boolean isReversed(Boolean value)
-	{
-		return reversed;
-	}
-	
 	public BlockFace getDirection(Block block)
 	{
-		if (!bridgeBlocks.containsKey(block)) return null;
+		V10Location vb = new V10Location(block);
+		if (!bridgeBlocks.containsKey(vb)) return null;
 		
-		int curnum = bridgeBlocks.get(block);
+		int curnum = bridgeBlocks.get(vb);
 		BlockFace face = null;
 		for (BlockFace check : new BlockFace[]{BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST, BlockFace.UP, BlockFace.DOWN})
 		{
-			Block cblock = block.getRelative(check);
-			if (bridgeBlocks.containsKey(cblock) && (curnum - bridgeBlocks.get(cblock) == 1 || bridgeBlocks.get(cblock) > curnum + 1) )			{
+			vb = new V10Location(block.getRelative(check));
+			if (bridgeBlocks.containsKey(vb) && (curnum - bridgeBlocks.get(vb) == 1 || bridgeBlocks.get(vb) > curnum + 1) )			{
 				face = check;
 				break;
 			}
@@ -62,7 +60,7 @@ public class Funnel extends Bridge {
 		return face;
 	}
 	
-	public int getCounter(Block block)
+	public int getCounter(V10Location block)
 	{
 		return bridgeBlocks.get(block);
 	}
@@ -74,76 +72,85 @@ public class Funnel extends Bridge {
 		deactivate();
 		
 		BlockFace face = facingSide;
-		Block nextBlock = startBlock;
+		V10Location nextV10Location = startBlock;
+		Block nextBlock = nextV10Location.getHandle().getBlock();
 		int counter = reversed ? 1 : 8;
 		while (true)
-		{			
-			Portal portal = PortalManager.insideBlocks.get(nextBlock.getLocation());
-			if (portal == null) portal = PortalManager.borderBlocks.get(nextBlock.getLocation());
-			if (portal != null && portal.isOpen())
+		{
+			Portal portal = null;
+			if(plugin.portalManager.insideBlocks.containsKey(nextV10Location))
 			{
-				nextBlock = portal.getDestination().getTeleportLocation().getBlock();
-				face = portal.getDestination().getTeleportFace().getOppositeFace();
-				
-				involvedPortals.add(portal);
-				FunnelBridgeManager.involvedPortals.put(portal, this);
-				continue;
+			  portal = plugin.portalManager.insideBlocks.get(nextV10Location);
+			  if(portal.open)
+			  {
+				Portal destP = portal.getDestination();
+				if(destP.horizontal ||portal.inside[0].equals(nextV10Location))
+				  nextV10Location = destP.teleport[0];
+				else
+				  nextV10Location = destP.teleport[1];
+			  }
+			  else
+				return;
 			}
-			else if (nextBlock.getY() > 127 || (!nextBlock.isLiquid() && nextBlock.getType() != Material.AIR)) break;
+			else if(plugin.portalManager.borderBlocks.containsKey(nextV10Location))
+			{
+			  portal = plugin.portalManager.borderBlocks.get(nextV10Location);
+			  if(portal.open)
+				nextV10Location = new V10Location(portal.getDestination().teleport[0].getHandle().getBlock().getRelative(BlockFace.DOWN));
+			  else
+				return;
+			}
+			
+			if(portal != null && portal.open)
+			{
+			  nextBlock = nextV10Location.getHandle().getBlock();
+			  
+			  face = portal.getDestination().teleportFace.getOppositeFace();
+			  
+			  involvedPortals.add(portal);
+			  plugin.funnelBridgeManager.involvedPortals.put(portal, this);
+			  continue;
+			}
+			else if (nextBlock.getY() > nextBlock.getWorld().getMaxHeight() - 1 || nextBlock.getY() < 1 || (!nextBlock.isLiquid() && nextBlock.getType() != Material.AIR))
+			  break;
 			
 			if (!nextBlock.getWorld().isChunkLoaded(nextBlock.getChunk())) return;
 			
-			if (reversed)
+			if (counter < 0) counter = 8;
+			if (counter > 0)
 			{
-if (counter < 0) counter = 8;
-				
-				if (counter > 0)
-				{
-					nextBlock.setType(Material.WATER);
-					if (face != BlockFace.UP && face != BlockFace.DOWN) nextBlock.setData((byte) (counter - 1));
-				}
-				
-				counter--;
+				nextBlock.setType(Material.WATER);
+				byte data;
+				if(reversed)
+				  data = (byte)(counter - 1);
+				else
+				  data = (byte)(8 - counter);
+				if (face != BlockFace.UP && face != BlockFace.DOWN) nextBlock.setData(data);
 			}
-			else
-			{
-				if (counter < 0) counter = 8;
+			counter--;
 				
-				if (counter > 0)
-				{
-					nextBlock.setType(Material.WATER);
-					if (face != BlockFace.UP && face != BlockFace.DOWN) nextBlock.setData((byte) (8 - counter));
-				}
-				
-				counter--;
-
-			}
-			
-						
-			bridgeBlocks.put(nextBlock, counter);
-			FunnelBridgeManager.bridgeBlocks.put(nextBlock, this);
+			bridgeBlocks.put(nextV10Location, counter);
+			plugin.funnelBridgeManager.bridgeBlocks.put(nextV10Location, this);
 			
 			nextBlock = nextBlock.getRelative(face);
+			nextV10Location = new V10Location(nextBlock);
 		}
 	}
 	
 	@Override
 	public void deactivate()
 	{
-		for (Block b : bridgeBlocks.keySet())
-			b.setType(Material.AIR);
-		
-		for (Block b: bridgeBlocks.keySet())
-			FunnelBridgeManager.bridgeBlocks.remove(b);
+		for (V10Location b : bridgeBlocks.keySet())
+		{
+			b.getHandle().getBlock().setType(Material.AIR);
+			plugin.funnelBridgeManager.bridgeBlocks.remove(b);
+		}
 		bridgeBlocks.clear();
 		for (Portal p: involvedPortals)
-			FunnelBridgeManager.involvedPortals.remove(p);
-		for (Entity e : FunnelBridgeManager.glassBlocks.keySet())
-			FunnelBridgeManager.EntityExitsFunnel(e);
+			plugin.funnelBridgeManager.involvedPortals.remove(p);
+//		for (Entity e : plugin.funnelBridgeManager.glassBlocks.keySet())
+//			plugin.funnelBridgeManager.EntityExitsFunnel(e);
 		
 		involvedPortals.clear();
 	}
-	
-	
-
 }

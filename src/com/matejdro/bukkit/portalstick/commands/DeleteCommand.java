@@ -2,26 +2,22 @@ package com.matejdro.bukkit.portalstick.commands;
 
 import org.bukkit.entity.Player;
 
-import com.matejdro.bukkit.portalstick.PortalManager;
-import com.matejdro.bukkit.portalstick.util.Permission;
-import com.matejdro.bukkit.portalstick.util.Util;
+import com.matejdro.bukkit.portalstick.PortalStick;
 
 public class DeleteCommand extends BaseCommand {
 
-	public DeleteCommand() {
-		name = "delete";
-		argLength = 0;
-		usage = "<- deletes your portals";
+	public DeleteCommand(PortalStick plugin) {
+		super(plugin, "delete", 0, "<- deletes your portals", true);
 	}
 	
 	public boolean execute() {
-		PortalManager.deletePortals(user);
-		Util.sendMessage(player, "&cPortals deleted");
+		plugin.portalManager.deletePortals(plugin.userManager.getUser(player));
+		plugin.util.sendMessage(sender, plugin.i18n.getString("OwnPortalsDeleted", playerName));
 		return true;
 	}
 	
 	public boolean permission(Player player) {
-		return Permission.placePortal(player);
+		return plugin.hasPermission(player, plugin.PERM_PLACE_PORTAL);
 	}
 
 }
